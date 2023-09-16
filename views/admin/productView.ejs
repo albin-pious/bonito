@@ -1,0 +1,210 @@
+<%- include('../partials/adminHeader.ejs') %>
+
+
+
+<section id="reportsPage">
+        <nav class="navbar navbar-expand-xl">
+          <div class="container h-100">
+            <a class="navbar-brand" href="#">
+              <h1 class="tm-site-title mb-0">BONITO</h1>
+            </a>
+            <button
+              class="navbar-toggler ml-auto mr-0"
+              type="button"
+              data-toggle="collapse"
+              data-target="#navbarSupportedContent"
+              aria-controls="navbarSupportedContent"
+              aria-expanded="false"
+              aria-label="Toggle navigation"
+            >
+              <i class="fas fa-bars tm-nav-icon"></i>
+            </button>
+    
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul class="navbar-nav mx-auto h-100">
+                <li class="nav-item">
+                  <a class="nav-link" href="/admin/dashboard">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                    <span class="sr-only">(current)</span>
+                  </a>
+                </li>
+                <li class="nav-item dropdown">
+                  <a
+                    class="nav-link dropdown-toggle"
+                    href="#"
+                    id="navbarDropdown"
+                    role="button"
+                    data-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false">
+                    <i class="far fa-file-alt"></i>
+                    <span> Reports <i class="fas fa-angle-down"></i> </span>
+                  </a>
+                  <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="#">Daily Report</a>
+                    <a class="dropdown-item" href="#">Weekly Report</a>
+                    <a class="dropdown-item" href="#">Yearly Report</a>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link active" href="products.html">
+                    <i class="fas fa-shopping-cart"></i> Products
+                  </a>
+                </li>
+    
+                <li class="nav-item">
+                  <a class="nav-link" href="accounts.html">
+                    <i class="far fa-user"></i> Accounts
+                  </a>
+                </li>
+                <li class="nav-item dropdown">
+                  <a
+                    class="nav-link dropdown-toggle"
+                    href="#"
+                    id="navbarDropdown"
+                    role="button"
+                    data-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false">
+                    <i class="fas fa-cog"></i>
+                    <span> Settings <i class="fas fa-angle-down"></i> </span>
+                  </a>
+                  <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="#">Profile</a>
+                    <a class="dropdown-item" href="#">Billing</a>
+                    <a class="dropdown-item" href="#">Customize</a>
+                  </div>
+                </li>
+              </ul>
+              <ul class="navbar-nav">
+                <li class="nav-item">
+                  <a class="nav-link d-block" href="login.html">
+                    Admin, <b>Logout</b>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+        <div class="container mt-5">
+          <div class="row tm-content-row border border-1">
+            <div class="col-sm-12 col-md-12 col-lg-12 col-xl-8 tm-block-col m-auto">
+              <div class="tm-bg-primary-dark tm-block tm-block-products">
+                <div class="tm-product-table-container">
+                  <table class="table table-hover tm-table-small tm-product-table">
+                    <thead>
+                      <tr>
+                        <th scope="col">&nbsp;</th>
+                        <th scope="col">PRODUCT IMAGE</th>
+                        <th scope="col">NAME</th>
+                        <th scope="col">PRICE</th>
+                        <th scope="col">IN STOCK</th>
+                        <th scope="col">ACTION</th>
+                        <th scope="col">&nbsp;</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th scope="row"><input type="checkbox" /></th>
+                        <td class="tm-product-name">Lorem Ipsum Product 1</td>
+                        <td>1,450</td>
+                        <td>550</td>
+                        <td>28 March 2019</td>
+                        <td>
+                          <a href="#" class="tm-product-edit-link text-danger">
+                            <i class="far fa-edit tm-product-edit-icon"></i> Edit
+                          </a>
+                        </td>
+                        <td>
+                          <a href="#" class="tm-product-delete-link">
+                            <i class="far fa-trash-alt tm-product-delete-icon"></i>
+                          </a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <!-- table container -->
+                <div class="tm-pagination">
+                  <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                      <span class="page-link">Previous</span>
+                    </li>
+                    <li class="page-item active">
+                      <span class="page-link">1</span>
+                    </li>
+                    <li class="page-item">
+                      <a class="page-link" href="#">2</a>
+                    </li>
+                    <li class="page-item">
+                      <a class="page-link" href="#">3</a>
+                    </li>
+                    <li class="page-item">
+                      <a class="page-link" href="#">Next</a>
+                    </li>
+                  </ul>
+                </div>
+                <a
+                  href="/admin/product_add"
+                  class="btn btn-primary btn-block text-uppercase mb-3">Add new product
+                </a>
+                <a
+                  href="" 
+                  class="btn btn-primary btn-block text-uppercase">Delete selected products
+                </a>
+              </div>
+            </div>
+          </div>
+      
+        <footer class="tm-footer row tm-mt-small">
+          <div class="col-12 font-weight-light">
+            <p class="text-center text-white mb-0 px-4 small">
+              Copyright &copy; <b>2023</b> All rights reserved. 
+              
+              Design: <a rel="nofollow noopener" href="" class="tm-footer-link">Bonito eCommerce Platform.</a>
+          </p>
+          </div>
+        </footer>
+    
+        <script src="js/jquery-3.3.1.min.js"></script>
+        <!-- https://jquery.com/download/ -->
+        <script src="js/bootstrap.min.js"></script>
+        <!-- https://getbootstrap.com/ -->
+        <script>
+          // nav dropdown item
+           $(function () {
+           // Initialize Bootstrap components here
+           $('[data-toggle="dropdown"]').dropdown();
+    
+          // Other code for charts and functionality
+         });
+
+          $(function() {
+            $(".tm-product-name").on("click", function() {
+              window.location.href = "edit-product.html";
+            });
+          });
+   
+          // paginatation
+          $(function() {
+          // Handle the click event for the "Edit" button
+          $(".tm-product-edit-link").on("click", function(e) {
+            e.preventDefault(); // Prevent the default link behavior
+            // Get the product name from the corresponding row
+            var productName = $(this).closest("tr").find(".tm-product-name").text();
+            // Redirect to the edit-product.html page with the product name as a query parameter
+            window.location.href = "edit-product.html?product=" + encodeURIComponent(productName);
+          });
+});
+
+
+        </script>
+      </body>
+</section>
+
+
+
+
+
+
+<%- include('../partials/adminFooter.ejs') %>
