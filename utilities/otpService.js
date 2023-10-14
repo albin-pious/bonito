@@ -1,6 +1,7 @@
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const dotenv = require('dotenv').config();
+const twilio = require('twilio');
 
 // Create a Nodemailer transporter
 const transporter = nodemailer.createTransport({
@@ -11,8 +12,6 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// OTP expiration time (5 minutes in milliseconds)
-const otpExpiration = 5 * 60 * 1000;
 
 // Function to generate a random OTP
 function generateOTP() {
@@ -43,20 +42,29 @@ function sendOtp(email, otp) {
   });
 }
 
-// Function to verify OTP
-function verifyOTP(user, otp) {
-  const currentTime = new Date().getTime();
+// neccessary components for send sms over twilio.
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 
-  if (
-    user.otp &&
-    otp === user.otp.value &&
-    currentTime - user.otp.timestamp <= otpExpiration
-  ) {
-    // Mark the OTP as used
-    user.otp = null;
-    return true;
-  }
-  return false;
-}
+const client = twilio(accountSid,authToken)
 
-module.exports = { generateOTP, sendOtp, verifyOTP };
+function sendOtpSMS(mobile,otp){
+  const smsMessage = `Your OTP (One-Time Password) is: ${otp}`;
+  return client.messages
+    .create({
+      body: smsMessage,
+      from: twilioPhoneNumber,
+      to: mobile
+    })
+    .then((message)=>{
+      console.log('SMS send successfully: ',message.sid);
+      return true;
+    })
+    .catch((error)=>{
+      console.error('Error sending SMS: ',error.message);
+      throw new Error('Error sending OTP via SMS: ',error.message)
+    })
+}  
+
+module.exports = { generateOTP, sendOtp, sendOtpSMS };

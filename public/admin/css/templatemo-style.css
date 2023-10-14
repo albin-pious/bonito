@@ -438,7 +438,7 @@ input[type="checkbox"]:focus {
 .tm-product-table-container {
   max-height: 465px;
   margin-bottom: 15px;
-  overflow-y: scroll;
+  /* overflow-y: scroll; */
 }
 .tm-product-table tr {
   font-weight: 600;

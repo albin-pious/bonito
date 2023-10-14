@@ -1,4 +1,4 @@
-// client-side validation
+// client-side validation register form
 const nameInput = document.getElementById("name");
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
@@ -27,8 +27,11 @@ function enableSubmitButton(){
 
   function validateName() {
     const nameValue = nameInput.value.trim();
+    const namePattern = /^[a-zA-Z][a-zA-Z.\s-]{2,}$/;
     if (nameValue === "") {
       nameError.textContent = "Name is required";
+    } else if(!namePattern.test(nameValue)){
+      nameError.textContent = "Name is invalid"
     } else {
       nameError.textContent = "";
       username = true;
@@ -38,7 +41,7 @@ function enableSubmitButton(){
 
   function validateEmail() {
     const emailValue = emailInput.value.trim();
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailPattern = new RegExp('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$');
     if (!emailPattern.test(emailValue)) {
       emailError.textContent = "Invalid email address";
     } else {
@@ -70,6 +73,12 @@ function enableSubmitButton(){
       enableSubmitButton();
     }
   }
+
+// client side validation for login page.
+
+
+
+
 
   
   
