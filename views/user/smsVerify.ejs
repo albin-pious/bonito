@@ -9,7 +9,7 @@
                         <div class="row justify-content-center">
                             <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
                                 <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">OTP Verification</p>
-                                <form class="mx-1 mx-md-4" id="otpForm" method="post" action="/home">
+                                <form class="mx-1 mx-md-4" id="otpForm" method="post" action="/homepage">
                                     <% if(typeof message !== 'undefined'){ %>
                                         <p class="text-danger" id="errorMessage"><%= message %></p>
                                     <% } %>
@@ -28,7 +28,7 @@
                                         <button type="submit" class="btn btn-primary" id="verifyOTP" value="verify" disabled>Verify OTP</button>
                                     </div>
                                 </form>
-                                <a href="/resend_login_otp" id="resendLoginOTP">Resend OTP</a>
+                                <a href="/resend_login_otp" id="resendLoginOTP" style="display: none;">Resend OTP</a>
                             </div>
                             <div class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2">
                                 <img src="https://mdbootstrap.com/img/Photos/new-templates/bootstrap-registration/draw1.png" class="img-fluid" alt="Sample image">
@@ -49,6 +49,85 @@
             window.history.back();
         }
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const timerElement = document.getElementById('timer');
+        const timerParent = document.getElementById('timetext');
+        const resendButton = document.getElementById('resendLoginOTP');
+        let smstimer = parseInt(localStorage.getItem('smstimer'), 10) || 60;
+        let otpLastSentTime = parseInt(localStorage.getItem('otpLastSentTime'), 10) || 0;
+
+        const disableResendButton = () => {
+            if (smstimer > 0) {
+                if (resendButton) {
+                    resendButton.style.display = 'none';
+                    resendButton.disabled = true;
+                }
+            } else {
+                if (timerParent) {
+                    timerParent.style.display = 'none';
+                    resendButton.disabled=true;
+                }
+                if (resendButton) {
+                    resendButton.style.display = 'inline-block';
+                }
+            }
+        };
+
+        const getCurrentTimeInSeconds = () => Math.floor(Date.now() / 1000);
+
+        const currentTime = getCurrentTimeInSeconds();
+        if (currentTime - otpLastSentTime >= smstimer) {
+            smstimer = 60;
+            localStorage.setItem('smstimer', smstimer);
+            localStorage.setItem('otpLastSentTime', currentTime)
+        }
+
+        disableResendButton();
+
+        const updateTimer = () => {
+            if (smstimer === 0) {
+                clearInterval(timeInterval);
+                if (timerParent) {
+                    timerParent.style.display = 'none';
+                }
+                if (resendButton) {
+                    resendButton.style.display = 'inline-block';
+                }
+                localStorage.removeItem('smstimer');
+            } else {
+                smstimer--;
+                localStorage.setItem('smstimer', smstimer);
+                timerElement.textContent = `${smstimer}`;
+                disableResendButton();
+            }
+            disableResendButton();  // Call this function to update button display
+        };
+
+        const storedTimer = localStorage.getItem('smstimer');
+        if (storedTimer) {
+            smstimer = parseInt(storedTimer, 10);
+        }
+
+        const timeInterval = setInterval(updateTimer, 1000);
+
+        // Listen for OTP input and validate format
+        const otpField = document.getElementById('otp');
+        const verifyButton = document.getElementById('verifyOTP');
+        const otpError = document.getElementById('otpError');
+
+        otpField.addEventListener('input', () => {
+            const otpCheck = /^[a-zA-Z0-9]{6,}$/;
+            if (!otpCheck.test(otpField.value)) {
+                otpError.textContent = 'Invalid OTP. Please enter a proper OTP.';
+                verifyButton.disabled = true;
+            } else {
+                otpError.textContent = '';
+                verifyButton.disabled = false;
+            }
+        });
+    });
 </script>
+
 
 <%- include('../partials/userFooter.ejs') %>

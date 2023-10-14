@@ -11,36 +11,122 @@
                             <div class="row justify-content-center">
                                 <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
                                     <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">OTP Verification</p>
-                                    <form action="/otp" class="mx-1 mx-md-4" id="otpForm" method="post">
+                                    <form class="mx-1 mx-md-4" id="otpForm" method="post" action="/otp">
                                         <% if(typeof message !== 'undefined'){ %>
                                             <p class="text-danger" id="errorMessage"><%= message %></p>
                                         <% } %>
                                         <div class="d-flex flex-row align-items-center mb-4">
                                             <i class="fas fa-key fa-lg me-3 fa-fw"></i>
                                             <div class="form-outline flex-fill mb-0">
-                                                <input type="text" id="otp" name="otp" class="form-control" />
+                                                <input type="text" id="otp" name="otp" class="form-control"/>
                                                 <label class="form-label" for="otp">Enter OTP</label>
+                                                <span id="otpError" class="text-danger"></span>
                                             </div>
                                         </div>
                                         <div class="text-center mb-4">
-                                            <p>Time left: <span id="timer">60</span> seconds</p>
+                                            <p id="timetext">Time left: <span id="timer"></span> seconds</p>
                                         </div>
                                         <div class="d-flex justify-content-between mx-4 mb-3 mb-lg-4">
-                                            <button type="submit" class="btn btn-primary btn-lg" id="verifyOTP">Verify OTP</button>
-                                            <a href="/resend_otp">Resend OTP</a>
+                                            <button type="submit" class="btn btn-primary" id="verifyOTP" value="verify" disabled>Verify OTP</button>
                                         </div>
                                     </form>
+                                    <a href="/resend_otp" id="resendOTP" style="display: none;">Resend OTP</a>
                                 </div>
                                 <div class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2">
                                     <img src="https://mdbootstrap.com/img/Photos/new-templates/bootstrap-registration/draw1.png" class="img-fluid" alt="Sample image">
                                 </div>
+                                <a href="/login">Back to Login</a>
                             </div>
-                            <a href="/login">Back to Login</a>
+                            
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+<script>
+  window.onload = function() {
+    if (performance.navigation.type === 1) {
+      window.history.back();
+    }
+  }
 
+  // timer 
+  document.addEventListener('DOMContentLoaded', () => {
+
+    const timerElement = document.getElementById('timer');
+    const timerParent = document.getElementById('timetext');
+    const resendButton = document.getElementById('resendOTP');
+    let timer = parseInt(localStorage.getItem('timer'), 10) || 60;
+    let otpLastSent = parseInt(localStorage.getItem('otpLastSent'),10)||0;
+
+    const disableResendButton = () => {
+      if (timer > 0) {
+        if(resendButton){
+          resendButton.style.display = 'none';
+          resendButton.disabled = true;
+        }else{
+          if(timerParent){
+            timerParent.style.display='none'
+          }
+        }  
+      };
+    } 
+    
+    const getCurrentTimeInSeconds = ()=> Math.floor(Date.now() / 1000);
+
+    const currentTime = getCurrentTimeInSeconds();
+    if(currentTime - otpLastSent >= timer){
+      timer = 60;
+      localStorage.setItem('timer',timer);
+      localStorage.setItem('otpLastSent',currentTime);
+    }
+    
+    const updateTimer = () => {
+      if (timer === 0) {
+        clearInterval(timeInterval);
+        if(timerParent){
+          timerParent.style.display = 'none';
+        }
+        if(resendButton){
+          resendButton.style.display = 'inline-block';
+        }  
+        localStorage.removeItem('timer')
+  } else {
+    timer--;
+    localStorage.setItem('timer', timer);
+    timerElement.textContent = `${timer}`;
+    disableResendButton();
+  }
+};
+
+const storedTimer = localStorage.getItem('timer');
+if (storedTimer) {
+  timer = parseInt(storedTimer, 10);
+}
+
+const timeInterval = setInterval(updateTimer, 1000);
+
+
+
+// Listen for OTP input and validate format
+const otpField = document.getElementById('otp');
+const verifyButton = document.getElementById('verifyOTP');
+const otpError = document.getElementById('otpError');
+
+otpField.addEventListener('input', () => {
+  const otpCheck = /^[a-zA-Z0-9]{6,}$/;
+  if (!otpCheck.test(otpField.value)) {
+    otpError.textContent = 'Invalid OTP. Please enter a proper OTP.';
+    verifyButton.disabled = true;
+  } else {
+    otpError.textContent = '';
+    verifyButton.disabled = false;
+  }
+});
+
+// Initially disable the Resend OTP button
+disableResendButton();
+});
+</script>
 <%- include('../partials/userFooter.ejs') %>

@@ -11,7 +11,7 @@
                                 <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Enter Registerd Number</p>
                                 <form class="mx-1 mx-md-4" id="mobileNumberForm" method="post" action="/send_login_otp">
                                     <% if(typeof message !== 'undefined'){ %>
-                                        <p class="text-danger" id="errorMessage"><%= message %></p>
+                                        <p class="text-danger text-center" id="errorMessage"><%= message %></p>
                                     <% } %>
                                     <div class="d-flex flex-row align-items-center mb-4">
                                         <i class="fas fa-mobile-alt fa-lg me-3 fa-fw"></i>
