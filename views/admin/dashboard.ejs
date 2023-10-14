@@ -1,12 +1,12 @@
 <%- include('../partials/adminHeader.ejs') %>
 
 
-<section id="reportsPage"></section>
+<section id="reportsPage">
     <div class="" id="home">
         <nav class="navbar navbar-expand-xl">
-            <div class="container h-100">
-                <a class="navbar-brand me-3" href="#">
-                    <h1 class="tm-site-title mb-0">BONITO</h1>
+            <div class="container-fluid h-100">
+                <a class="navbar-brand me-3 " href="#">
+                    <img src="/admin/img/logo-blue.png" alt="logo 404" width="90px">
                 </a>
                 <button class="navbar-toggler ml-auto mr-0" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
                     aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,12 +38,12 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="accounts.html">
+                            <a class="nav-link" href="/admin/customerlist">
                                 Customers
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="accounts.html">
+                            <a class="nav-link" href="/admin/categorylist">
                                 Category
                             </a>
                         </li>
@@ -64,16 +64,23 @@
                             </a>
                             <div class="dropdown-menu" aria-labelledby="settingsDropdown">
                                 <a class="dropdown-item" href="#">Profile</a>
-                                <a class="dropdown-item" href="/admin/categorylist">Category</a>
                                 <a class="dropdown-item" href="#">Banner</a>
+                                <a class="dropdown-item" href="#">LogOut</a>
                             </div>
                         </li>
                     </ul>
                     <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link d-block" href="login.html">
+                            <!-- <a class="nav-link d-block" href="login.html">
                                 Admin, <b>Logout</b>
+                            </a> -->
+                            <a class="nav-link d-block" href="login.html">
+                                <svg width="16" height="16" viewBox="0 0 16 16" class="bi bi-gear" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M10.478 1.522a5.972 5.972 0 0 0-.956-.504l-.217-1.294C9.163-.35 8.5-.2 8.5.383v1.268c-.265.08-.519.204-.748.37l-1.232-.71a5.995 5.995 0 0 0-1.186-.384l-.218 1.294c-.338.106-.658.269-.956.504l-1.293-.217c-.257-.044-.515-.066-.774-.066H1.5v1.5h1.022c.016.17.044.336.086.497l-1.293.218a6.035 6.035 0 0 0-.504.956l1.294.217c.106.338.269.658.504.956l-.217 1.293a5.972 5.972 0 0 0-.504.956l-1.294.218c-.044.161-.072.327-.086.497H1.5v1.5h1.022c.259 0 .517-.022.774-.066l.218 1.294c.235.14.455.306.651.504l-1.293 1.293a5.972 5.972 0 0 0-.504.956l1.293.218c.044.258.066.516.066.774v1.023h1.5v-1.022c.174-.014.34-.042.5-.086l.217 1.294a5.97 5.97 0 0 0 .956.504l-.217 1.293c-.106.338-.269.658-.504.956l1.293 1.293c.196.198.416.364.651.504l-.218 1.294c-.163.045-.331.073-.497.086v1.022h-1.5v-1.022c-.257-.016-.513-.044-.77-.086l-.217 1.294a5.97 5.97 0 0 0-.956.504l1.294.217c.044.163.072.331.086.497H1.5v1.5h1.022a6.028 6.028 0 0 0-.086.5l-1.294.217a5.975 5.975 0 0 0 .504.956l1.293-.217c.338-.106.658-.269.956-.504l.217 1.294c.258.044.516.066.774.066h1.023v1.5h-1.022c-.016.174-.044.34-.086.5l1.294.217c.139.235.305.455.504.651l1.293-1.293a5.972 5.972 0 0 0 .956.504l.218-1.293c.338-.106.658-.269.956-.504l-1.294-.217c-.044-.257-.066-.515-.066-.774h1.5v-1.023h-1.5c-.174-.016-.34-.044-.5-.086l-.217-1.294c-.235-.139-.455-.305-.651-.504l1.293-1.293c.196-.198.364-.416.504-.651l1.294.217c.044.163.073.331.086.497H11.5v-1.5h-1.022a6.028 6.028 0 0 0 .086-.5l1.294-.217c.257-.044.515-.066.774-.066l.217 1.294c.139-.074.27-.158.384-.251l1.294-.217a5.97 5.97 0 0 0 .504-.956l-1.293-.217c-.045-.258-.067-.516-.067-.774h1.5v-1.023h-1.5c.016-.174.044-.34.086-.5l-1.294-.217c-.139-.235-.305-.455-.504-.651l-1.293 1.293c-.197-.14-.417-.306-.652-.504l.217-1.293c.074-.139.158-.27.251-.384l-.217-1.294zM8 10.25a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5z"/>
+                                </svg> Admin
                             </a>
+                            
+                            
                         </li>
                     </ul>
                 </div>
@@ -362,6 +369,12 @@
     <!-- https://getbootstrap.com/ -->
     <script src="js/tooplate-scripts.js"></script>
     <script>
+        
+    // Redirect to dashboard if the user tries to navigate back
+    window.addEventListener('popstate', () => {
+      window.location.replace('/admin/dashboard');
+    });
+
         $(function () {
         // Initialize Bootstrap components here
         $('[data-toggle="dropdown"]').dropdown();

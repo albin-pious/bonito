@@ -1,6 +1,14 @@
 <%- include('../partials/adminHeader') %>
 
 <div class="container tm-mt-big tm-mb-big">
+   <!-- Breadcrumb -->
+   <div class="container w-50 m-auto">
+    <ol class="breadcrumb" style="background: none;">
+      <li class="breadcrumb-item"><a href="/admin/categorylist">Category</a></li>
+      <li class="breadcrumb-item active text-white">Add Category</li>
+    </ol>
+  </div>
+  <!-- End Breadcrumb -->
   <div class="row">
     <div class="col-xl-9 col-lg-10 col-md-12 col-sm-12 mx-auto">
       <div class="tm-bg-primary-dark tm-block tm-block-h-auto">
@@ -11,7 +19,7 @@
         </div>
         <div class="row tm-edit-product-row">
           <div class="col-xl-12 col-lg-12 col-md-12">
-            <form action="/admin/addcategory" class="tm-edit-category-form" method="POST">
+            <form action="/admin/addcategory" class="tm-edit-category-form" method="POST" onsubmit="return validateForm()">
               <div class="form-group mb-3">
                 <label for="categoryName">Category Name</label>
                 <input
@@ -19,10 +27,11 @@
                   name="categoryName"
                   type="text"
                   class="form-control validate"
+                  oninput="enableSubmit()"
                 />
               </div>
               <div class="col-12">
-              <button type="submit" class="btn btn-primary  text-uppercase">Add Category</button>
+              <button type="submit" class="btn btn-primary  text-uppercase" id="submitButton" disabled>Add Category</button>
               </div>
             </form>
           </div>
@@ -31,5 +40,34 @@
     </div>
   </div>
 </div>
+
+<script>
+function validateForm(){
+  const catName = document.getElementById('categoryName').value;
+  const submitButton = document.getElementById('submitButton');
+
+  if(!catName){
+    alert('Category name is required.');
+    submitButton.disabled = true;
+    return false;
+  }
+
+  const regex = /^[A-Za-z\-]+$/
+  if(!regex.test(catName)){
+    alert('Catagory name should only contain characters.');
+    submitButton.disabled = true;
+    return false;
+  }
+
+  submitButton.disabled = false;
+  return true;
+} 
+
+function enableSubmit(){
+  const catName = document.getElementById('categoryName').value;
+  const submitButton = document.getElementById('submitButton');
+  submitButton.disabled = !catName
+}
+</script>
 
 <%- include('../partials/adminFooter.ejs') %>

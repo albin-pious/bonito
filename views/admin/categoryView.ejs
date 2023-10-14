@@ -3,9 +3,9 @@
 <section id="reportsPage">
     <!-- Navbar -->
     <nav class="navbar navbar-expand-xl">
-        <div class="container h-100">
-            <a class="navbar-brand me-3" href="#">
-                <h1 class="tm-site-title mb-0">BONITO</h1>
+        <div class="container-fluid h-100">
+            <a class="navbar-brand me-3 " href="#">
+                <img src="/admin/img/logo-blue.png" alt="logo 404" width="90px">
             </a>
             <button class="navbar-toggler ml-auto mr-0" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -15,9 +15,8 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mx-auto h-100">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#">
+                        <a class="nav-link" href="/admin/dashboard">
                             Dashboard
-                            <span class="sr-only">(current)</span>
                         </a>
                     </li>
                     <li class="nav-item dropdown">
@@ -37,14 +36,15 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="accounts.html">
+                        <a class="nav-link" href="/admin/customerlist">
                             Customers
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="accounts.html">
+                        <a class="nav-link active" href="#">
                             Category
                         </a>
+                        <span class="sr-only">(current)</span>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="accounts.html">
@@ -63,62 +63,211 @@
                         </a>
                         <div class="dropdown-menu" aria-labelledby="settingsDropdown">
                             <a class="dropdown-item" href="#">Profile</a>
-                            <a class="dropdown-item" href="/admin/categorylist">Category</a>
                             <a class="dropdown-item" href="#">Banner</a>
+                            <a class="dropdown-item" href="#">LogOut</a>
                         </div>
                     </li>
                 </ul>
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link d-block" href="login.html">
+                        <!-- <a class="nav-link d-block" href="login.html">
                             Admin, <b>Logout</b>
+                        </a> -->
+                        <a class="nav-link d-block" href="login.html">
+                            <svg width="16" height="16" viewBox="0 0 16 16" class="bi bi-gear" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M10.478 1.522a5.972 5.972 0 0 0-.956-.504l-.217-1.294C9.163-.35 8.5-.2 8.5.383v1.268c-.265.08-.519.204-.748.37l-1.232-.71a5.995 5.995 0 0 0-1.186-.384l-.218 1.294c-.338.106-.658.269-.956.504l-1.293-.217c-.257-.044-.515-.066-.774-.066H1.5v1.5h1.022c.016.17.044.336.086.497l-1.293.218a6.035 6.035 0 0 0-.504.956l1.294.217c.106.338.269.658.504.956l-.217 1.293a5.972 5.972 0 0 0-.504.956l-1.294.218c-.044.161-.072.327-.086.497H1.5v1.5h1.022c.259 0 .517-.022.774-.066l.218 1.294c.235.14.455.306.651.504l-1.293 1.293a5.972 5.972 0 0 0-.504.956l1.293.218c.044.258.066.516.066.774v1.023h1.5v-1.022c.174-.014.34-.042.5-.086l.217 1.294a5.97 5.97 0 0 0 .956.504l-.217 1.293c-.106.338-.269.658-.504.956l1.293 1.293c.196.198.416.364.651.504l-.218 1.294c-.163.045-.331.073-.497.086v1.022h-1.5v-1.022c-.257-.016-.513-.044-.77-.086l-.217 1.294a5.97 5.97 0 0 0-.956.504l1.294.217c.044.163.072.331.086.497H1.5v1.5h1.022a6.028 6.028 0 0 0-.086.5l-1.294.217a5.975 5.975 0 0 0 .504.956l1.293-.217c.338-.106.658-.269.956-.504l.217 1.294c.258.044.516.066.774.066h1.023v1.5h-1.022c-.016.174-.044.34-.086.5l1.294.217c.139.235.305.455.504.651l1.293-1.293a5.972 5.972 0 0 0 .956.504l.218-1.293c.338-.106.658-.269.956-.504l-1.294-.217c-.044-.257-.066-.515-.066-.774h1.5v-1.023h-1.5c-.174-.016-.34-.044-.5-.086l-.217-1.294c-.235-.139-.455-.305-.651-.504l1.293-1.293c.196-.198.364-.416.504-.651l1.294.217c.044.163.073.331.086.497H11.5v-1.5h-1.022a6.028 6.028 0 0 0 .086-.5l1.294-.217c.257-.044.515-.066.774-.066l.217 1.294c.139-.074.27-.158.384-.251l1.294-.217a5.97 5.97 0 0 0 .504-.956l-1.293-.217c-.045-.258-.067-.516-.067-.774h1.5v-1.023h-1.5c.016-.174.044-.34.086-.5l-1.294-.217c-.139-.235-.305-.455-.504-.651l-1.293 1.293c-.197-.14-.417-.306-.652-.504l.217-1.293c.074-.139.158-.27.251-.384l-.217-1.294zM8 10.25a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5z"/>
+                            </svg> Admin
                         </a>
+                        
+                        
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-     <!-- Page Content -->
-     <div class="container mt-5">
+    <!-- Page Content -->
+    <div class="container mt-5">
         <div class="row tm-content-row justify-content-center">
-            <div class="col-lg-10">
+            <div class="col-md-6">
                 <div class="tm-bg-primary-dark tm-block tm-block-product-categories">
-                    <h2 class="tm-block-title">Product Categories</h2>
-                    <span class="text-warning mb-3"><%= title %></span>
+                    <div class="row">
+                        <div class="col-4 col-lg-6">
+                            <h2 class="tm-block-title">Product Categories</h2>
+                        </div>
+                        <div class="col">
+                            <a href="/admin/category_create" >
+                                <button class="btn btn-primary m-auto text-uppercase mb-3 tm-reduced-width ">Add Category</button>
+                            </a>
+                        </div>
+                    </div>
                     
-                    <!-- Check if data is not empty before rendering the table -->
-                    <% if (data.length > 0) { %>
-                    <div class="tm-product-table-container">
+                    <% if (catData && catData.length > 0) { %>
+                        <div class="tm-product-table-container">
+                            <table class="table tm-table-small tm-product-table">
+                                <thead>
+                                    <tr>
+                                        <th>Category Name</th>
+                                        <th style="padding-left: 90px;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% catData.forEach(function(category) { %>
+                                        <tr>
+                                            <td class="tm-product-name"><%= category.categoryName %></td>
+                                            <td class="text-center">
+                                                <a href="/admin/category_edit/<%=category._id%>" class="tm-product-edit-link">
+                                                    <i class="far fa-edit tm-product-edit-icon" style="color: red; font-size: 20px;"></i>
+                                                </a>
+                                                &nbsp;&nbsp;&nbsp;
+                                                <a href="/admin/category_delete/<%=category._id%>" class="tm-product-delete-link" onclick="deleteCategory('<%=category._id%>',event)">
+                                                    <i class="far fa-trash-alt tm-product-delete-icon"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                            <div class="d-flex justify-content-center mt-2 mb-1">
+                                <div class="demo" data-current-page="<%=currentCatPage%>" data-total-pages="<%=catpages%>">
+                                    <nav class="pagination-outer" aria-label="Page navigation">
+                                        <ul class="pagination">
+                                            <li class="page-item">
+                                                <% if(currentCatPage===catpages){ %>
+                                                    <a href="#" class="page-link" aria-label="Previous" id="prevPage">
+                                                        <span aria-hidden="true">»</span>
+                                                    </a>
+                                                <% }else{ %>
+                                                    <a href="/admin/categorylist?catpage=<%=currentCatPage+1%>" class="page-link" aria-label="Previous" id="prevPage">
+                                                        <span aria-hidden="true">»</span>
+                                                    </a>
+                                                <% } %>    
+                                            </li>
+                                            <% for(let i=1;i<=catpages;i++){ %>
+                                                <% if(i===currentCatPage){ %>
+                                                    <li class="page-item active"><a class="page-link" href="/admin/categorylist?catpage=<%=i%>"><%=i%></a></li>
+                                                <% }else { %>
+                                                    <li class="page-item"><a class="page-link" href="/admin/categorylist?catpage=<%=i%>"><%=i%></a></li>
+                                                <% } %>
+                                            <% } %>
+                                            <li class="page-item">
+                                                <% if(currentCatPage===1){ %>
+                                                    <a href="#" class="page-link">
+                                                        <span aria-hidden="true">«</span>
+                                                    </a>
+                                                <% }else{ %>
+                                                    <a href="/admin/categorylist?catpage=<%=currentCatPage-1%>" class="page-link">
+                                                    <span aria-hidden="true">«</span>
+                                                </a>
+                                            <% } %>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                    <% } else { %>
+                    <p>No categories found.</p>
+                    <% } %>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="tm-bg-primary-dark tm-block tm-block-product-categories">
+                    <div class="row">
+                        <div class="col-lg-8 col-6"><h2 class="tm-block-title" style="width: 80%;">Brands
+                        
+                        </h2>
+                    </div>
+                        <div class="col"><a href="/admin/newbrand" >
+                            <button class="btn btn-primary m-auto text-uppercase mb-3 tm-reduced-width">Add Brand</button>
+                        </a></div>
+                    </div>
+                    <% if (brand && brand.length > 0) { %>
                         <table class="table tm-table-small tm-product-table">
-                            <tbody>
-                                <% data.forEach(function(category) { %>
+                            <thead>
                                 <tr>
-                                    <td class="tm-product-name"><%= category.categoryName %></td>
-                                    <td class="text-center">
-                                        <a href="/admin/category_edit/<%=category._id%>" class="tm-product-edit-link">
-                                            <i class="far fa-edit tm-product-edit-icon" style="color: red; font-size: 20px;"></i>
-                                        </a>
-                                        &nbsp;&nbsp;&nbsp;
-                                        <a href="/admin/category_delete/<%=category._id%>" class="tm-product-delete-link" onclick="return confirmDelete()">
-                                            <i class="far fa-trash-alt tm-product-delete-icon"></i>
-                                        </a>
-                                    </td>
+                                    <th>Brand Name</th>
+                                    <th>Categories</th>
+                                    <th style="padding-left: 40px;">Action</th>
                                 </tr>
+                            </thead>
+                            <tbody>
+                                <% brand.forEach(function (brandItem) { %>
+                                    <tr>
+                                        <td><%= brandItem.brandName %></td>
+                                        <td>
+                                            <div class="dropdown">
+                                                <button class="dropdown-toggle" type="button" id="dropdown-<%= brandItem._id %>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background-color:transparent; color: white; border: none;">
+                                                    View
+                                                </button>
+                                                <div class="dropdown-menu" aria-labelledby="dropdown-<%= brandItem._id %>">
+                                                    <% if (brandItem.categoryNames && Array.isArray(brandItem.categoryNames)){%>
+                                                        <% brandItem.categoryNames.forEach(function (categoryName) { %>
+                                                            <a class="dropdown-item" href="#"><%= categoryName %></a>
+                                                        <% }); %>
+                                                    <% }else{ %>
+                                                        <p>NO categories found for this brand.</p>
+                                                    <% } %>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <a href="/admin/brand_edit/<%=brandItem._id%>" class="tm-product-edit-link">
+                                                <i class="far fa-edit tm-product-edit-icon" style="color: red; font-size: 20px;"></i>
+                                            </a>
+                                            &nbsp;&nbsp;&nbsp;
+                                            <a href="/admin/delete_brand/<%=brandItem._id%>" class="tm-product-delete-link" class="tm-product-delete-link" onclick="deleteBrand('<%=brandItem._id%>',event)">
+                                                <i class="far fa-trash-alt tm-product-delete-icon"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
                                 <% }); %>
                             </tbody>
                         </table>
-                    </div>
+                        <div class="d-flex justify-content-center mt-2 mb-1">
+                            <div class="demo" data-current-page="<%=currentBrandPage%>" data-total-pages="<%=brandPages%>">
+                                <nav class="pagination-outer" aria-label="Page navigation">
+                                    <ul class="pagination">
+                                        <li class="page-item">
+                                            <% if(currentBrandPage===brandPages){ %>
+                                                <a href="#" class="page-link" aria-label="Previous" id="prevPage">
+                                                    <span aria-hidden="true">»</span>
+                                                </a>
+                                            <% }else{ %>
+                                                <a href="/admin/categorylist?brandpage=<%=currentBrandPage+1%>" class="page-link" aria-label="Previous" id="prevPage">
+                                                    <span aria-hidden="true">»</span>
+                                                </a>
+                                            <% } %>    
+                                        </li>
+                                        <% for(let i=1;i<=brandPages;i++){ %>
+                                            <% if(i===currentBrandPage){ %>
+                                                <li class="page-item active"><a class="page-link" href="/admin/categorylist?brandPage=<%=i%>"><%=i%></a></li>
+                                            <% }else { %>
+                                                <li class="page-item"><a class="page-link" href="/admin/categorylist?brandPage=<%=i%>"><%=i%></a></li>
+                                            <% } %>
+                                        <% } %>
+                                        <li class="page-item">
+                                            <% if(currentBrandPage===1){ %>
+                                                <a href="#" class="page-link">
+                                                    <span aria-hidden="true">«</span>
+                                                </a>
+                                            <% }else{ %>
+                                                <a href="/admin/customerlist?brandPage=<%=currentBrandPage-1%>" class="page-link">
+                                                    <span aria-hidden="true">«</span>
+                                                </a>
+                                            <% } %>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
                     <% } else { %>
-                    <!-- Display a message when data is empty -->
-                    <p>No categories found.</p>
+                        <p>No Brand found.</p>
                     <% } %>
-                    
-                    <a href="/admin/category_create">
-                        <button class="btn btn-primary m-auto text-uppercase mb-3 tm-reduced-width">Add new category</button>
-                    </a>
                 </div>
             </div>
+            
+            
         </div>
     </div>
     
@@ -129,32 +278,85 @@
             Copyright &copy; <b>2023</b> All rights reserved. 
             
             Design: <a rel="nofollow noopener" href="" class="tm-footer-link">Bonito eCommerce Platform.</a>
-        </p>
+          </p>
         </div>
-      </footer>
+    </footer>
   
-      <script src="js/jquery-3.3.1.min.js"></script>
-      <!-- https://jquery.com/download/ -->
-      <script src="js/bootstrap.min.js"></script>
-      <!-- https://getbootstrap.com/ -->
-      <script>
-         $(function () {
-         // Initialize Bootstrap components here
-         $('[data-toggle="dropdown"]').dropdown();
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <!-- https://jquery.com/download/ -->
+    <script src="js/bootstrap.min.js"></script>
+    <!-- https://getbootstrap.com/ -->
+    
+<script>
+        
+    // Ensure Bootstrap JavaScript is loaded before using dropdowns
+    $(document).ready(function () {
+        // Initialize Bootstrap dropdowns
+        $('.dropdown-toggle').dropdown();
+    });
+    $(function () {
+        // Initialize Bootstrap components here
+        $('[data-toggle="dropdown"]').dropdown();
   
         // Other code for charts and functionality
-       });
-        $(function() {
-          $(".tm-product-name").on("click", function() {
+    });
+    $(function() {
+        $(".tm-product-name").on("click", function() {
             window.location.href = "edit-product.html";
           });
-        });
+    });
+    
+    // for deleting category.
+    async function deleteCategory(categoryId, event) {
+        event.preventDefault();
+        const confirmed = confirm('Are you sure you want to delete this category?');
+        if (confirmed) {
+            try {
+                const response = await fetch(`/admin/category_delete/${categoryId}`, {
+                    method: 'DELETE'
+                });
 
-        function confirmDelete(){
-            return confirm('Are you sure you want to delete this category');
+                if (response.ok) {
+                    console.log('Category deleted successfully');
+                    // Reload the page after successful deletion
+                    window.location.reload();
+                    
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            } catch (error) {   
+                console.error('Error deleting category:', error);
+            }
         }
-      </script>
-    </body>
+    }
+    
+    // for deleting brand
+    async function deleteBrand(brandId,event){
+        event.preventDefault()
+        const confirmed = confirm('Are you sure you want to delete this brand?');
+        if(confirmed) {
+            try {
+                const response = await fetch(`/admin/brand_delete/${brandId}`,{
+                    method:'DELETE'
+                });
+
+                if (response.ok){
+                    console.log('Category deleted successfully');
+                    window.location.reload();
+                }else{
+                    throw new  Error('Network response was not ok');
+                }
+            } catch (error) {
+                console.error('Error deleting category:', error);
+            }
+        }else{
+            event.preventDefault();
+            console.log('Deletion Cancelled.')
+        }
+    }
+    
+    
+    </script>
 </section>
 
 

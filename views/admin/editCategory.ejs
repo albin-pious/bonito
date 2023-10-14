@@ -1,6 +1,14 @@
 <%- include('../partials/adminHeader') %>
 
 <div class="container tm-mt-big tm-mb-big">
+  <!-- Breadcrumb -->
+  <div class="container w-50 m-auto">
+    <ol class="breadcrumb" style="background: none;">
+      <li class="breadcrumb-item"><a href="/admin/categorylist">Category</a></li>
+      <li class="breadcrumb-item active text-white">Add Category</li>
+    </ol>
+  </div>
+  <!-- End Breadcrumb -->
   <div class="row">
     <div class="col-xl-9 col-lg-10 col-md-12 col-sm-12 mx-auto">
       <div class="tm-bg-primary-dark tm-block tm-block-h-auto">
@@ -11,33 +19,68 @@
         </div>
         <div class="row tm-edit-product-row">
           <div class="col-xl-12 col-lg-12 col-md-12">
-            <form action="/admin/editcategory" class="tm-edit-category-form" method="POST">
-                <div class="form-group mb-3">
-                  <label for="categoryName">Category Name</label>
-                  <input
-                    id="categoryName"
-                    name="categoryName"
-                    type="text"
-                    value="<%= data.categoryName %>"
-                    class="form-control validate"
-                  />
-                </div>
+            <form action="/admin/editcategory" class="tm-edit-category-form" method="POST" onsubmit="return validateForm()">
+              <div class="form-group mb-3">
+                <label for="categoryName">Category Name</label>
                 <input
-                  type="hidden"
-                  id="_id"
-                  name="_id"
-                  value="<%= data._id %>"
+                  id="categoryName"
+                  name="categoryName"
+                  type="text"
+                  value="<%= data.categoryName %>"
+                  class="form-control validate"
+                  oninput="enableSubmit()"
                 />
-                <div class="col-12">
-                  <button type="submit" class="btn btn-primary text-uppercase">Submit</button>
-                </div>
-              </form>
-              
+              </div>
+              <input
+                type="hidden"
+                id="_id"
+                name="_id"
+                value="<%= data._id %>"
+              />
+              <div class="col-12">
+                <button type="submit" id="submitButton" class="btn btn-primary text-uppercase" disabled>Submit</button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<script>
+  function validateForm() {
+    const catName = document.getElementById('categoryName').value;
+    const submitButton = document.getElementById('submitButton');
+
+    if (!catName) {
+      alert('Category name is required.');
+      submitButton.disabled = true;
+      return false;
+    }
+
+    const regex = /^[A-Za-z]+$/;
+    if (!regex.test(catName)) {
+      alert('Category name should only contain characters.');
+      submitButton.disabled = true;
+      return false;
+    }
+
+    if (catName.includes('*')) {
+      alert('Category name cannot contain an asterisk (*)');
+      submitButton.disabled = true;
+      return false;
+    }
+
+    submitButton.disabled = false;
+    return true;
+  }
+
+  function enableSubmit() {
+    const catName = document.getElementById('categoryName').value;
+    const submitButton = document.getElementById('submitButton');
+    submitButton.disabled = !catName;
+  }
+</script>
 
 <%- include('../partials/adminFooter.ejs') %>
