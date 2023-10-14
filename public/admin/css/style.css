@@ -1,0 +1,108 @@
+.container {
+    padding-top: 50px;
+  }
+
+  .tm-block-title {
+    color: #fff;
+    background-color: #343a40;
+    padding: 10px 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    display: inline-block;
+  }
+
+  .tm-bg-primary-dark {
+    background-color: #343a40;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #ffc107;
+  }
+
+  .tm-edit-product-row {
+    padding: 20px;
+    background-color: #476b8f;
+    border-radius: 10px;
+    border: 1px solid #dc3545;
+    margin-bottom: 20px;
+  }
+
+  .tm-edit-category-form {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-group {
+    margin-bottom: 15px;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+  }
+
+  .custom-select {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .custom-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    display: none;
+    max-height: 150px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #747171;
+    box-shadow: 0 2px 10px rgba(42, 39, 39, 0.1);
+  }
+
+  .custom-select.open .custom-options {
+    display: block;
+  }
+
+  .custom-options label {
+    display: block;
+    padding: 10px;
+    cursor: pointer;
+  }
+
+  .custom-options label:hover {
+    background-color: #f0f0f0;
+  }
+
+  .btn-primary {
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+  }
+
+/* product page. */
+.image-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.image-preview {
+  max-width: 200px;
+  margin: 10px;
+}
+
+#cropperContainer {
+  max-width: 400px;
+  margin: 20px auto;
+}

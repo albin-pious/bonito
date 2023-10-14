@@ -1,0 +1,91 @@
+<%- include('../partials/adminHeader') %>
+
+<div class="container tm-mt-big tm-mb-big">
+  <!-- Breadcrumb -->
+  <div class="container w-50 m-auto">
+    <ol class="breadcrumb" style="background: none;">
+      <li class="breadcrumb-item"><a href="/admin/categorylist">Category</a></li>
+      <li class="breadcrumb-item active text-white">Edit Brand</li>
+    </ol>
+  </div>
+  <!-- End Breadcrumb -->
+  <div class="row">
+    <div class="col-xl-9 col-lg-10 col-md-12 col-sm-12 mx-auto">
+      <div class="tm-bg-primary-dark tm-block tm-block-h-auto border border-warning">
+        <div class="row">
+          <div class="col-12">
+            <h2 class="tm-block-title d-inline-block">Edit Brand</h2>
+          </div>
+        </div>
+        <div class="row tm-edit-product-row border border-danger">
+          <div class="col-xl-12 col-lg-12 col-md-12">
+            <form action="/admin/editbrand" class="tm-edit-category-form" method="POST" onsubmit="return validateForm()">
+                <div class="form-group mb-3">
+                    <label for="brandName">Brand Name</label>
+                    <input id="brandName" name="brandName" value="<%=data.brandName%>" type="text" class="form-control validate" />
+                </div>
+                <input type="hidden" id="_id" name="_id" value="<%=data._id%>">
+                <% if (typeof catData !== 'undefined' && Array.isArray(catData) && catData.length > 0) { %>
+                    <div class="custom-select" onclick="toggleCustomOptions()">
+                        Select Categories
+                        <div class="custom-options" id="customOptions">
+                            <% catData.forEach((category) => { %>
+                                <label>
+                                    <input 
+                                        type="checkbox" 
+                                        name="categoryId" 
+                                        value="<%= category._id %>" 
+                                        <% if (category._id && data.categoryId && data.categoryId.includes(String(category._id))) { %>checked<% } %>
+                                    >&nbsp;&nbsp;&nbsp;<%= category.categoryName %>
+                                </label>
+                            <% }); %>
+                        </div>
+                    </div>
+                <% } else { %>
+                    <span><%= title %></span>
+                <% } %>
+            
+                <div class="mt-5">
+                    <button type="submit" id="submitButton" class="btn btn-primary text-uppercase">Add Brand</button>
+                </div>
+            </form>
+            
+            
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/adminFooter.ejs') %>
+
+<script>
+  function toggleCustomOptions() {
+    const customOptions = document.getElementById('customOptions');
+    customOptions.style.display = (customOptions.style.display === 'none' || customOptions.style.display === '') ? 'block' : 'none';
+  }
+
+  function validateForm() {
+  const brandName = document.getElementById('brandName').value;
+  const checkboxes = document.querySelectorAll('input[name="categoryId"]:checked');
+
+  if (!brandName.trim()) {
+    alert('Brand name is required.');
+  }
+
+  const regex = /^[A-Za-z0-9\s!@#$%^&*(),.?":{}|<>]+$/;
+
+  if (!regex.test(brandName)) {
+    alert('Brand name should proper');
+  }
+
+  if (checkboxes.length === 0) {
+    alert('Please select at least one category.');
+  }
+}
+
+
+</script>
+
+<%- include('../partials/adminFooter') %>
