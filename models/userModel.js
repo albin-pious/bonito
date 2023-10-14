@@ -8,6 +8,7 @@ class User {
         this.password = password;
         this.mobile = mobile;
         this.role = role || 'User';
+        this.blocked = false;
     }
 
     // Save the user to the database;

@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const session = require('express-session');
 const dotenv = require('dotenv').config();
+const crypto = require('crypto');
 
 // db connection
 const dbConnection = require('./config/dbConnect')
@@ -12,8 +13,8 @@ dbConnection.dbConnection().then().catch((error)=>{
   console.log('Failed to connect the databae', error);
 })
 
-const indexRouter = require('./routes/userRoute');
-const usersRouter = require('./routes/adminRoute');
+const userRouter = require('./routes/userRoute');
+const adminRouter = require('./routes/adminRoute');
 const { error, log } = require('console');
 
 const app = express();
@@ -27,19 +28,31 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads',express.static('public/uploads'))
 
+const generateSecret = ()=>{
+  // Generate a 128-character (64-byte) hex string
+  return crypto.randomBytes(64).toString('hex');
+}
+const sessionSecret = generateSecret();
+console.log(sessionSecret);
 app.use(session({
-  secret: process.env.SECRET_KEY,
+  secret:'my secret key',
   resave:false,
   saveUninitialized:true,
   cookie:{
+    maxAge: 3600000,
     sameSite:true
   }
 }))
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/', userRouter);
+app.use('/admin', adminRouter);
 
+app.use((req, res, next) => {
+  res.header("cache-control", "no-cache private,no-store,must-revalidate,max-stale=0,post-check=0,pre--check=0");
+  next();
+}) 
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

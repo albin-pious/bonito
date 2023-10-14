@@ -1,3 +1,6 @@
+const dotenv = require('dotenv').config();
+
+
 const userLogin = (req, res, next) => {
     try {
       if (!req.session.user) {
@@ -16,7 +19,7 @@ const userLogin = (req, res, next) => {
     try {
       if (!req.session.admin) {
         res.redirect("/admin");
-      } else if (req.session.admin.role !== 'admin') {
+      } else if (req.session.admin.role !== process.env.ADMIN_ROLE) {
         res.status(403).send('Access Forbidden');
       } else {
         next();
@@ -25,6 +28,20 @@ const userLogin = (req, res, next) => {
       console.log(error.message);
     }
   };
+
+  const adminLogOut = (req,res,next)=>{
+    try {
+      if(req.session.admin){
+        res.redirect('/admin/dashboard')
+      }else{
+        next();
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+
   
-  module.exports = { userLogin, adminLogin };
+  module.exports = { userLogin, adminLogin,adminLogOut };
   

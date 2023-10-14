@@ -1,9 +1,20 @@
 const { ObjectId } = require('mongodb');
-const { getDb } = require('../config/dbConnect');
+const { getDb } = require('../config/dbConnect');  
 
 class Product {
-  constructor(title, description, price, gender, categoryId, stock, offer, sizes, colors, images) {
-    if (!title || !description || !price || !gender || !categoryId || !stock || !colors || !Array.isArray(images) || !Array.isArray(sizes)) {
+  constructor(
+    title, 
+    description, 
+    price, 
+    gender, 
+    categoryId, 
+    stock, 
+    offer, 
+    sizeUnits, 
+    brand, 
+    images
+    ) {
+    if (!title || !description || !price || !gender || !categoryId || !stock || !offer || !sizeUnits || !brand || !Array.isArray(images)) {
       throw new Error('Required fields are missing');
     }
 
@@ -14,8 +25,8 @@ class Product {
     this.category = categoryId;
     this.stock = stock;
     this.offer = offer;
-    this.sizes = sizes;
-    this.colors = colors;
+    this.sizeUnits = sizeUnits;
+    this.brand = brand;
     this.images = images;
   }
 

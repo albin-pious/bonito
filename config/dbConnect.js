@@ -26,16 +26,21 @@ const getDb = ()=>{
   }
 }
 
-const createUniqueIndex = async()=>{
+const createUniqueIndex = async () => {
   try {
     const db = getDb();
-    const collection = db.collection('users');
-    await userCollection.createIndex({email:1},{unique:true})
-    await userCollection.createIndex({mobile:1},{unique:true})
+
+    // Create unique indexes with unique names
+    await db.collection('users').createIndex({ email: 1 }, { name: 'unique_email_index' });
+    await db.collection('users').createIndex({ mobile: 1 }, { name: 'unique_mobile_index' });
+    await db.collection('category').createIndex({ categoryName: 1 });
+    await db.collection('brand').createIndex({ brandName: 1 }, { name: 'unique_brandName_index' });
   } catch (error) {
-    
+    console.log(error);
   }
 }
+
+
 
 module.exports = {
   dbConnection,
