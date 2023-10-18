@@ -47,15 +47,90 @@
         <div class="row px-xl-5">
             <div class="col-lg-8">
                 <div class="mb-4">
-                    <h4 class="font-weight-semi-bold mb-4">Delivery Address</h4>
-                    <% if(userData.address){ %>
-                    <div class="div">
-                        <h4>Albin 90028282838</h4>
-                        <p>housename,place,city,landmark,city,district</p>
-                        <a href="" class="btn btn-danger">edit</a>
-                    </div>
+                   <% if(userData.addresses){ %>
+                    <h4><%= userData.name %> <%= userData.mobile %></h4>
+
+
+  <div>
+    <!-- Display the address information -->
+    <p>
+        <%= userData.addresses.firstName %> <%= userData.addresses.lastName %><br>
+        <%= userData.addresses.address1 %>, <%= userData.addresses.address2 %>, <%= userData.addresses.city %><br>
+        <%= userData.addresses.state %>, <%= userData.addresses.zipcode %><br>
+        <%= userData.addresses.country %>
+      </p>
+      
+
+    <!-- Add a link to edit the address -->
+    <a href="javascript:void(0)" onclick="toggleEditForm(index)" class="btn btn-danger">Edit</a>
+    <form id="editForm" action="/checkout/edit_address" method="post" style="display: none;">
+        <!-- Form fields for editing the address -->
+        <div class="row">
+            <div class="col-md-6 form-group">
+                <label>First Name</label>
+                <input class="form-control" type="text" name="fname">
+            </div>
+            <div class="col-md-6 form-group">
+                <label>Last Name</label>
+                <input class="form-control" type="text" name="lname">
+            </div>
+            <div class="col-md-6 form-group">
+                <label>E-mail</label>
+                <input class="form-control" type="text" name="email">
+            </div>
+            <div class="col-md-6 form-group">
+                <label>Mobile No</label>
+                <input class="form-control" type="text" name="mobile">
+            </div>
+            <div class="col-md-6 form-group">
+                <label>Address Line 1</label>
+                <input class="form-control" type="text" name="address1">
+            </div>
+            <div class="col-md-6 form-group">
+                <label>Address Line 2</label>
+                <input class="form-control" type="text" name="address2">
+            </div>
+            <div class="col-md-6 form-group">
+                <label>Country</label>
+                <input class="form-control" type="text" value="India" name="country" disabled>
+            </div>
+            <div class="col-md-6 form-group">
+                <label>City</label>
+                <input class="form-control" type="text" name="city">
+            </div>
+            <div class="col-md-6 form-group">
+                <label>State</label>
+                <input class="form-control" type="text" name="state">
+            </div>
+            <div class="col-md-6 form-group">
+                <label>ZIP Code</label>
+                <input class="form-control" type="text" name="zipcode">
+            </div>
+            <div class="col-md-12 form-group">
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="newaccount">
+                    <label class="custom-control-label" for="newaccount">Create an account</label>
+                </div>
+            </div>
+            <div class="col-md-12 form-group">
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="shipto">
+                    <label class="custom-control-label" for="shipto"  data-toggle="collapse" data-target="#shipping-address">Ship to different address</label>
+                </div>
+            </div>
+        </div>
+        <!-- Add other form fields for editing the address as needed -->
+  
+        <!-- Submit button to save changes -->
+        <div class="form-group text-center">
+          <input type="submit" value="Save Changes" class="btn btn-primary">
+        </div>
+      </form>
+  </div>
+  <br>
+
                     <% }else{ %>
-                    <form action="" method="post">
+                    <form action="/checkout/add_address" method="post">
                     <div class="row">
                         <div class="col-md-6 form-group">
                             <label>First Name</label>
@@ -67,19 +142,19 @@
                         </div>
                         <div class="col-md-6 form-group">
                             <label>E-mail</label>
-                            <input class="form-control" type="text" placeholder="example@email.com">
+                            <input class="form-control" type="text" name="email">
                         </div>
                         <div class="col-md-6 form-group">
                             <label>Mobile No</label>
-                            <input class="form-control" type="text" placeholder="+123 456 789">
+                            <input class="form-control" type="text" name="mobile">
                         </div>
                         <div class="col-md-6 form-group">
                             <label>Address Line 1</label>
-                            <input class="form-control" type="text" placeholder="123 Street">
+                            <input class="form-control" type="text" name="address1">
                         </div>
                         <div class="col-md-6 form-group">
                             <label>Address Line 2</label>
-                            <input class="form-control" type="text" placeholder="123 Street">
+                            <input class="form-control" type="text" name="address2">
                         </div>
                         <div class="col-md-6 form-group">
                             <label>Country</label>
@@ -87,15 +162,15 @@
                         </div>
                         <div class="col-md-6 form-group">
                             <label>City</label>
-                            <input class="form-control" type="text" placeholder="New York">
+                            <input class="form-control" type="text" name="city">
                         </div>
                         <div class="col-md-6 form-group">
                             <label>State</label>
-                            <input class="form-control" type="text" placeholder="New York">
+                            <input class="form-control" type="text" name="state">
                         </div>
                         <div class="col-md-6 form-group">
                             <label>ZIP Code</label>
-                            <input class="form-control" type="text" placeholder="123">
+                            <input class="form-control" type="text" name="zipcode">
                         </div>
                         <div class="col-md-12 form-group">
                             <div class="custom-control custom-checkbox">
@@ -125,16 +200,8 @@
                     <div class="card-body">
                         <h5 class="font-weight-medium mb-3">Products</h5>
                         <div class="d-flex justify-content-between">
-                            <p>Colorful Stylish Shirt 1</p>
-                            <p>$150</p>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <p>Colorful Stylish Shirt 2</p>
-                            <p>$150</p>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <p>Colorful Stylish Shirt 3</p>
-                            <p>$150</p>
+                            <p><%= productData.title %></p>
+                            <p>&#8377;<%= productData.price %></p>
                         </div>
                         <hr class="mt-0">
                         <div class="d-flex justify-content-between mb-3 pt-1">
@@ -143,7 +210,7 @@
                         </div>
                         <div class="d-flex justify-content-between">
                             <h6 class="font-weight-medium">Shipping</h6>
-                            <h6 class="font-weight-medium">$10</h6>
+                            <h6 class="font-weight-medium">Free</h6>
                         </div>
                     </div>
                     <div class="card-footer border-secondary bg-transparent">
@@ -160,20 +227,20 @@
                     <div class="card-body">
                         <div class="form-group">
                             <div class="custom-control custom-radio">
-                                <input type="radio" class="custom-control-input" name="payment" id="paypal">
-                                <label class="custom-control-label" for="paypal">Paypal</label>
+                                <input type="radio" class="custom-control-input" name="payment" id="cod">
+                                <label class="custom-control-label" for="paypal">Cash on Delivery</label>
                             </div>
                         </div>
                         <div class="form-group">
                             <div class="custom-control custom-radio">
-                                <input type="radio" class="custom-control-input" name="payment" id="directcheck">
-                                <label class="custom-control-label" for="directcheck">Direct Check</label>
+                                <input type="radio" class="custom-control-input" name="payment" id="upi">
+                                <label class="custom-control-label" for="directcheck">UPI</label>
                             </div>
                         </div>
                         <div class="">
                             <div class="custom-control custom-radio">
-                                <input type="radio" class="custom-control-input" name="payment" id="banktransfer">
-                                <label class="custom-control-label" for="banktransfer">Bank Transfer</label>
+                                <input type="radio" class="custom-control-input" name="payment" id="card">
+                                <label class="custom-control-label" for="banktransfer">Credit/Debit Card</label>
                             </div>
                         </div>
                     </div>
@@ -265,15 +332,26 @@
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
-    <script src="lib/easing/easing.min.js"></script>
-    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="/lib/easing/easing.min.js"></script>
+    <script src="/lib/owlcarousel/owl.carousel.min.js"></script>
 
     <!-- Contact Javascript File -->
-    <script src="mail/jqBootstrapValidation.min.js"></script>
-    <script src="mail/contact.js"></script>
+    <script src="/mail/jqBootstrapValidation.min.js"></script>
+    <script src="/mail/contact.js"></script>
 
     <!-- Template Javascript -->
     <script src="/javascripts/main.js"></script>
+    <script>
+          function toggleEditForm(index) {
+    // Hide all edit forms
+    document.querySelectorAll('form[id^="editForm"]').forEach(function(form) {
+      form.style.display = 'none';
+    });
+
+    // Show the edit form for the specified index
+    document.getElementById('editForm' + index).style.display = 'block';
+}
+    </script>
 </body>
 
 </html>

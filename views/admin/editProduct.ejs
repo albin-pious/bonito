@@ -84,20 +84,23 @@
                     <select class="custom-select tm-select-accounts" id="categorySelect" name="category">
                       <option value="" selected>Select category</option>
                       <% if (Array.isArray(brandData)) { %>
-                        <% brandData.forEach((brand) => { %>
-                          <% const categoryIds = brand.categoryId; %>
-                          <% categoryIds.forEach((categoryId) => { %>
-                            <% const category = catData.find((cat) => cat._id['$oid'] === categoryId); %>
-                            <% if (category) { %>
-                              <option value="<%= categoryId %>" <%= productData.category === categoryId.$oid ? 'selected' : '' %>><%= category.categoryName || '' %></option>
-                            <% } else { %>
-                              <option value="<%= categoryId %>">Category not found</option>
-                            <% } %>
+                          <% brandData.forEach((brand) => { %>
+                              <% if (productData.brand === brand._id) { %>
+                                  <% const categoryIds = brand.categoryId; %>
+                                  <% categoryIds.forEach((categoryId) => { %>
+                                      <% const category = catData.find((cat) => cat._id['$oid'] === categoryId); %>
+                                      <% if (category) { %>
+                                          <option value="<%= categoryId %>" <%= (productData.category === categoryId) ? 'selected' : '' %>><%= category.categoryName || '' %></option>
+                                      <% } else { %>
+                                          <option value="<%= categoryId %>">Category not found</option>
+                                      <% } %>
+                                  <% }) %>
+                              <% } %>
                           <% }) %>
-                        <% }) %>
                       <% } %>
-                    </select>
-                                       
+                  </select>
+                  
+                                                   
                   </div>                 
                 </div>      
             </div>
@@ -199,6 +202,7 @@
     $(function() {
       $("#expire_date").datepicker();
     });
+
   </script>
 
 

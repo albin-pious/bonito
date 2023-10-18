@@ -65,7 +65,7 @@
             <div class="dropdown-menu" aria-labelledby="settingsDropdown">
               <a class="dropdown-item" href="#">Profile</a>
               <a class="dropdown-item" href="#">Banner</a>
-              <a class="dropdown-item" href="#">LogOut</a>
+              <a class="dropdown-item" href="/admin/logout">LogOut</a>
             </div>
           </li>
         </ul>
@@ -85,7 +85,7 @@
     </div>
   </nav>
   <div class="container mt-5">
-    <div class="row tm-content-row border border-1">
+    <div class="row tm-content-row">
       <div class="col-sm-12 col-md-12 col-lg-12 col-xl-8 tm-block-col m-auto">
         <div class="tm-bg-primary-dark tm-block tm-block-products">
           <div class="tm-product-table-container table-responsive table-striped">
@@ -106,8 +106,8 @@
                 <tbody>
                   <% productData.forEach(product =>{ %>
                     <tr>
-                      <th scope="row"><input type="checkbox" /></th>
-                      <td class="tm-product-name img-fluid"><img src="/uploads/<%= product.images[0] %>" alt="Product Image"></td>
+                      <th scope="row"><input type="checkbox" class="productCheckbox" value="<%= product._id %>" /></th>
+                      <td class="tm-product-name img-fluid"><img src="/uploads/<%= product.images[0] %>" alt="Product Image" width="100px" height="100px"></td>
                       <td><%= product.title %></td>
                       <td><%= product.price %></td>
                       <td>
@@ -121,102 +121,161 @@
                         </a>
                       </td>
                       <td>
-                        <a href="#" class="tm-product-delete-link">
+                        <a href="/admin/product_delete/<%= product._id %>" class="tm-product-delete-link" onclick="deleteProduct('<%= product._id %>',event)">
                           <i class="far fa-trash-alt tm-product-delete-icon"></i>
                         </a>
                       </td>
                     </tr>
                   <% }) %>  
                 </tbody>
-              </table>
-            <% }else{ %>
-              <p>Please add Product.</p>
-            <% } %> 
-                <div class="d-flex justify-content-center mt-2 mb-1">
-                  <div class="demo" data-current-page="" data-total-pages="">
-                    <nav class="pagination-outer" aria-label="Page navigation">
-                      <ul class="pagination">
-                        <li class="page-item">
-                          <a href="#" class="page-link" aria-label="Previous" id="prevPage">
-                            <span aria-hidden="true">»</span>
-                          </a>
-                          <a href="" class="page-link" aria-label="Previous" id="prevPage">
-                            <span aria-hidden="true">»</span>
-                          </a>
-                        </li>       
-                        <li class="page-item active"><a class="page-link" href="">1</a></li>                
-                        <li class="page-item">
+              </table>   
+            
+          </div>
+          <div class="d-flex justify-content-center mt-2 mb-1">
+            <div class="demo" data-current-page="<%= currentPage %>" data-total-pages="<%= pages %>">
+              <nav class="pagination-outer" aria-label="Page navigation">
+                <ul class="pagination">
+                  <li class="page-item">
+                    <% if(currentPage === pages){ %>
+                      <a href="#" class="page-link" aria-label="Previous" id="prevPage">
+                        <span aria-hidden="true">»</span>
+                      </a>
+                    <% }else{ %>  
+                      <a href="/admin/productlist?page=<%= currentPage+1 %>" class="page-link" aria-label="Previous" id="prevPage">
+                         <span aria-hidden="true">»</span>
+                       </a>
+                    <% } %>   
+                  </li>
+                  <% for(let i=1;i<=pages;i++){ %>  
+                    <% if(i === currentPage){ %>     
+                      <li class="page-item active"><a class="page-link" href="/admin/productlist?page=<%= i %>"><%= i %></a></li>    
+                    <% }else{ %> 
+                      <li class="page-item"><a class="page-link" href="/admin/productlist?page=<%= i %>"><%= i %></a></li>
+                    <% } %>
+                  <% } %>                  
+                      <li class="page-item">
+                        <%if(currentPage === 1){ %>
                           <a href="#" class="page-link" aria-label="Next" id="nextPage">
                             <span aria-hidden="true">«</span>
                           </a>
+                        <% }else{ %>  
                           <a href="" class="page-link" aria-label="Next" id="nextPage">
                             <span aria-hidden="true">«</span>
                           </a>
-                        </li>
-                      </ul>
-                    </nav>
-                  </div>
-                </div>
-              </div>
-              <a
-                href="/admin/product_add"
-                class="btn btn-primary btn-block text-uppercase mb-3">Add new product
-              </a>
-              <a
-                href="" 
-                class="btn btn-primary btn-block text-uppercase">Delete selected products
-              </a>
+                        <% } %>  
+                      </li>
+                </ul>
+              </nav>
             </div>
           </div>
+          <% }else{ %>
+            <p>Please add Product.</p>
+          <% } %> 
+          <a
+            href="/admin/product_add"
+            class="btn btn-primary btn-block text-uppercase mb-3">Add new product
+          </a>
+          <a
+            href="#" 
+            class="btn btn-primary btn-block text-uppercase" onclick="deleteSelectedProducts()">Delete selected products
+          </a>
         </div>
-      
-        <footer class="tm-footer row tm-mt-small">
-          <div class="col-12 font-weight-light">
-            <p class="text-center text-white mb-0 px-4 small">
-              Copyright &copy; <b>2023</b> All rights reserved. 
+      </div>
+    </div>
+  </div>  
+  <footer class="tm-footer row tm-mt-small">
+    <div class="col-12 font-weight-light">
+      <p class="text-center text-white mb-0 px-4 small">
+        Copyright &copy; <b>2023</b> All rights reserved. 
               
-              Design: <a rel="nofollow noopener" href="" class="tm-footer-link">Bonito eCommerce Platform.</a>
-          </p>
-          </div>
-        </footer>
+        Design: <a rel="nofollow noopener" href="" class="tm-footer-link">Bonito eCommerce Platform.</a>
+      </p>
+    </div>
+  </footer>
     
-        <script src="js/jquery-3.3.1.min.js"></script>
-        <!-- https://jquery.com/download/ -->
-        <script src="js/bootstrap.min.js"></script>
-        <!-- https://getbootstrap.com/ -->
-        <script>
-          // nav dropdown item
-           $(function () {
-           // Initialize Bootstrap components here
-           $('[data-toggle="dropdown"]').dropdown();
+  <script src="js/jquery-3.3.1.min.js"></script>
+  <!-- https://jquery.com/download/ -->
+  <script src="js/bootstrap.min.js"></script>
+  <!-- https://getbootstrap.com/ -->
+  <script>
+    // nav dropdown item
+    $(function () {
+      // Initialize Bootstrap components here
+      $('[data-toggle="dropdown"]').dropdown();
     
-          // Other code for charts and functionality
-         });
+      // Other code for charts and functionality
+    });
 
-          $(function() {
-            $(".tm-product-name").on("click", function() {
-              window.location.href = "edit-product.html";
-            });
-          });
+    $(function() {
+      $(".tm-product-name").on("click", function() {
+        window.location.href = "edit-product.html";
+      });
+    });
    
-          // paginatation
-          $(function() {
-          // Handle the click event for the "Edit" button
-          $(".tm-product-edit-link").on("click", function(e) {
-            e.preventDefault(); // Prevent the default link behavior
-            // Get the product name from the corresponding row
-            var productName = $(this).closest("tr").find(".tm-product-name").text();
-            // Redirect to the edit-product.html page with the product name as a query parameter
-            window.location.href = "edit-product.html?product=" + encodeURIComponent(productName);
-          });
-});
+    // paginatation
+    $(function() {
+      // Handle the click event for the "Edit" button
+      $(".tm-product-edit-link").on("click", function(e) {
+        e.preventDefault(); // Prevent the default link behavior
+        // Get the product name from the corresponding row
+        var productName = $(this).closest("tr").find(".tm-product-name").text();
+        // Redirect to the edit-product.html page with the product name as a query parameter
+        window.location.href = "edit-product.html?product=" + encodeURIComponent(productName);
+      });
+    });
 
+    async function deleteProduct(productId,event) {
+      event.preventDefault();
+      const confirmed = confirm('Are you sure you want to delete this product?');
+      if(confirmed){
+        try {
+          const response = await fetch(`/admin/product_delete/${productId}`,{
+            method: 'DELETE'
+          })
 
-        </script>
-      </body>
+          if (response.ok){
+            console.log('Category deleted successfully.');
+            window.location.reload();
+          }else{
+            throw new Error('Network response was not ok');
+          }
+        } catch (error) {
+          console.error('Error deleting category: ',error);
+        }
+      }
+    }
+
+    function deleteSelectedProducts(){
+      const confirmed = confirm('Are you sure do you want delete these products.');
+      if(confirmed){
+        const productCheckboxes = document.querySelectorAll('.productCheckbox');
+        const seletedProductIds = Array.from(productCheckboxes)
+        .filter(checkbox => checkbox.checked)
+        .map(checkbox => checkbox.value);
+      
+        const selectedIdsString = seletedProductIds.join(',');
+        fetch(`/admin/delete_selected_products/${selectedIdsString}`,{
+          method:'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ productIds: seletedProductIds })
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Server response: ',data);
+          window.location.reload();
+        })
+        .catch(error => {
+          console.error('Error ',error);
+        })
+      }
+    }
+
+  </script>
 </section>
 
-
+</body>
 
 
 
