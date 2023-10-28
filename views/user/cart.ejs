@@ -6,7 +6,7 @@
         <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 300px">
             <h1 class="font-weight-semi-bold text-uppercase mb-3">Shopping Cart</h1>
             <div class="d-inline-flex">
-                <p class="m-0"><a href="">Home</a></p>
+                <p class="m-0"><a href="/">Home</a></p>
                 <p class="m-0 px-2">-</p>
                 <p class="m-0">Shopping Cart</p>
             </div>
@@ -14,58 +14,50 @@
     </div>
     <!-- Page Header End -->
 
-
-    <!-- Cart Start -->
-    <div class="container-fluid pt-5">
+     <!-- Cart Start -->
+     <div class="container-fluid pt-5">
         <div class="row px-xl-5">
             <div class="col-lg-8 table-responsive mb-5">
                 <% if (productData && productData.length > 0) { %>
-                    <table class="table table-bordered text-start mb-0">
-                        <thead class="bg-secondary text-dark">
-                            <tr>
-                                <th>Products</th>
-                                <th>Price</th>
-                                <th>Quantity</th>
-                                <th>Total</th>
-                                <th>Remove</th>
-                            </tr>
-                        </thead>
-                        <tbody class="align-middle">
-                            <% productData.forEach((productArray) => {
-                                productArray.forEach((product) => { %>
-                                    <tr>
-                                        <td class="align-middle">
-                                            <img src="/uploads/<%= product.images[0] %>" alt="Product-Image" style="width: 50px;">
-                                            <%= product.title %>
-                                        </td>
-                                        <td class="align-middle"><%= product.price %></td>
-                                        <td class="align-middle">
-                                            <div class="input-group quantity mx-auto" style="width: 100px;">
-                                                <div class="input-group-btn">
-                                                    <button class="btn btn-sm btn-primary btn-minus">
-                                                        <i class="fa fa-minus"></i>
-                                                    </button>
-                                                </div>
-                                                <input type="text" class="form-control form-control-sm bg-secondary text-center" value="1">
-                                                <div class="input-group-btn">
-                                                    <button class="btn btn-sm btn-primary btn-plus">
-                                                        <i class="fa fa-plus"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="align-middle">$150</td>
-                                        <td class="align-middle"><button class="btn btn-sm btn-primary"><i class="fa fa-times"></i></button></td>
-                                    </tr>
-                                <% });
-                            }); %>                            
-                        </tbody>
-                    </table>
+                <table class="table table-bordered text-start mb-0">
+                    <thead class="bg-secondary text-dark">
+                        <tr>
+                            <th>Products</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Total</th>
+                            <th>Remove</th>
+                        </tr>
+                    </thead>
+                    <tbody class="align-middle" data-user="<%= userData._id %>">
+                        <% productData.forEach((product) => { %>
+                        <tr data-cart-id="<%= product._id %>" data-product-id="<%= product.product._id %>"></tr>
+                            <td class="align-middle">
+                                <img src="/uploads/<%= product.product.images[0] %>" alt="Product-Image" style="width: 50px;">
+                                <%= product.product.title %>
+                            </td>
+                            <td class="align-middle">&#8377;<span class="price"><%= product.product.price %></span></td>
+                            <td class="align-middle">
+                                <div class="input-group quantity mx-auto" style="width: 100px;">
+                                    <button class="cart-item-count btn-danger mr-3 decrementButton" data-product-id="<%= product._id %>" data-product-item-id="<%= product.product._id %>" data-action="-">-</button>
+                                    <span class="quantityDisplay"><%= product.quantity %></span>
+                                    <button class="cart-item-count btn-success ml-3 incrementButton" data-product-id="<%= product._id %>" data-product-item-id="<%= product.product._id %>" data-action="+">+</button>
+                                </div>
+                            </td>
+                            <td class="align-middle">&#8377;<span class="totalPrice"><%= product.product.price * product.quantity %></span></td>
+                            <td class="align-middle">
+                                <button class="btn btn-sm btn-primary removeButton" onclick="removeCartItem('<%= product._id %>','<%= product.product._id %>')">
+                                    <i class="fa fa-times"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <% }); %> 
+                    </tbody>                    
+                </table>
                 <% } else { %>
-                    <p>Add Product to Cart.</p>
+                    <p>Add Products to Cart.</p>
                 <% } %>
             </div>
-            
             <div class="col-lg-4">
                 <form class="mb-5" action="">
                     <div class="input-group">
@@ -92,15 +84,16 @@
                     <div class="card-footer border-secondary bg-transparent">
                         <div class="d-flex justify-content-between mt-2">
                             <h5 class="font-weight-bold">Total</h5>
-                            <h5 class="font-weight-bold">$160</h5>
+                            <h5 class="font-weight-bold">&#8377;<span id="total"><%= totalValue %></span></h5>
                         </div>
-                       <a href="/"> <button class="btn btn-block btn-primary my-3 py-3">Proceed To Checkout</button></a>
+                        <a href="/checkout"><button class="btn btn-block btn-primary my-3 py-3">Proceed To Checkout</button></a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <!-- Cart End -->
+ 
 
 
     <!-- Footer Start -->
@@ -176,6 +169,86 @@
 
     <!-- Back to Top -->
     <a href="#" class="btn btn-primary back-to-top"><i class="fa fa-angle-double-up"></i></a>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+       $(document).ready(function() {
+    // jQuery event handler for increment and decrement buttons
+    $(document).on('click', '.incrementButton, .decrementButton', function() {
+        var $button = $(this);
+        var product_id = $button.data('product-id');
+        var userData = $("tbody").data("user");
+        var product_item_id = $button.data('product-item-id');
+        var action = $button.data('action');
+        // Find the corresponding quantity display element
+        var $row = $button.closest('tr');
+        var $quantityDisplay = $row.find('.quantityDisplay');
 
+        // Get the current quantity after $quantityDisplay is defined
+        var currentQuantity = parseInt($quantityDisplay.text());
+        $.ajax({
+            url: `/change_quantity`,
+            data: {
+                user:userData,
+                cart: product_id,
+                product: product_item_id,
+                count: action === '+' ? 1 : -1,
+            },
+            method: 'post',
+            success: function(response) {
+                if (response.status) {
+                    var newQuantity = currentQuantity + (action === '+' ? 1 : -1);
+                    $quantityDisplay.text(newQuantity);
+                    console.log('newQuantity is: ',newQuantity);
+                    var productPrice = parseFloat($row.find('.price').text());
+                    var $totalPrice = $row.find('.totalPrice');
+                    var newTotalPrice = productPrice * newQuantity;
+                    console.log('new total price ',newTotalPrice);
+                    $totalPrice.text(newTotalPrice);
+
+                    var $decrementButton = $row.find('.decrementButton');
+                    if (newQuantity === 1) {
+                        $decrementButton.prop('disabled', true);
+                    } else {
+                        $decrementButton.prop('disabled', false);
+                    }
+                    document.getElementById('total').innerHTML= response.totalValue
+                }
+            }
+        });
+    });
+});
+
+function removeCartItem(cartId, productId) {
+    // Send an AJAX request to the server to remove the item from the cart.
+    // You can replace this with your actual delete logic.
+    $.ajax({
+    url: '/remove_item',
+    data: {
+        cartId: cartId,
+        productId: productId
+    },
+    method: 'post',
+    success: function(response) {
+        console.log('response is ',response);
+        window.location.reload();
+        if (response.status) {
+            // Item was successfully removed. You can update the UI accordingly.
+            var $row = $(`tr[data-cart-id="${cartId}"][data-product-id="${productId}"]`);
+            $row.remove();
+        } else {
+            // Handle the case where the removal was not successful (e.g., show an error message).
+            console.log('Removal was not successful.');
+        }
+    },
+    error: function(xhr, status, error) {
+        console.log('AJAX error:', status, error);
+    },
+    complete: function() {
+        console.log('AJAX request completed.');
+    }
+});
+}
+
+</script>
 
 <%- include('../partials/userFooter.ejs') %>

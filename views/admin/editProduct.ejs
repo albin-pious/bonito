@@ -7,7 +7,7 @@
   <div class="containar w-50 m-auto">
     <ol class="breadcrumb" style="background: none;">
       <li class="breadcrumb-item"><a href="/admin/productlist">Products</a></li>
-      <li class="breadcrumb-item active text-white">Add Product</li>
+      <li class="breadcrumb-item active text-white">Edit Product</li>
     </ol>
   </div>
   <!-- End Breadcrumb -->
@@ -16,13 +16,13 @@
       <div class="tm-bg-primary-dark tm-block tm-block-h-auto">
         <div class="row">
           <div class="col-12">
-            <h2 class="tm-block-title d-inline-block">Add Product</h2>
+            <h2 class="tm-block-title d-inline-block">Edit Product</h2>
           </div>
         </div>
         <div class="row tm-edit-product-row">
           <div class="col-xl-6 col-lg-6 col-md-12">
             <% if(productData){ %>
-              <form action="/admin/addproduct" method="post" class="tm-edit-product-form" id="product-form" enctype="multipart/form-data">
+              <form action="/admin/editproduct" method="post" class="tm-edit-product-form" id="product-form" enctype="multipart/form-data">
               <div class="form-group mb-3">
                 <label for="name">Product Name</label>
                 <input id="name" name="name" type="text" value="<%= productData.title %>" class="form-control validate" required />
@@ -30,20 +30,22 @@
               <div class="form-group mb-3">
                 <label for="description">Description</label>
                 <textarea class="form-control validate" rows="3" name="description" required><%=productData.description%></textarea>
+                <input type="hidden" value="<%= productData._id %>" name="id">
               </div>
               <div class="form-group mb-3">
                 <label for="category">Brand</label>
                 <select class="custom-select tm-select-accounts" id="brandSelect" name="brand">
-                    <% if (Array.isArray(brandData)) { %>
-                      <% brandData.forEach((brand) => { %>
-                        <% if (productData.brand === brand._id) { %>
-                          <option value="<%= brand._id %>" selected><%= brand.brandName %></option>
-                        <% } else { %>
-                          <option value="<%= brand._id %>"><%= brand.brandName %></option>
-                        <% } %>
-                      <% }) %>
-                    <% } %>
+                  <% if (Array.isArray(brandData)) { %>
+                    <% brandData.forEach((brand) => { %>
+                      <% if (productData.brand.toString() === brand._id.toString()) { %>
+                        <option value="<%= brand._id %>" selected><%= brand.brandName %></option>
+                      <% } else { %>
+                        <option value="<%= brand._id %>"><%= brand.brandName %></option>
+                      <% } %>
+                    <% }) %>
+                  <% } %>
                 </select>
+                
                   
                   
            
@@ -80,29 +82,21 @@
                   <input id="stock" name="stock" type="text" value="<%=productData.stock %>" class="form-control validate" style="background-color: #54657D;" readonly required />
                 </div>
                 <div class="form-group mb-3 col-md-4">
-                    <label for="category">Category</label>
-                    <select class="custom-select tm-select-accounts" id="categorySelect" name="category">
-                      <option value="" selected>Select category</option>
-                      <% if (Array.isArray(brandData)) { %>
-                          <% brandData.forEach((brand) => { %>
-                              <% if (productData.brand === brand._id) { %>
-                                  <% const categoryIds = brand.categoryId; %>
-                                  <% categoryIds.forEach((categoryId) => { %>
-                                      <% const category = catData.find((cat) => cat._id['$oid'] === categoryId); %>
-                                      <% if (category) { %>
-                                          <option value="<%= categoryId %>" <%= (productData.category === categoryId) ? 'selected' : '' %>><%= category.categoryName || '' %></option>
-                                      <% } else { %>
-                                          <option value="<%= categoryId %>">Category not found</option>
-                                      <% } %>
-                                  <% }) %>
-                              <% } %>
-                          <% }) %>
+                  <label for="category">Category</label>
+                  <select class="custom-select tm-select-accounts" id="category" name="categoryId">
+                    <% for (let i = 0; i < catData.length; i++) { %>
+                      <% if (catData[i]._id.toString() === productData.category.toString()) { %>
+                        <option value="<%= catData[i]._id %>" selected><%= catData[i].categoryName %></option>
+                      <% } else { %>
+                        <option value="<%= catData[i]._id %>"><%= catData[i].categoryName %></option>
                       <% } %>
+                    <% } %>
                   </select>
                   
-                                                   
-                  </div>                 
-                </div>      
+                                   
+                                       
+                </div>                 
+              </div>      
             </div>
             <div class="col-xl-6 col-lg-6 col-md-12 mx-auto mb-4">
             <!-- Sizes -->
@@ -112,23 +106,23 @@
                   <div class="form-group mb-3">
                     <label>Sizes</label>
                       <div class="custom-control custom-checkbox">
-                        <input type="checkbox" id="size_s" name="size_s" value="S" class="custom-control-input" onchange="toggleInput('size_s','unit_s')" />
+                        <input type="checkbox" id="size_s" name="size_s" value="S" class="custom-control-input" onchange="toggleInput('size_s','unit_s')" <% if (productData.sizeUnits.S) { %>checked<% } %>/>
                           <label class="custom-control-label" for="size_s">S</label>
                       </div>
                       <div class="custom-control custom-checkbox">
-                        <input type="checkbox" id="size_m" name="size_m" value="M" class="custom-control-input" onchange="toggleInput('size_m','unit_m')" />
+                        <input type="checkbox" id="size_m" name="size_m" value="M" class="custom-control-input" onchange="toggleInput('size_m','unit_m')" <% if (productData.sizeUnits.M) { %>checked<% } %>/>
                         <label class="custom-control-label" for="size_m">M</label>
                       </div>
                       <div class="custom-control custom-checkbox">
-                        <input type="checkbox" id="size_l" name="size_l" value="L" class="custom-control-input" onchange="toggleInput('size_l','unit_l')" />
+                        <input type="checkbox" id="size_l" name="size_l" value="L" class="custom-control-input" onchange="toggleInput('size_l','unit_l')" <% if (productData.sizeUnits.L) { %>checked<% } %>/>
                         <label class="custom-control-label" for="size_l">L</label>
                       </div>
                       <div class="custom-control custom-checkbox">
-                        <input type="checkbox" id="size_xl" name="size_xl" value="XL" class="custom-control-input" onchange="toggleInput('size_xl','unit_xl')" />
+                        <input type="checkbox" id="size_xl" name="size_xl" value="XL" class="custom-control-input" onchange="toggleInput('size_xl','unit_xl')" <% if (productData.sizeUnits.XL) { %>checked<% } %>/>
                         <label class="custom-control-label" for="size_xl">XL</label>
                       </div>
                       <div class="custom-control custom-checkbox">
-                        <input type="checkbox" id="size_xxl" name="size_xxl" value="XXL" class="custom-control-input" onchange="toggleInput('size_xxl','unit_xxl')" />
+                        <input type="checkbox" id="size_xxl" name="size_xxl" value="XXL" class="custom-control-input" onchange="toggleInput('size_xxl','unit_xxl')" <% if (productData.sizeUnits.XXL) { %>checked<% } %>/>
                         <label class="custom-control-label" for="size_xxl">XXL</label>
                       </div>
                     </div>
@@ -138,20 +132,20 @@
                     <div class="form-group mb-3 text-center">
                       <label>Units</label>
                       <div class="custom-control">
-                        <input type="text" id="unit_s" name="unit_s" class="form-control mt-3"  placeholder="Enter units for S" style="background-color: #54657D;" disabled/>
+                        <input type="text" id="unit_s" name="unit_s" class="form-control mt-3" value="<%= productData.sizeUnits.S || '' %>" placeholder="Enter units for S" style="background-color: #54657D;" <% if (!productData.sizeUnits.S) { %>disabled<% } %>/>
                       </div>
                       <div class="custom-control">
-                        <input type="text" id="unit_m" name="unit_m" class="form-control mt-3" placeholder="Enter units for M" style="background-color: #54657D;" disabled/>
-                        </div>
-                      <div class="custom-control">
-                        <input type="text" id="unit_l" name="unit_l" class="form-control mt-3" placeholder="Enter units for L" style="background-color: #54657D;" disabled/>
+                        <input type="text" id="unit_m" name="unit_m" class="form-control mt-3" value="<%= productData.sizeUnits.M || '' %>" placeholder="Enter units for M" style="background-color: #54657D;" <% if (!productData.sizeUnits.M) { %>disabled<% } %>/>
                       </div>
                       <div class="custom-control">
-                        <input type="text" id="unit_xl" name="unit_xl" class="form-control mt-3" placeholder="Enter units for XL" style="background-color: #54657D;" disabled/>
+                        <input type="text" id="unit_l" name="unit_l" class="form-control mt-3" value="<%= productData.sizeUnits.L || '' %>" placeholder="Enter units for L" style="background-color: #54657D;" <% if (!productData.sizeUnits.L) { %>disabled<% } %>/>
                       </div>
                       <div class="custom-control">
-                        <input type="text" id="unit_xxl" name="unit_xxl" class="form-control mt-2" placeholder="Enter units for XXL" style="background-color: #54657D;" disabled/>
+                        <input type="text" id="unit_xl" name="unit_xl" class="form-control mt-3" value="<%= productData.sizeUnits.XL || '' %>" placeholder="Enter units for XL" style="background-color: #54657D;" <% if (!productData.sizeUnits.XL) { %>disabled<% } %>/>
                       </div>
+                      <div class="custom-control">
+                        <input type="text" id="unit_xxl" name="unit_xxl" class="form-control mt-2" value="<%= productData.sizeUnits.XXL || '' %>" placeholder="Enter units for XXL" style="background-color: #54657D;" <% if (!productData.sizeUnits.XXL) { %>disabled<% } %>/>
+                      </div>                      
                     </div>
                   </div>
                 </div>
@@ -162,14 +156,18 @@
                   </i>
                 </div>
                 <div class="custom-file mt-3 mb-3">
-                  <input id="fileInput" name="images" type="file" style="display:none;" accept="image/png,image/jpeg" multiple />
+                  <input id="fileInput" name="images" type="file" style="display:none;" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp,image/svg" multiple onchange="previewImages(event)"/>
                   <input type="button" class="btn btn-primary btn-block mx-auto" value="UPLOAD PRODUCT IMAGE"  onclick="document.getElementById('fileInput').click();"/>
-                  <button id="cropButton" class="btn btn-primary btn-block mx-auto" disabled>Crop Images</button>
-                  <div id="uploadedImagesContainer"></div>
+                  <!-- <button id="cropButton" class="btn btn-primary btn-block mx-auto" disabled>Crop Images</button> -->
+                  <div id="image-previews" class="d-flex justify-content-center">
+                    <% productData.images.forEach((x)=>{ %>
+                      <img src="/uploads/<%= x %>" alt="Product Images" style="max-width: 15%;height: auto;margin: 10px;">
+                    <% }) %>
+                  </div>
                 </div>
               </div>
               <div class="col-12">
-                <button type="submit" class="btn btn-primary text-uppercase" id="submitBtn" disabled>Add Product Now</button>
+                <button type="submit" class="btn btn-primary text-uppercase" id="submitBtn">Save Changes</button>
               </div>
           </form>
           <%}else{ %>
@@ -203,7 +201,80 @@
       $("#expire_date").datepicker();
     });
 
-  </script>
+  // utility function
+function calculateTotalUnits() {
+  let totalUnits = 0;
+
+  const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+  checkboxes.forEach(checkbox => {
+      if (checkbox.checked) {
+          const size = checkbox.value.toLowerCase();
+          const inputField = document.getElementById('unit_' + size);
+          if (inputField && inputField.value) {
+              totalUnits += parseInt(inputField.value) || 0;
+          }
+      }
+  });
+
+  return totalUnits;
+}
+
+// Event handlers
+function toggleInput(checkboxId, inputId) {
+  const checkbox = document.getElementById(checkboxId);
+  const inputField = document.getElementById(inputId);
+  const stockInput = document.getElementById('stock');
+
+  if (checkbox && inputField) {
+    inputField.disabled = !checkbox.checked;
+
+    if (!checkbox.checked) {
+      // If unchecked, subtract the value and clear the input field
+      const units = parseInt(inputField.value) || 0;
+      const totalUnits = parseInt(stockInput.value) || 0;
+      stockInput.value = totalUnits - units;
+      inputField.value = '';
+    }
+
+    // Listen for input and change events on the input field
+    inputField.addEventListener('input', updateTotal);
+    inputField.addEventListener('change', updateTotal);
+    calculateTotalUnits();
+  }
+}
+
+function updateTotal() {
+    const totalUnits = calculateTotalUnits();
+    const stockInput = document.getElementById('stock');
+    if (stockInput) {
+        stockInput.value = totalUnits;
+    }
+}
+
+function previewImages(event){
+  let fileInput = event.target;
+  if(fileInput.files.length >3){
+    alert('You can only select up to 3 files');
+    event.target.value='';
+  }
+  let imageContainer = document.getElementById('image-previews');
+  imageContainer.innerHTML='';
+  for(let i=0;i<fileInput.files.length; i++){
+    let reader = new FileReader();
+    reader.onload = function(e){
+      let img = document.createElement('img');
+      img.src = e.target.result;
+      img.alt = 'Selected Image';
+      img.style.maxWidth = '15%';
+      img.style.height = 'auto';
+      img.style.margin = '10px';
+      imageContainer.appendChild(img);
+    }
+    reader.readAsDataURL(fileInput.files[i]);
+  }
+}
+</script>
+
 
 
 
