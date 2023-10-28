@@ -311,7 +311,7 @@
             <% if(recentProducts && recentProducts.length > 0){ %>
                 <% recentProducts.forEach(product =>{ %>
                     <div class="col-lg-3 col-md-6 col-sm-12 pb-1">
-                        <div class="card product-item border-0 mb-4">
+                        <div class="card product-item border-0 mb-4" style="width: 18rem;max-height: 504px;">
                             <div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
                                 <img class="card-img-top w-100" src="/uploads/<%= product.images[0] %>" alt="Product-Image">
                             </div>
@@ -322,9 +322,10 @@
                                 </div>
                             </div>
                             <div class="card-footer d-flex justify-content-between bg-light border">
-                                <a href="" class="btn btn-sm text-dark p-0"><i class="fas fa-eye text-primary mr-1"></i>View Detail</a>
-                                <a href="/add_to_cart/<%= product._id %>" class="btn btn-sm text-dark p-0" onclick="handleAddToCart('<%= product._id %>')"><i class="fas fa-shopping-cart text-primary mr-1"></i>Add To Cart</a>
-                                <a href="" class="btn btn-sm text-dark p-0"><i class="fas fa-heart text-primary mr-1"></i>Add To Wishlist</a>
+                                <a href="" class="btn btn-sm text-dark p-0"><i class="fas fa-eye text-primary mr-1"></i></a>
+                                <!-- <a href="/add_to_cart/<%= product._id %>" class="btn btn-sm text-dark p-0" onclick="handleAddToCart('<%= product._id %>')"><i class="fas fa-shopping-cart text-primary mr-1"></i>Add To Cart</a> -->
+                                <button class="btn btn-sm text-dark p-0l" onclick="addToCart('<%= product._id %>')"><i class="fas fa-shopping-cart text-primary mr-1"></i></button>
+                                <a href="" class="btn btn-sm text-dark p-0"><i class="fas fa-heart text-primary mr-1"></i></a>
                             </div>
                         </div>
                     </div>

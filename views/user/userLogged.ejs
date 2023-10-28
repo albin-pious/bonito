@@ -53,11 +53,11 @@
         <div class="col-lg-3 col-6 text-right">
             <a href="" class="btn border">
                 <i class="fas fa-heart text-primary"></i>
-                <sup><span class="badge badge-primary">0</span></sup>
+                <sup><span class="badge badge-secondary">0</span></sup>
             </a>
             <a href="/bonito_cart" class="btn border">
                 <i class="fas fa-shopping-cart text-primary"></i>
-                <span class="badge">0</span>
+                <sup><span class="badge badge-success" id="cart-count"><%= cartCount %></span></sup>
             </a>
         </div>
     </div>
@@ -84,7 +84,7 @@
                     </div>
                     <% if(catData && catData.length > 0){ %>
                     <% catData.forEach((x)=>{ %>
-                        <a href="/bonito_shop/<%= x._id %>" class="nav-item nav-link"><%= x.categoryName %></a>
+                        <a href="/bonito_shop/category/<%= x._id %>" class="nav-item nav-link"><%= x.categoryName %></a>
                     <% }) %>
                     
                     <% } %>
