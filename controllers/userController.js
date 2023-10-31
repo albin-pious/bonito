@@ -1,25 +1,95 @@
 const User = require('../models/userModel');
+const Product = require('../models/productModel');
+const Category = require('../models/categoryModel');
+const Brand = require('../models/brandModel');
+const Order = require('../models/orderModel');
+const Cart = require('../models/cartModel');
 const { getDb } = require('../config/dbConnect');
+const { ObjectId } = require('mongodb');
 const otpService = require('../utilities/otpService');
-
+const { paginate } = require('../helpers/pagination');
 const bcrypt = require('bcrypt');
+const Razorpay = require('razorpay');
+const crypto = require('crypto');
+const dotenv = require('dotenv').config();
 const { v4: uuidv4 } = require('uuid');
+
+//RAZORPAY INSTANCES.
+var instance = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
 
 const loadHome = async (req, res) => {
   try {
     const db = getDb();
-    const collection = db.collection('users');
+    const userCollection = db.collection('users');
+    const productCollection = db.collection('products');
+    const catCollection = db.collection('category');
+    
+    const catData = await catCollection.find().toArray();
+    console.log('cat data is: ',catData);
+    const recentProducts = await productCollection.find()
+    .sort({ _id: -1 })
+    .limit(8)
+    .toArray();
     let userData = null;
     if (req.session.user) {
-      const userId = req.session.user;
-      userData = await collection.findOne({ _id: userId });
-      res.render('home', { userData: userData });
+      const userId = req.session.user._id;
+      console.log('userId ',userId);
+      const objectIdUserId = new ObjectId(userId)
+      userData = await userCollection.findOne({ _id: objectIdUserId });
+      let cartCount = await getCartCount(objectIdUserId );
+      let wishlistCount = await getWishlistCount(userId);
+      res.render('home', { 
+        userData: userData,
+        recentProducts:recentProducts,
+        catData,
+        cartCount,
+        wishlistCount
+       });
+    }else{
+      res.render('home',{
+        recentProducts:recentProducts,
+        catData
+      });
     }
-    res.render('home');
   } catch (error) {
     console.log(error.message);
   }
 };
+
+const getCartCount = async (userId) => {
+  try {
+    let count = 0;
+    const db = getDb();
+    let cartCollection = db.collection('cart');
+    const cartData = await cartCollection.findOne({ userId});
+    if (cartData) {
+      count = cartData.productId.length;
+    }
+    return count;
+  } catch (error) {
+    console.error('error when loading counting cart ', error);
+    throw error; // Rethrow the error to handle it in the calling code
+  }
+};
+
+const getWishlistCount = async(userId)=>{
+  try {
+    let count = 0;
+    const db = getDb();
+    let wishlistCollection = db.collection('wishlist');
+    const wishlistData = await wishlistCollection.findOne({userId});
+    if(wishlistData){
+      count = wishlistData.products.length;
+    }
+    return count;
+  } catch (error) {
+    console.error('error when loading counting wishlist',error);
+    throw error;
+  }
+}
 
 const loadLogin = async (req, res) => {
   try {
@@ -121,8 +191,6 @@ const resendOtp = async (req, res) => {
   }
 };
 
-
-
 const verifyOtp = async (req, res) => {
   const { otp } = req.body;
   let userData;
@@ -170,7 +238,8 @@ const sendLoginOtp = async(req,res)=>{
       console.log('otp for sms is',generatedOTP);
       const completeNumber = '+91'+mobile;
       const {_id,name,email,password,role}=user;
-      const smsSend = await otpService.sendOtpSMS(completeNumber,generatedOTP)
+      // const smsSend = await otpService.sendOtpSMS(completeNumber,generatedOTP)
+      const smsSend = 5;
       if(smsSend){
         req.session.loginData = {
           _id,
@@ -234,19 +303,40 @@ const verifyLogin = async (req, res) => {
         console.log('user role is', user.role);
         if (user.role === 'User') {
           if(user.blocked){
-            return res.render('login',{message:'Your account is blocked.'});
+            return res.render('login',{message:'Your account is blocked.',title:''});
           }
-          req.session.user = user._id;
+          req.session.user = {
+            _id:user._id,
+            role:user.role
+          };
+          const db = getDb();
+          const productCollection = db.collection('products');
+          const catCollection = db.collection('category');
+          const userId = req.session.user._id;
+          const catData = await catCollection.find().toArray();
+          const recentProducts = await productCollection.find()
+          .sort({ _id: -1 })
+          .limit(8)
+          .toArray();
           console.log('session is : ', req.session.user);
-          return res.render('home', { userData: user });
+          let cartCount = await getCartCount(userId);
+          let wishlistCount = await getWishlistCount(userId);
+          console.log('cart count is ',cartCount);
+          return res.render('home', { 
+            userData: user,
+            recentProducts,
+            catData,
+            cartCount,
+            wishlistCount
+          });
         } else {
-          return res.render('login', { message: 'permission denied.' });
+          return res.render('login', { message: 'permission denied.',title:'' });
         }
       } else {
-        return res.render('login', { message: 'e-mail or password are incorrect.' });
+        return res.render('login', { message: 'e-mail or password are incorrect.',title:'' });
       }
     } else {
-      return res.render('login', { message: 'e-mail or password incorrect' });
+      return res.render('login', { message: 'e-mail or password incorrect',title:'' });
     }
   } catch (error) {
     console.log(error);
@@ -257,6 +347,7 @@ const verifyLogin = async (req, res) => {
 const verifyLoginWithOtp = async(req,res)=>{
   const {otp}=req.body;
   try {
+    const db = getDb();
     console.log('otp from reqBody ',otp);
     const userData = req.session.loginData;
     const storedOTP = userData.generatedOTP;
@@ -271,10 +362,33 @@ const verifyLoginWithOtp = async(req,res)=>{
         if(userData.blocked){
           return res.render('smsVerify',{message:'your account is blocked.'})
         }
-        req.session.user = userData._id;
+        req.session.user = {
+          _id:userData._id,
+          role:userData.role
+        };
         delete req.session.loginData;
-        console.log('session is ',req.session.user);
-        return res.render('home', { userData: userData });
+        const userId = new ObjectId(req.session.user._id);
+        console.log('userId is ',userId);
+          const productCollection = db.collection('products');
+          const catCollection = db.collection('category');
+          console.log('hai 1');
+          const catData = await catCollection.find().toArray();
+          const recentProducts = await productCollection.find()
+          .sort({ _id: -1 })
+          .limit(8)
+          .toArray();
+          console.log('session is : ', req.session.user);
+          let cartCount = await getCartCount(userId);
+          let wishlistCount = await getWishlistCount(userId);
+          console.log('hai 2');
+          console.log('cart count is ',cartCount);
+          return res.render('home', { 
+            userData,
+            recentProducts,
+            catData,
+            cartCount,
+            wishlistCount
+          });
       }else{
         return res.render('smsVerify',{message:'not permitted to this section.'})
       }
@@ -451,7 +565,7 @@ const resetPassword = async (req, res) => {
         { $or:[{email:findUser},{mobile:findUser}]},
         { $set: {password:securePassword}}
       );
-      res.render('login',{message:'Password reset successfull, please login.'})
+      res.render('login',{message:'Password reset successfull, please login.',title:''})
     }
     res.render('resetPassword',)
 
@@ -460,14 +574,958 @@ const resetPassword = async (req, res) => {
   }
 }
 
+const loadShop = async(req,res)=>{
+  const pageNum = parseInt(req.query.page,10) || 1;
+  const perPage = 9;
+  try {
+    const db = getDb();
+    const productCollection = db.collection('products');
+    const brandCollection = db.collection('brand');
+    const userCollection = db.collection('users');
+    const catCollection = db.collection('category');
+    const catData = await catCollection.find().toArray();
+    const brandData = await brandCollection.find().sort({ fieldName: 1 }).limit(10).toArray();
+    let { result: productData, currentPage, totalPages, totalcount } = await paginate( productCollection, pageNum, perPage );
+    
+    if(req.session.user){
+      let user = req.session.user._id;
+      let objectIdUserId = new ObjectId(user);
+      const userData = await userCollection.findOne({_id: new ObjectId(user)});
+      const cartCount = await getCartCount(objectIdUserId)
+      const wishlistCount = await getWishlistCount(objectIdUserId);
+      res.render('shop',{
+        productData,
+        currentPage,
+        totalDocument: totalcount,
+        pages: totalPages,
+        brandData,
+        userData,
+        cartCount,
+        catData,
+        wishlistCount
+      });
+    }else{
+      res.render('shop',{
+        productData,
+        currentPage,
+        totalDocument: totalcount,
+        pages: totalPages,
+        brandData
+      });
+    }
+  } catch (error) {
+    console.error('error occured while loading page.',error);
+  }
+}
+
+const loadProductDetailes = async(req,res)=>{
+  const {id:productId} = req.params;
+  try {
+    console.log('id from params: ',productId);
+    const db = getDb();
+    console.log('hai 1');
+    const productCollection = db.collection('products');
+    const objectIdProductId = new ObjectId(productId);
+    const productData = await productCollection.findOne({_id:objectIdProductId});
+    console.log('product data ',productData);
+    const category = productData.category;
+    console.log('category id is: ',category);
+    const productSuggestion = await fetchRandomProducts(category,productId,5);
+    console.log('hai 2');
+    console.log('suggestion data is: ',productSuggestion);
+    res.render('product',{
+      data: productData,
+      suggestion: productSuggestion
+    });
+  } catch (error) {
+    console.log('error occured while creating product detailes. ',error);
+  }
+}
+
+const loadCheckout = async(req,res)=>{
+  try {
+    const user = req.session.user; 
+    console.log(user);
+    const userId = user._id;
+    const db = getDb();
+    const productCollection = db.collection('products');
+    const cartCollection = db.collection('cart');
+    const userCollection = db.collection('users');
+    const objectIdUserId = new ObjectId(userId);
+    const userData = await userCollection.findOne({_id:objectIdUserId});
+    const totalValue = await calculateCartTotal(cartCollection,userId)
+    const cartId = await cartCollection.findOne({userId: objectIdUserId},{$project:{_id:0}});
+    const cartData = await cartCollection.aggregate([
+      {
+        $match:{userId:objectIdUserId}
+      },
+      {
+        $unwind:'$productId'
+      },
+      {
+        $project:{
+          item:'$productId.item',
+          quantity:'$productId.quantity'
+        }
+      },
+      {
+        $lookup:{
+          from:'products',
+          localField:'item',
+          foreignField:'_id',
+          as:'product'
+        }
+      },
+      {
+        $project:{
+          item:1,
+          quantity:1,
+          product:{$arrayElemAt:['$product',0]}
+        }
+      }
+     ]).toArray();
+    res.render('checkout',{
+      userData,
+      totalValue,
+      productData:cartData,
+      cartId
+    });
+  } catch (error) {
+    console.log('error occured loading checkout ',error);
+  }
+}
+
+const fetchRandomProducts = async (categoryId, currentProductId, limit) => {
+  try {
+    const db = getDb();
+    const productCollection = db.collection('products');
+    console.log('categoryid is ',categoryId);
+    // Count the total products for the given category
+    const totalProducts = await productCollection.countDocuments({ category: categoryId });
+    console.log('totalproducts',totalProducts);
+    // Ensure the random starting index does not exceed the available products
+    const randomStartIndex = Math.max(0, totalProducts - limit);
+   
+    const categoryProductRandom = await productCollection
+      .find({ category: categoryId, _id: { $ne: new ObjectId(currentProductId) } })
+      .skip(randomStartIndex)
+      .limit(limit)
+      .toArray();
+    console.log('category product random ',categoryProductRandom);  
+    return categoryProductRandom;
+  } catch (error) {
+    console.log('error occurred while fetching category products:', error);
+    return [];
+  }
+}
+
+const setAddress = async (req, res) => {
+  try {
+    const {
+      fname,
+      lname,
+      email,
+      mobile,
+      address1,
+      address2,
+      country,
+      city,
+      state,
+      zipcode
+    } = req.body;
+
+    const db = getDb();
+    const userCollection = db.collection('users');
+    const user = req.session.user;
+    const userId = user._id
+    const objectIdUserId = new ObjectId(userId);
+    const userData = await userCollection.findOne({ _id: objectIdUserId });
+
+    if (!userData) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    // Update the single address object
+    userData.addresses = {
+      firstName: fname,
+      lastName: lname,
+      email,
+      mobile,
+      address1,
+      address2,
+      country,
+      city,
+      state,
+      zipcode
+    };
+
+    const result = await userCollection.updateOne(
+      { _id: objectIdUserId },
+      { $set: { addresses: userData.addresses } }
+    );
+
+    if (result.modifiedCount === 1) {
+      return res.redirect('/checkout')
+    } else {
+      return res.status(500).json({ error: 'Failed to update user.' });
+    }
+  } catch (error) {
+    console.error('Error occurred while updating address:', error);
+    return res.status(500).json({ error: 'Server error.' });
+  }
+};
+
+const editAddress = async (req, res) => {
+  try {
+    const {
+      fname,
+      lname,
+      email,
+      mobile,
+      address1,
+      address2,
+      country,
+      city,
+      state,
+      zipcode
+    } = req.body;
+
+    const db = getDb();
+    const userCollection = db.collection('users');
+    const user = req.session.user;
+    const userId = user._id;
+    const objectIdUserId = new ObjectId(userId);
+    const userData = await userCollection.findOne({ _id: objectIdUserId });
+
+    if (!userData) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    // Check if the provided city and state match the address in the "addresses" object
+    if (userData.addresses.city === city && userData.addresses.state === state) {
+      // Update the address properties
+      userData.addresses.firstName = fname;
+      userData.addresses.lastName = lname;
+      userData.addresses.email = email;
+      userData.addresses.mobile = mobile;
+      userData.addresses.address1 = address1;
+      userData.addresses.address2 = address2;
+      userData.addresses.country = country;
+      userData.addresses.zipcode = zipcode;
+
+      const result = await userCollection.updateOne(
+        { _id: objectIdUserId },
+        { $set: { addresses: userData.addresses } }
+      );
+
+      if (result.modifiedCount === 1) {
+        return res.redirect('/checkout');
+      } else {
+        return res.status(500).json({ error: 'Failed to update user.' });
+      }
+    } else {
+      return res.status(404).json({ error: 'Address not found.' });
+    }
+  } catch (error) {
+    console.error('Error occurred while updating address:', error);
+    return res.status(500).json({ error: 'Server error.' });
+  }
+};
+
+const calculateCartTotal = async(cartCollection, userId)=> {
+  const objectIdUserId = new ObjectId(userId);
+
+  const cartData = await cartCollection.aggregate([
+    {
+      $match: { userId: objectIdUserId }
+    },
+    {
+      $unwind: '$productId'
+    },
+    {
+      $project: {
+        item: '$productId.item',
+        quantity: '$productId.quantity'
+      }
+    },
+    {
+      $lookup: {
+        from: 'products',
+        localField: 'item',
+        foreignField: '_id',
+        as: 'product'
+      }
+    },
+    {
+      $project: {
+        item: 1,
+        quantity: 1,
+        product: { $arrayElemAt: ['$product', 0] }
+      }
+    },
+    {
+      $addFields: {
+        numericPrice: { $toDouble: '$product.price'}
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        totalAmount: {
+          $sum: { $multiply: ['$quantity', '$numericPrice'] }
+        }
+      }
+    }
+  ]).toArray();
+
+  // The result will be an array with a single document containing the total amount.
+  const totalAmount = cartData[0] ? cartData[0].totalAmount : 0;
+
+  return totalAmount;
+}
+
+const loadCart = async (req, res) => {
+  try {
+    const user = req.session.user;
+    const userId = user._id;
+    const db = getDb();
+    const catCollection = await db.collection('category');
+    const userCollection = await db.collection('users');
+    const cartCollection = await db.collection('cart');
+    const objectIdUserId = new ObjectId(userId);
+    const cartData = await cartCollection.aggregate([
+    {
+      $match:{userId:objectIdUserId}
+    },
+    {
+      $unwind:'$productId'
+    },
+    {
+      $project:{
+        item:'$productId.item',
+        quantity:'$productId.quantity'
+      }
+    },
+    {
+      $lookup:{
+        from:'products',
+        localField:'item',
+        foreignField:'_id',
+        as:'product'
+      }
+    },
+    {
+      $project:{
+        item:1,
+        quantity:1,
+        product:{$arrayElemAt:['$product',0]}
+      }
+    }
+   ]).toArray();
+   let totalValue = await calculateCartTotal(cartCollection,userId);
+   console.log('Total cart amount: ',totalValue);
+    const catData = await catCollection.find().toArray();
+    const userData = await userCollection.findOne({ _id: objectIdUserId });
+    console.log('cart data is: ',cartData);
+    res.render('cart', {
+      catData,
+      userData,
+      productData: cartData,
+      totalValue
+    });
+  } catch (error) {
+    console.error('Error occurred while loading cart page:', error);
+  }
+};
+
+const addProductToCart = async (req, res) => {
+  const { id } = req.params;
+  try {
+      const db = getDb();
+      const cartCollection = db.collection('cart');
+      const user = req.session.user;
+      const userId = user._id;
+      const objectIdUserId = new ObjectId(userId);
+      const objectIdProductId = new ObjectId(id);
+      let proObj = {
+          item: objectIdProductId,
+          quantity: 1
+      }
+
+      // Check if the product already exists in the cart
+      const existingCartItem = await cartCollection.findOne({
+          userId: objectIdUserId,
+          'productId.item': objectIdProductId
+      });
+
+      if (existingCartItem) {
+          // Case 1: Product already exists in the cart, increment the quantity
+          const result = await cartCollection.updateOne(
+              {
+                  userId: objectIdUserId,
+                  'productId.item': objectIdProductId
+              },
+              {
+                  $inc: { 'productId.$.quantity': 1 }
+              }
+          );
+
+          if (result.modifiedCount === 1) {
+              res.json({ status: true });
+          } else {
+              res.json({ status: false });
+          }
+      } else {
+          // Case 2: User has a cart, add the product to the existing cart
+          const userCart = await cartCollection.findOne({ userId: objectIdUserId });
+
+          if (userCart) {
+              const result = await cartCollection.updateOne(
+                  {
+                      userId: objectIdUserId
+                  },
+                  {
+                      $push: { productId: proObj }
+                  }
+              );
+
+              if (result.modifiedCount === 1) {
+                  res.json({ status: true });
+              } else {
+                  res.json({ status: false });
+              }
+          } else {
+              // Case 3: User doesn't have a cart, create a new cart and add the product
+              const newCart = new Cart(objectIdUserId, [proObj]);
+              const result = await newCart.save();
+              res.json({ status: true });
+          }
+      }
+  } catch (error) {
+      console.log('Error occurred while adding the product to the cart: ', error);
+  }
+}
+
+const changeQuantity = async (req,res)=>{
+  let { user,cart,product,count } = req.body;
+  try {
+    console.log(cart,product,count);
+    console.log('req body is ',req.body);
+    count = parseInt(count);
+    const db = getDb();
+    const cartCollection = db.collection('cart');
+    const totalValue = await calculateCartTotal(cartCollection,user);
+    console.log('totalValue is ',totalValue);
+    const result = await cartCollection.updateOne(
+      {_id: new ObjectId(cart),'productId.item': new ObjectId(product)},
+      {
+        $inc:{'productId.$.quantity':count}
+      }
+    )
+    if(result.modifiedCount === 1){
+      res.json({status:true,totalValue:totalValue});
+    }else{
+      res.json({status:false});
+    }
+    console.log('result is ',result);
+  } catch (error) {
+    console.log('error occure while changing quantity. ',error);
+  }
+}
+
+const removeCartItem = async (req, res) => {
+  let { cartId, productId } = req.body;
+  try {
+      const db = getDb();
+      const cartCollection = db.collection('cart');
+      const result = await cartCollection.updateOne(
+          { _id: new ObjectId(cartId) },
+          {
+              $pull: { productId: { item: new ObjectId(productId) } }
+          }
+      );
+      if (result.modifiedCount === 1) {
+          res.json({ status: true });
+          console.log('remove sucess');
+      } else {
+          res.json({ status: false });
+      }
+  } catch (error) {
+      console.log('error occurred while removing cart.', error);
+  }
+}
+
+const placeOrder = async (req, res) => {
+  const { paymentMethod, userId, cartId } = req.body;
+  try {
+      const db = getDb();
+      const orderCollection = db.collection('order');
+      const cartCollection = db.collection('cart');
+      const userCollection = db.collection('users');
+      let productDetails = await getCartProducts(userId);
+      let totalPrice = await calculateCartTotal(cartCollection, userId);
+      let status = paymentMethod === 'cod' ? 'Placed' : 'Pending';
+      const userData = await userCollection.findOne({ _id: new ObjectId(userId) });
+      const address = userData.addresses || null;
+
+      const newOrder = new Order(userId, productDetails, totalPrice, status, address, paymentMethod);
+      const result = await orderCollection.insertOne(newOrder);
+
+      if (result.insertedId) {
+          console.log('result after insert order: ', result.insertedId);
+          await cartCollection.deleteOne({ userId: new ObjectId(userId) });
+
+          if (paymentMethod === 'cod') {
+              res.json({ codSuccess: true, orderId: result.insertedId });
+          } else if (paymentMethod === 'online') {
+              const rpayOrder = await generateRP(result.insertedId, totalPrice);
+              console.log('order ', rpayOrder);
+              res.json({ order: rpayOrder });
+          }
+      } else {
+          console.log('Error: No inserted ID found');
+      }
+  } catch (error) {
+      console.log('error occurred while placing an order. ', error);
+  }
+}
+
+const getCartProducts = async(userId)=>{
+  try {
+    const db = getDb();
+    const cartCollection = db.collection('cart')
+    let cart = await cartCollection.findOne({userId: new ObjectId(userId)});
+    let product;
+    return product = cart.productId;
+  } catch (error) {
+    console.error('error occured when fetching detailes.',error);
+  }
+}
+
+const getOrderDetailes = async (userId) => {
+  const db = getDb();
+  const orderCollection = db.collection('order');
+  console.log('orderId is ',userId);
+  const aggregationPipeline = [
+    {
+      $match: {
+        userId: userId
+      }
+    },
+    {
+      $sort: {
+        orderDate: -1 
+      }
+    },
+    {
+      $limit: 1 
+    }
+  ];
+
+  const orderData = await orderCollection.aggregate(aggregationPipeline).toArray();
+  return orderData;
+};
+
+const generateRP = async (orderId, totalPrice) => {
+  try {
+    const order = await instance.orders.create({
+      amount: totalPrice*100,
+      currency: 'INR',
+      receipt: orderId,
+      notes: {
+        key1: 'value3',
+        key2: 'value2',
+      },
+    });
+    console.log('hi 2');
+    console.log('order: ', order);
+    return order;
+  } catch (error) {
+    console.error('Error occurred while generating Razorpay order:', error);
+    throw error; // You may choose to rethrow the error for higher-level handling
+  }
+}
+
+const verifyRPPayment = async(req,res)=>{
+  try {
+    const payment = req.body.payment;
+    const order = req.body.order;
+    console.log('body is: ',req.body);
+    const str = `${order.id}|${payment.razorpay_payment_id}`;
+    let hmac = crypto.createHmac('sha256',process.env.RAZORPAY_KEY_SECRET);
+    hmac.update(str);
+    const genrated_signature = hmac.digest('hex');
+    if(genrated_signature === payment.razorpay_signature){
+      await changePaymentStatus(order.receipt);
+      res.json({status:true})
+    }else{
+      res.json({Status:false})
+    }
+  } catch (error) {
+    console.error('error occured while verifying rp',error);
+  }
+}
+
+const changePaymentStatus = async (orderId)=>{
+  try {
+    const db = getDb();
+    const collection = db.collection('order');
+    const result = await collection.updateOne({_id: new ObjectId(orderId)},
+    {
+      $set:{status:'Placed'}
+    })
+  } catch (error) {
+    console.log('error occured while changing password. ',error);
+  }
+}
+
+const successPage = async (req, res) => {
+  try {
+    const userId = req.session.user._id;
+    const orderData = await getOrderDetailes(userId);
+    console.log('order data is ', orderData);
+    res.render('orderSuccess',{orderData:orderData});
+  } catch (error) {
+    console.error('Error occurred while redirecting success page.', error);
+  }
+};
+
+const getUserOders = async(orderId)=>{
+  try {
+    const db = getDb();
+    const orderCollection = db.collection('order');
+    const aggregationPipeline = [
+      {
+        $match: {
+          _id: new ObjectId(orderId)
+        }
+      },
+      {
+        $unwind: '$productDetails'
+      },
+      {
+        $project: {
+          item:'$productDetails.item',
+          quantity:'$productDetails.quantity'
+        }
+      },{
+        $lookup: {
+          from: 'products',
+          localField:'item',
+          foreignField:'_id',
+          as:'product'
+        }
+      },
+      {
+        $project:{
+          item:1,
+          quantity:1,
+          product:{$arrayElemAt:['$product',0]}
+        }
+      }
+      
+    ];
+    const orderData = await orderCollection.aggregate(aggregationPipeline).toArray();
+    return orderData;
+  } catch (error) {
+    console.error('error occured while getting orders. ',error);
+  }
+}
+
+const loadOrderView = async (req, res) => {
+  const userId = req.session.user._id;
+  const pageNum = parseInt(req.query.page, 10) || 1;
+  const perPage = 7;
+
+  try {
+    const db = getDb();
+    const orderCollection = db.collection('order');
+
+    // Count the total number of documents for pagination
+    const totalCount = await orderCollection.countDocuments({ userId });
+
+    // Calculate the total number of pages
+    const totalPages = Math.ceil(totalCount / perPage);
+
+    // Ensure the pageNum is within valid range
+    if (pageNum < 1) {
+      pageNum = 1;
+    } else if (pageNum > totalPages) {
+      pageNum = totalPages;
+    }
+
+    // Calculate the skip value to fetch the correct page of data
+    const skip = (pageNum - 1) * perPage;
+
+    // Retrieve the data for the current page
+    const orderData = await orderCollection
+      .find({ userId: userId })
+      .sort({ _id: -1 })
+      .skip(skip)
+      .limit(perPage)
+      .toArray();
+
+    res.render('orderView', { 
+      orderData, 
+      currentPage: pageNum, 
+      pages:totalPages, 
+      totalDocument:totalCount 
+    });
+  } catch (error) {
+    console.log('Error occurred while loading order view. ', error);
+  }
+};
+
+const loadProductFromOrder = async(req,res)=>{
+  const orderId = req.params.id;
+  try {
+    const products = await getUserOders(orderId);
+    res.render('orderedProducts',{products});
+  } catch (error) {
+    console.error('error occured while loading product from order: ',error);
+  }
+}
+
+const loadShopMenorWomen = async (req, res) => {
+  const gen = req.params.gen;
+  const pageNum = parseInt(req.query.page, 10) || 1;
+  const perPage = 9; // Set your desired items per page here
+
+  try {
+    const db = getDb();
+    const productCollection = db.collection('products');
+
+    // Count the total number of documents matching the gender using the count method
+    const totalcount = await productCollection.countDocuments({ gender: gen });
+    
+    // Fetch the product data with pagination
+    const { result: productData, currentPage, totalPages } = await paginate(productCollection, pageNum, perPage,{ gender:gen });
+    const productDataArray = productData
+    res.render('shop', {
+      productData: productDataArray,
+      currentPage,
+      totalDocument: totalcount,
+      pages: totalPages,
+    });
+  } catch (error) {
+    console.error('Error occurred while loading shop based on gender. ', error);
+  }
+}
+
+const loadShopBasedCategory = async(req,res)=>{
+  const catId = req.params.id;
+  const pageNum = parseInt(req.query.page,10) || 1;
+  const perPage = 9;
+  try {
+    console.log('hai');
+    const db = getDb();
+    const productCollection = db.collection('products');
+    const totalcount = await productCollection.countDocuments({category:catId});
+    const { result: productData,currentPage,totalPages } = await paginate(productCollection,pageNum,perPage,{category:catId});
+    res.render('shop',{
+      productData,
+      currentPage,
+      totalDocument:totalcount,
+      pages:totalPages
+    })
+  } catch (error) {
+    console.log('error occured while loading category. ',error);
+  }
+}
+
+const shopFilter = async(req,res)=>{
+  const { prices,brands,sizes } = req.body;
+  try {
+    const db = getDb();
+    const productCollection = db.collection('products');
+    
+    const filteredProducts = await aggregateProducts(prices,brands,sizes,productCollection);
+    console.log('filtered data is ',filteredProducts)
+  } catch (error) {
+    console.error('error occured while filtering. ',error);
+  }
+}
+
+const aggregateProducts = async (prices, brands, sizes, productCollection) => {
+  try{
+    const priceRanges = {
+      all: {},
+      1: { $gte: 0, $lt: 300 },
+      2: { $gte: 300, $lt: 500 },
+      3: { $gte: 500, $lt: 1000 },
+      4: { $gte: 1000, $lt: 1500 },
+      5: { $gte: 1500 }
+    };
+
+    const pipeline = [];
+
+    if (prices && prices.length > 0) {
+      if (!prices.includes('all')) {
+        const priceFilter = prices.map(price => ({ price: priceRanges[price] }));
+        pipeline.push({ $match: { $or: priceFilter } });
+        console.log('priceFilter is: ',priceFilter);
+        console.log('pipeline: ',pipeline);
+      }
+    }
+    
+
+    if (brands && brands.length > 0) {
+      if (!brands.includes('all')) {
+        pipeline.push({ $match: { brand: { $in: brands } } });
+        console.log('pipeline: ',pipeline);
+      }
+      // If 'all' is present in brands, it doesn't filter by brand
+  }
+
+  if (sizes && sizes.length > 0) {
+    if (!sizes.includes('all')) {
+      const sizeFilters = sizes.map(size => ({ sizeUnits: { $exists: true, $gte: size } }));
+      pipeline.push({ $match: { $or: sizeFilters } });
+      console.log('pipeline: ',pipeline);
+    }
+    // If 'all' is present in sizes, it doesn't filter by size
+  }
+
+  console.log('Aggregation Pipeline:', pipeline);
+  const result = await productCollection.aggregate(pipeline).toArray();
+  console.log('Filtered Products:', result);
+  return result;
+  } catch (error) {
+  console.log('Error occurred while filtering.', error);
+  return [];
+};
+}
+
+const loadWishlist = async (req, res) => {
+  try {
+    const user = req.session.user;
+    const userId = user._id;
+    const db = getDb();
+    const wishlistCollection = await db.collection('wishlist');
+    const objectIdUserId = new ObjectId(userId);
+
+    const wishlistData = await wishlistCollection.aggregate([
+      {
+        $match: { userId: objectIdUserId }
+      },
+      {
+        $unwind: "$products"
+      },
+      {
+        $lookup: {
+          from: 'products',
+          localField: 'products',
+          foreignField: '_id',
+          as: 'wishlistProducts'
+        }
+      },
+      {
+        $group: {
+          _id: '$_id',
+          userId: { $first: '$userId' },
+          products: { $push: '$products' },
+          wishlistProducts: { $push: { $arrayElemAt: ['$wishlistProducts', 0] } }
+        }
+      }
+    ]).toArray();
+
+    console.log('Wishlist Data:');
+wishlistData.forEach(wishlistItem => {
+  console.log('Wishlist Item:', wishlistItem);
+  wishlistItem.wishlistProducts.forEach(product => {
+    console.log('Product:', product);
+    // Log specific details if needed
+    console.log('Product Title:', product.title);
+    console.log('Product Images:', product.images);
+    // Add other properties as necessary
+  });
+});
+ 
+    res.render('wishlist', { wishlistData });
+  } catch (error) {
+    console.error('error occurred while loading wishlist ', error);
+    res.status(500).send('Error loading wishlist');
+  }
+}
+
+const addProductToWishlist = async (req,res)=>{
+  try {
+    const { id } = req.params;
+    const db = getDb();
+    const wishlistCollection = db.collection('wishlist');
+    const user = req.session.user;
+    const userId = user._id;
+    const objectIdUserId = new ObjectId(userId);
+    const objectIdProductId = new ObjectId(id);
+
+    const wishlist = await wishlistCollection.findOne({
+      userId: objectIdUserId,
+      products: objectIdProductId
+    })
+
+    if(wishlist){
+      return res.status(200).json({successExist:true, message:"Product  already added to the wishlist"});
+    }
+
+     const updateResult = await wishlistCollection.updateOne(
+      { userId: objectIdUserId },
+      { $addToSet: { products: objectIdProductId } },
+      { upsert: true }
+    );
+
+    if (updateResult.modifiedCount === 1 || updateResult.upsertedCount === 1) {
+      res.status(200).json({success:true, message: 'Product added to wishlist' });
+    } else {
+      res.status(500).json({ message: 'Failed to add product to wishlist' });
+    }
+  } catch (error) {
+    console.error('error occured while adding product to wishlist. ',error);
+  }
+}
+
+const removeSavedItem = async (req, res) => {
+  const { wishlistId, productId } = req.body;
+
+  try {
+    const db = getDb();
+    const wishlistCollection = db.collection('wishlist');
+
+    const result = await wishlistCollection.updateOne(
+      { _id: new ObjectId(wishlistId) },
+      {
+        $pull: { products: new ObjectId(productId) }
+      }
+    );
+
+    if (result.modifiedCount === 1) {
+      res.json({ status: true });
+      console.log('Removal success');
+    } else {
+      res.json({ status: false });
+      console.log('Document not found or not removed');
+    }
+  } catch (error) {
+    console.error('Error occurred while removing saved product: ', error);
+    res.status(500).json({ status: false, error: 'Internal Server Error' });
+  }
+};
 
 module.exports = {
   loadHome,
+  loadShop,
   loadLogin,
   loadRegister,
   loadOtp,
   loadOtpLogin,
   loadForgotPassword,
+  loadProductDetailes,
+  loadCheckout,
+  loadCart,
+  loadOrderView,
+  loadProductFromOrder,
+  loadShopMenorWomen,
+  loadShopBasedCategory,
+  loadWishlist,
   sendLoginOtp,
   sendForgotOtp,
   resendOtp,
@@ -477,5 +1535,16 @@ module.exports = {
   verifyLogin,
   verifyLoginWithOtp,
   verifyForgotOtp,
-  resetPassword
+  verifyRPPayment,
+  resetPassword,
+  setAddress,
+  addProductToCart,
+  addProductToWishlist,
+  changeQuantity,
+  removeCartItem,
+  removeSavedItem,
+  editAddress,
+  placeOrder,
+  successPage,
+  shopFilter
 };

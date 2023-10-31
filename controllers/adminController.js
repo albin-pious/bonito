@@ -66,13 +66,15 @@ const loadProductList = async(req,res)=>{
         const db = getDb();
         const productCollection = await db.collection('products');
         let { result: productData, currentPage, totalPages, totalcount } = await paginate( productCollection, pageNum, perPage );
-        productData = await productData.toArray();
+        
         const brandCollection = await db.collection('brand');
         const brandData = await brandCollection.find().toArray();
-        // console.log('product collection is ',productData);
         res.render('productView',{
             productData,
-            brandData
+            brandData,
+            currentPage,
+            totalDocument: totalcount,
+            pages: totalPages
         });
     } catch (error) {
         console.log('error occures in loading productlist',error);
@@ -164,16 +166,154 @@ const loadEditProduct = async(req,res)=>{
         const productData = await productCollection.findOne({_id:objectIdProductId});
         const brandData = await brandCollection.find().toArray();
         const catData = await categoryCollection.find().toArray();
-        console.log('product data is ',productData);
         res.render('editProduct',{
             productData,
             catData,
-            brandData
+            brandData,
         }
         );
     } catch (error) {
         console.error('Error Occured while loading edit product',error);
         res.status(500).send('Internal Server Error',error);
+    }
+}
+
+const editProduct = async (req, res) => {
+    try {
+        const {
+            id,
+            name,
+            description,
+            categoryId,
+            gender,
+            price,
+            offer,
+            stock,
+            brand,
+            size_s,
+            size_m,
+            size_l,
+            size_xl,
+            size_xxl,
+            unit_s,
+            unit_m,
+            unit_l,
+            unit_xl,
+            unit_xxl,
+        } = req.body;
+        console.log(unit_l,unit_m,unit_s,unit_xl,unit_xxl);
+        // Validate input data, e.g., required fields, data types, etc.
+
+        const db = getDb();
+        const productCollection = db.collection('products');
+
+        // const existingProduct = await productCollection.findOne({ _id: id });
+
+        // if (!existingProduct) {
+        //     // Handle the case where the product with the given ID is not found
+        //     return res.status(404).send('Product not found');
+        // }
+
+        const title = name.toUpperCase();
+
+        // Check for duplicate titles, excluding the current product being edited
+        const proCheck = await productCollection.findOne({
+            $and: [
+                { _id: { $ne: id } },
+                { title: title },
+            ],
+        });
+
+        const sizeUnits = {
+            S:size_s!==undefined?unit_s:undefined,
+            M:size_m!==undefined?unit_m:undefined,
+            L:size_l!==undefined?unit_l:undefined,
+            XL:size_xl!==undefined?unit_xl:undefined,
+            XXL:size_xxl!==undefined?unit_xxl:undefined
+        }
+        Object.keys(sizeUnits).forEach(key=>sizeUnits[key]===undefined && delete sizeUnits[key]);
+        console.log(name,description,categoryId,gender,price,stock,sizeUnits);
+
+        const images = req.files.map((file)=>{
+            return file.filename;
+        })
+        console.log('uploaded images are',images);
+
+        if (!proCheck) {
+            // Update the product data in the database
+            const updatedProduct = {
+                title,
+                description,
+                price,
+                gender,
+                categoryId,
+                stock,
+                offer,
+                sizeUnits,
+                brand,
+                images
+            };
+             console.log(updatedProduct);
+            // Use $set to update specific fields in the document
+            await productCollection.updateOne(
+                { _id: id },
+                { $set: updatedProduct }
+            );
+
+            // Redirect to the product details page or a success page
+            res.redirect(`/admin/productlist`);
+        } else {
+            // Handle the case where the new title is a duplicate
+            return res.render('editProduct', { message: 'Duplicate title' });
+        }
+    } catch (error) {
+        console.log('Error occurred while editing the product data: ', error);
+        res.status(500).send('Internal server problem.');
+    }
+}
+
+
+const deleteProduct = async (req,res)=>{
+    const {id} = req.params;
+    try {
+        console.log('entered deleting product');
+        console.log('product id is: ',id);
+        const db = getDb();
+        const collection = db.collection('products');
+        const objectIdProductId = new ObjectId(id);
+        console.log('objectId ',objectIdProductId);
+        const result = await collection.deleteOne({ _id: objectIdProductId });
+
+        if (result.deletedCount === 1) {
+            console.log('Product deleted successfully.');
+            res.json({ success: true, message: 'Product deleted successfully.' });
+        } else {
+            console.log('Product not found or not deleted.');
+            res.status(404).json({ success: false, message: 'Product not found or not deleted.' });
+        }
+    } catch (error) {
+        console.log('error occured while deleting product. ',error);
+    }
+}
+
+const deleteSelectedProducts = async(req,res)=>{
+    try {
+        const db = getDb();
+        const collection = db.collection('products');
+        console.log('multiple delete loaded');
+        const Ids = req.params.Ids.split(',');
+        console.log('selected ids',Ids);
+        const objectIdProductIds = Ids.map(id =>new ObjectId(id));
+        console.log('objectIdProductIds',objectIdProductIds);
+        const result = await collection.deleteMany({_id: { $in: objectIdProductIds}});
+        if(result.deletedCount === 1){
+            console.log('Products deleted successfully.');
+            res.json({ success: true, message: 'Products deleted successfully.' });
+        }else{
+            res.json({success:false, message: 'Products deleted failed'})
+        }
+    } catch (error) {
+        console.error('error occured while deleting multiple products: ',error);
     }
 }
 
@@ -223,7 +363,6 @@ const catForBrand = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
-
 
   const loadCategory = async (req, res) => {
     const catPageNum = parseInt(req.query.catpage,10) || 1;
@@ -287,7 +426,6 @@ const catForBrand = async (req, res) => {
         res.status(500).json('Error loading productView');
     }
 }
-
 
 const loadCreateCategory = async(req,res)=>{
     try {
@@ -572,6 +710,15 @@ const restrictUser = async(req,res)=>{
     }
 }
 
+const adminLogout = async(req,res)=>{
+    try {
+        delete req.session.admin;
+        res.redirect('/admin');
+    } catch (error) {
+        console.log('error occured during logout: ',error);
+    }
+}
+
 
 module.exports = {
     verifyLogin,
@@ -590,9 +737,13 @@ module.exports = {
     addNewBrand,
     addNewCategory,
     catForBrand,
+    editProduct,
     editCategory,
     editBrand,
     deleteCategory,
     deleteBrand,
-    restrictUser
+    deleteProduct,
+    deleteSelectedProducts,
+    restrictUser,
+    adminLogout
 }
