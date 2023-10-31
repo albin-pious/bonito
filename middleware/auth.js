@@ -4,8 +4,8 @@ const dotenv = require('dotenv').config();
 const userLogin = (req, res, next) => {
     try {
       if (!req.session.user) {
-        res.redirect("/login");
-      } else if (req.session.user.role !== 'user') {
+        res.redirect("/");
+      } else if (req.session.user.role !== 'User') {
         res.status(403).send('Access Forbidden');
       } else {
         next();

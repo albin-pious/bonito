@@ -6,7 +6,7 @@ class Order {
         this.userId = userId;
         this.productDetails = productDetails;
         this.totalPrice = totalPrice;
-        this.orderDate = Date.now();
+        this.orderDate = new Date();
         this.deliveryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
         this.status = status;
         this.address = address;

@@ -2,10 +2,9 @@ const { ObjectId } = require('mongodb');
 const { getDb } = require('../config/dbConnect');
 
 class Cart{
-    constructor(userId,productId,quantity){
+    constructor(userId,productId){
         this.userId = userId;
         this.productId = productId;
-        this.quantity = quantity;
     }
 
     async save(){
@@ -15,10 +14,10 @@ class Cart{
             return result.insertedId;
         } catch (error) {
             console.log(error.message);
-            throw error;
+            throw error; 
         }
-    }
+    } 
 }
 
-
+ 
 module.exports = Cart;
