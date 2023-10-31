@@ -15,10 +15,11 @@
                       <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Login</p>
       
                       <form class="mx-1 mx-md-4" action="/home" id="loginForm" method="post">
-                        <% if(typeof message !== 'undefined'){ %>
+                        <% if(typeof title !== 'undefined'){ %>
                           <p class="text-success" id="errorMessage"><%= title %></p>
-                        <% }else{ %>
-                          <p class="text-text" id="errorMessage"><%= message %></p>
+                        <% } %>
+                        <% if(typeof message !== 'undefined'){ %>
+                          <p class="text-danger" id="errorMessage"><%= message %></p>
                         <% } %>
                         <div class="d-flex flex-row align-items-center mb-4">
                           <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>

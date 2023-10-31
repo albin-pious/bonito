@@ -1,8 +1,120 @@
 <%- include('../partials/userHeader.ejs') %>
 
-
-
+<% if(typeof userData !=='undefined'){ %>
     <!-- Topbar Start -->
+    <div class="container-fluid">
+        <div class="row bg-secondary py-2 px-xl-5">
+            <div class="col-lg-6 d-none d-lg-block">
+                <div class="d-inline-flex align-items-center">
+                    <a class="text-dark" href="">FAQs</a>
+                    <span class="text-muted px-2">|</span>
+                    <a class="text-dark" href="">Help</a>
+                    <span class="text-muted px-2">|</span>
+                    <a class="text-dark" href="">Support</a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center text-lg-right">
+                <div class="d-inline-flex align-items-center">
+                    <a class="text-dark px-2" href="">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a class="text-dark px-2" href="">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a class="text-dark px-2" href="">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a class="text-dark px-2" href="">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a class="text-dark pl-2" href="">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="row align-items-center py-3 px-xl-5">
+            <div class="col-lg-3 d-none d-lg-block">
+                <a href="" class="text-decoration-none">
+                    <h1 class="m-0 display-5 font-weight-semi-bold"><span class="text-primary font-weight-bold border px-3 mr-1">B</span>ONITO</h1>
+                </a>
+            </div>
+            <div class="col-lg-6 col-6 text-left">
+                <form action="">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search for products">
+                        <div class="input-group-append">
+                            <span class="input-group-text bg-transparent text-primary">
+                                <i class="fa fa-search"></i>
+                            </span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col-lg-3 col-6 text-right">
+                <a href="" class="btn border">
+                    <i class="fas fa-heart text-primary"></i>
+                    <sup><span class="badge badge-secondary">0</span></sup>
+                </a>
+                <a href="/bonito_cart" class="btn border">
+                    <i class="fas fa-shopping-cart text-primary"></i>
+                    <sup><span class="badge badge-success" id="cart-count"><%= cartCount %></span></sup>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- Topbar End -->
+
+
+    <!-- Navbar Start -->
+    <div class="container-fluid">
+        <div class="row border-top px-xl-5">
+            <div class="col-lg-3 d-none d-lg-block">
+                <a class="btn shadow-none d-flex align-items-center justify-content-between bg-primary text-white w-100" data-toggle="collapse" href="#navbar-vertical" style="height: 65px; margin-top: -1px; padding: 0 30px;">
+                    <h6 class="m-0">Categories</h6>
+                    <i class="fa fa-angle-down text-dark"></i>
+                </a>
+                <nav class="collapse position-absolute navbar navbar-vertical navbar-light align-items-start p-0 border border-top-0 border-bottom-0 bg-light" id="navbar-vertical" style="width: calc(100% - 30px); z-index: 1;">
+                    <div class="navbar-nav w-100 overflow-hidden" style="height: 410px">
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link" data-toggle="dropdown">Dresses <i class="fa fa-angle-down float-right mt-1"></i></a>
+                            <div class="dropdown-menu position-absolute bg-secondary border-0 rounded-0 w-100 m-0">
+                                <a href="/bonito_shop/men" class="dropdown-item">Men's Dresses</a>
+                                <a href="/bonito_shop/women" class="dropdown-item">Women's Dresses</a>
+                            </div>
+                        </div>
+                        <% if( catData && catData.length>0 ){ %>
+                            <% catData.forEach((x)=>{ %>
+                                <a href="/bonito_shop/category/<%= x._id %>" class="nav-item nav-link"><%= x.categoryName %></a>
+                            <% }) %>
+                        <% } %>
+                    </div>
+                </nav>
+            </div>
+            <div class="col-lg-9">
+                <nav class="navbar navbar-expand-lg bg-light navbar-light py-3 py-lg-0 px-0">
+                    <a href="" class="text-decoration-none d-block d-lg-none">
+                        <h1 class="m-0 display-5 font-weight-semi-bold"><span class="text-primary font-weight-bold border px-3 mr-1">B</span>ONITO</h1>
+                    </a>
+                    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
+                        <div class="navbar-nav mr-auto py-0">
+                            <a href="/" class="nav-item nav-link">Home</a>
+                            <a href="#" class="nav-item nav-link active">Shop</a>
+                        </div>
+                        <div class="navbar-nav ml-auto py-0">
+                            <a href="/account" class="nav-item nav-link"><%= userData?userData.name:'' %></a>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <!-- Navbar End --> 
+    <% }else{ %>
+         <!-- Topbar Start -->
     <div class="container-fluid">
         <div class="row bg-secondary py-2 px-xl-5">
             <div class="col-lg-6 d-none d-lg-block">
@@ -129,6 +241,8 @@
         </div>
     </div>
     <!-- Navbar End -->
+    <% } %>
+
 
 
     <!-- Page Header Start -->
@@ -155,32 +269,32 @@
                     <h5 class="font-weight-semi-bold mb-4">Filter by price</h5>
                     <form>
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" checked id="price-all" value="all">
+                            <input type="checkbox" class="custom-control-input" checked id="price-all" value="all" name="prices">
                             <label class="custom-control-label" for="price-all">All Price</label>
                             <span class="badge border font-weight-normal">1000</span>
                         </div>
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" id="price-1">
+                            <input type="checkbox" class="custom-control-input" id="price-1" value="1">
                             <label class="custom-control-label" for="price-1">Under &#8377;300</label>
                             <span class="badge border font-weight-normal">150</span>
                         </div>
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" id="price-2">
+                            <input type="checkbox" class="custom-control-input" id="price-2" value="2">
                             <label class="custom-control-label" for="price-2">&#8377;300 - &#8377;500</label>
                             <span class="badge border font-weight-normal">295</span>
                         </div>
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" id="price-3">
+                            <input type="checkbox" class="custom-control-input" id="price-3" value="3">
                             <label class="custom-control-label" for="price-3">&#8377;500 - &#8377;1000</label>
                             <span class="badge border font-weight-normal">246</span>
                         </div>
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" id="price-4">
+                            <input type="checkbox" name="prices" class="custom-control-input" id="price-4" value="4">
                             <label class="custom-control-label" for="price-4">&#8377;1000 - &#8377;1500</label>
                             <span class="badge border font-weight-normal">145</span>
                         </div>
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between">
-                            <input type="checkbox" class="custom-control-input" id="price-5">
+                            <input type="checkbox" name="prices" class="custom-control-input" id="price-5" value="5">
                             <label class="custom-control-label" for="price-5">Over &#8377;1500</label>
                             <span class="badge border font-weight-normal">168</span>
                         </div>
@@ -192,57 +306,57 @@
                 <div class="border-bottom mb-4 pb-4">
                     <h5 class="font-weight-semi-bold mb-4">Filter by Brand</h5>
                     <form>
-                        <% if(brandData && brandData.length>0){ %>
+                        <% if (brandData && brandData.length > 0) { %>
                             <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                                <input type="checkbox" class="custom-control-input" checked id="brand-all">
-                                <label class="custom-control-label" for="price-all">All Brand</label>
+                                <input type="checkbox" class="custom-control-input" checked id="brand-all" name="brands" value="all">
+                                <label class="custom-control-label" for="brand-all">All Brand</label>
                                 <span class="badge border font-weight-normal">1000</span>
                             </div>
-                            <% brandData.forEach((x)=>{ %>
+                            <% brandData.forEach((x) => { %>
                                 <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                                    <input type="checkbox" class="custom-control-input" id="<%= x._id %>">
-                                    <label class="custom-control-label" for="color-1"><%= x.brandName %></label>
+                                    <input type="checkbox" class="custom-control-input" id="<%= x._id %>" name="brands" value="<%= x._id %>">
+                                    <label class="custom-control-label" for="<%= x._id %>"><%= x.brandName %></label>
                                     <span class="badge border font-weight-normal">150</span>
                                 </div>
                             <% }) %>
-                        <% }else{ %>
+                        <% } else { %>
                             <p>No Brands Available</p>
-                       <% } %>
+                        <% } %>
                     </form>
                 </div>
-                <!-- Color End -->
+                <!-- Brand End -->
 
                 <!-- Size Start -->
                 <div class="mb-5">
                     <h5 class="font-weight-semi-bold mb-4">Filter by size</h5>
                     <form>
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" checked id="size-all">
+                            <input type="checkbox" class="custom-control-input" checked id="size-all" name="sizes" value="all">
                             <label class="custom-control-label" for="size-all">All Size</label>
                             <span class="badge border font-weight-normal">1000</span>
                         </div>
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" id="size-1">
+                            <input type="checkbox" class="custom-control-input" id="size-1" name="sizes" value="S">
                             <label class="custom-control-label" for="size-1">S</label>
                             <span class="badge border font-weight-normal">150</span>
                         </div>
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" id="size-2">
+                            <input type="checkbox" class="custom-control-input" id="size-2" name="sizes" value="M">
                             <label class="custom-control-label" for="size-2">M</label>
                             <span class="badge border font-weight-normal">295</span>
                         </div>
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" id="size-3">
+                            <input type="checkbox" class="custom-control-input" id="size-3" name="sizes" value="L">
                             <label class="custom-control-label" for="size-3">L</label>
                             <span class="badge border font-weight-normal">246</span>
                         </div>
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" id="size-4">
+                            <input type="checkbox" class="custom-control-input" id="size-4" name="sizes" value="XL">
                             <label class="custom-control-label" for="size-4">XL</label>
                             <span class="badge border font-weight-normal">145</span>
                         </div>
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between">
-                            <input type="checkbox" class="custom-control-input" id="size-5">
+                            <input type="checkbox" class="custom-control-input" id="size-5" name="sizes" value="XXL">
                             <label class="custom-control-label" for="size-5">XXL</label>
                             <span class="badge border font-weight-normal">168</span>
                         </div>
@@ -296,7 +410,7 @@
                                     </div>
                                     <div class="card-footer d-flex justify-content-between bg-light border">
                                         <a href="/product_detailes/<%= product._id %>" class="btn btn-sm text-dark p-0"><i class="fas fa-eye text-primary mr-1"></i>View Detail</a>
-                                        <a href="" class="btn btn-sm text-dark p-0"><i class="fas fa-shopping-cart text-primary mr-1"></i>Add To Cart</a>
+                                        <a href="" class="btn btn-sm text-dark p-0"><i class="fas fa-heart text-primary mr-1"></i>Save Product</a>
                                     </div>
                                 </div>
                             </div>
@@ -439,29 +553,62 @@
     <script src="/mail/contact.js"></script>
 
     <!-- Template Javascript -->
-    <script src="/js/main.js"></script>
+    <script src="/javascripts/main.js"></script>
 
     <script>
-        function handleCheckboxClick(event) {
-            const checkbox = event.target; // Get the clicked checkbox
-            const checkboxId = checkbox.id; // Get the checkbox ID
-            const filterCriteria = checkbox.value; // Get the value attribute (e.g., "less than 300")
+        document.querySelectorAll('[data-toggle="collapse"]').forEach((element) => {
+            element.addEventListener('click', () => {
+                const target = document.querySelector(element.getAttribute('href'));
 
-            // Send the `checkboxId` and `filterCriteria` to the server
-            sendFilterCriteriaToServer(checkboxId, filterCriteria);
+                if (target.classList.contains('show')) {
+                    target.classList.remove('show');
+                } else {
+                    target.classList.add('show');
+                }
+            });
+        });
+
+        // Function to handle checkbox changes and filter products
+        function filterProducts() {
+            console.log('hai');
+            const selectedPrices = [];
+            const selectedBrands = [];
+            const selectedSizes = [];
+
+            // Find checked checkboxes and collect their values
+            $('input[name="prices"]:checked').each(function () {
+                selectedPrices.push($(this).val());
+            });
+
+            $('input[name="brands"]:checked').each(function () {
+                selectedBrands.push($(this).val());
+            });
+
+            $('input[name="sizes"]:checked').each(function () {
+                selectedSizes.push($(this).val());
+            });
+            console.log('Hai',selectedBrands,selectedPrices,selectedSizes);
+            // Make an AJAX request to the server with the selected filters
+            $.ajax({
+                url: '/filter',
+                method: 'POST',
+                data: {
+                    prices: selectedPrices,
+                    brands: selectedBrands,
+                    sizes: selectedSizes
+                },
+                success: function (data) {
+                    // Update the product display with filtered results
+                    $('#productContainer').html(data); // Assuming product data is returned from the server
+                },
+                error: function (err) {
+                    console.error('Error:', err);
+                }
+            });
         }
-        function sendFilterCriteriaToServer(checkboxId, filterCriteria) {
-            // Send the `checkboxId` and `filterCriteria` to the server using an AJAX request
-    fetch(`/your-server-endpoint?checkboxId=${checkboxId}&filter=${filterCriteria}`, {
-        method: 'GET', // Or 'POST' if needed
-    })
-    .then(response => {
-        // Handle the server's response, update the UI as needed
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-}
+
+        // Listen for checkbox changes and call the filter function
+        $('input[type="checkbox"]').on('change', filterProducts);
 
     </script>
 

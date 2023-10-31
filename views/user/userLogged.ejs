@@ -51,9 +51,9 @@
             </form>
         </div>
         <div class="col-lg-3 col-6 text-right">
-            <a href="" class="btn border">
+            <a href="/bonito_wishlist" class="btn border">
                 <i class="fas fa-heart text-primary"></i>
-                <sup><span class="badge badge-secondary">0</span></sup>
+                <sup><span class="badge badge-secondary" id="wishlist-count"><%= wishlistCount %></span></sup>
             </a>
             <a href="/bonito_cart" class="btn border">
                 <i class="fas fa-shopping-cart text-primary"></i>
@@ -113,7 +113,7 @@
                         <a href="contact.html" class="nav-item nav-link">Contact</a>
                     </div>
                     <div class="navbar-nav ml-auto py-0">
-                        <a href="/accout" class="nav-item nav-link"><%= userData?userData.name:'' %></a>
+                        <a href="/account" class="nav-item nav-link"><%= userData?userData.name:'' %></a>
                         <!-- <a href="/register" class="nav-item nav-link">Register</a> -->
                     </div>
                 </div>
