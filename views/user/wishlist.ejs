@@ -1,0 +1,83 @@
+<%- include('../partials/userHeader.ejs') %>
+
+ <!-- Page Header Start -->
+ <div class="container-fluid bg-secondary mb-5">
+    <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 300px">
+        <h1 class="font-weight-semi-bold text-uppercase mb-3">Shopping Cart</h1>
+        <div class="d-inline-flex">
+            <p class="m-0"><a href="/">Home</a></p>
+            <p class="m-0 px-2">-</p>
+            <p class="m-0">Whishlist</p>
+        </div>
+    </div>
+</div>
+<!-- Page Header End -->
+
+<!-- Wiselist Start -->
+<div class="container-fluid pt-5">
+    <div class="row px-xl-5">
+        <% if(wishlistData && wishlistData.length>0){ %>
+            <div class="col table-responsive mb-5">
+                <table class="table">
+                    <% wishlistData.forEach(wishlistItem => { %>
+                      <% wishlistItem.wishlistProducts.forEach(product => { %>
+                        <tr>
+                          <td class="align-middle" style="width: 20%;">
+                            <% if (product && product.images && product.images.length > 0) { %>
+                              <img src="/uploads/<%= product.images[0] %>" alt="Product Image" style="width: 50px;">
+                            <% } else { %>
+                              <p>No image available</p>
+                            <% } %>
+                          </td>
+                          <td class="align-middle" style="width: 60%;">
+                            <% if (product) { %>
+                             <a href="/product_detailes/<%= product._id %>"><%= product.title %></a>
+                            <% } else { %>
+                              <p>No Product Data available</p>
+                            <% } %>
+                          </td>
+                          <td class="align-middle">
+                            <button class="btn btn-sm btn-primary removeButton text-end" onclick="removeWishlistItem('<%= wishlistItem._id %>','<%= product._id %>')">
+                                <i class="fa fa-times"></i>
+                            </button>
+                          </td>
+                        </tr>
+                      <% }); %>
+                    <% }); %>
+                  </table>                      
+            </div>
+        <% }else{ %>
+            <p>Add Product to Wiselist</p>
+        <% } %>
+    </div>
+</div>
+
+
+<script>
+    function removeWishlistItem(wishlistId, productId){
+        console.log('wishlist id is: ',wishlistId);
+        $.ajax({
+            url: '/remove_saveditem',
+            data: {
+                wishlistId: wishlistId,
+                productId: productId
+            },
+            method: 'post',
+            success: function(response){
+                window.location.reload();
+                if(response.status){
+                    console.log('Removal success');
+                }else{
+                    console.log('Removal was not successful.');
+                }
+            },
+            error: function(xhr,status,error){
+                console.log('AJAX error: ',status,error);
+            },
+            complete: function(){
+                console.log('AJAX request completed.');
+            }
+        })
+    }
+</script>
+<%- include('../partials/userFooter.ejs') %>
