@@ -7751,7 +7751,7 @@ button.bg-dark:focus {
 
 .error{
   color: red;
-  font-size: 12px;
+  font-size: 8px;
 }
 
 @media (min-width: 576px) {

@@ -40,10 +40,42 @@ function toggleInput(checkboxId, inputId) {
     }
 }
   
-  function updateTotal() {
-      const totalUnits = calculateTotalUnits();
-      const stockInput = document.getElementById('stock');
-      if (stockInput) {
-          stockInput.value = totalUnits;
-      }
-  }
+function updateTotal() {
+     const totalUnits = calculateTotalUnits();
+    const stockInput = document.getElementById('stock');
+    if (stockInput) {
+        stockInput.value = totalUnits;
+    }
+}
+
+
+document.addEventListener('DOMContentLoaded',()=>{
+    console.log('Setting Up event listner for brand dropdown.');
+    document.getElementById('brand').addEventListener('change', function() {
+        console.log('hai');
+        const brandId = this.value; // Get the selected brand ID
+        const categoryDropdown = document.getElementById('category');
+      
+        // Clear existing options
+        categoryDropdown.innerHTML = '<option selected>Select category</option>';
+      
+        // Fetch categories for the selected brand and populate the category dropdown
+        fetch(`/admin/getcategories_forbrand/${brandId}`)
+        .then(response => response.json())
+        .then(categories => {
+            console.log('Response from server: ', categories);
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.categoryId;  // Assuming category.categoryId is the correct property
+                option.textContent = category.categoryName;
+                categoryDropdown.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error fetching categories:', error));
+    });
+})
+  
+document.getElementById('category').addEventListener('change', function() {
+    const categoryId = this.value;  // Get the selected category ID
+    console.log('Selected category ID:', categoryId);
+});

@@ -2,8 +2,6 @@ const  express = require('express');
 const adminRouter = express();
 const adminController = require('../controllers/adminController');
 const auth = require('../middleware/auth');
-const isAdminLogin = require('../middleware/adminLoginAuth');
-
 
 const store = require('../helpers/multer');
 
@@ -22,7 +20,10 @@ adminRouter.get('/productlist',adminController.loadProductList);
 adminRouter.get('/product_add',adminController.loadProductAdd);
 adminRouter.post('/addproduct',store.array('images'),adminController.addNewProduct);
 adminRouter.get('/product_edit/:id',adminController.loadEditProduct);
+adminRouter.post('/editproduct',store.array('images'),adminController.editProduct)
 adminRouter.get('/getcategories_forbrand/:brandId',adminController.catForBrand);
+adminRouter.delete('/product_delete/:id',adminController.deleteProduct);
+adminRouter.delete('/delete_selected_products/:Ids',adminController.deleteSelectedProducts);
 
 // *********** BRAND MANAGEMENT *********** //
 adminRouter.get('/newbrand',adminController.loadBrandAdd);
@@ -42,6 +43,9 @@ adminRouter.delete('/category_delete/:id',adminController.deleteCategory);
 // *********** CUSTOMER MANAGEMENT *********** //
 adminRouter.get('/customerlist',adminController.loadCustomer);
 adminRouter.put('/customerlist/:action/:id',adminController.restrictUser);
+
+// *********** ADMIN LOGOUT *********** //
+adminRouter.get('/logout',adminController.adminLogout)
 
 
 
