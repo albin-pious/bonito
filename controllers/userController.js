@@ -40,7 +40,8 @@ const loadHome = async (req, res) => {
       const objectIdUserId = new ObjectId(userId)
       userData = await userCollection.findOne({ _id: objectIdUserId });
       let cartCount = await getCartCount(objectIdUserId );
-      let wishlistCount = await getWishlistCount(userId);
+      let wishlistCount = await getWishlistCount(objectIdUserId);
+      console.log('wishlist count is: ',wishlistCount);
       res.render('home', { 
         userData: userData,
         recentProducts:recentProducts,
@@ -197,7 +198,7 @@ const verifyOtp = async (req, res) => {
   if(req.session.userData){
     userData = req.session.userData;
   }else{
-    res.send('Please signup agin')
+    return res.render('otpVerify', { message: `Your Data couldn't find try after some time.` });
   }
   console.log('user data from verify login: ',userData);
   try {
@@ -322,6 +323,7 @@ const verifyLogin = async (req, res) => {
           let cartCount = await getCartCount(userId);
           let wishlistCount = await getWishlistCount(userId);
           console.log('cart count is ',cartCount);
+          console.log('wishlist count is: ',wishlistCount);
           return res.render('home', { 
             userData: user,
             recentProducts,
@@ -382,6 +384,7 @@ const verifyLoginWithOtp = async(req,res)=>{
           let wishlistCount = await getWishlistCount(userId);
           console.log('hai 2');
           console.log('cart count is ',cartCount);
+          console.log('wishlist count is: ',wishlistCount);
           return res.render('home', { 
             userData,
             recentProducts,
@@ -1334,66 +1337,14 @@ const loadShopBasedCategory = async(req,res)=>{
 }
 
 const shopFilter = async(req,res)=>{
-  const { prices,brands,sizes } = req.body;
+  const { prices, brands, sizes } = req.body;
   try {
-    const db = getDb();
-    const productCollection = db.collection('products');
-    
-    const filteredProducts = await aggregateProducts(prices,brands,sizes,productCollection);
-    console.log('filtered data is ',filteredProducts)
+    console.log(req.body);
+
+
   } catch (error) {
-    console.error('error occured while filtering. ',error);
+    console.error('error occured while loading filter data',error);
   }
-}
-
-const aggregateProducts = async (prices, brands, sizes, productCollection) => {
-  try{
-    const priceRanges = {
-      all: {},
-      1: { $gte: 0, $lt: 300 },
-      2: { $gte: 300, $lt: 500 },
-      3: { $gte: 500, $lt: 1000 },
-      4: { $gte: 1000, $lt: 1500 },
-      5: { $gte: 1500 }
-    };
-
-    const pipeline = [];
-
-    if (prices && prices.length > 0) {
-      if (!prices.includes('all')) {
-        const priceFilter = prices.map(price => ({ price: priceRanges[price] }));
-        pipeline.push({ $match: { $or: priceFilter } });
-        console.log('priceFilter is: ',priceFilter);
-        console.log('pipeline: ',pipeline);
-      }
-    }
-    
-
-    if (brands && brands.length > 0) {
-      if (!brands.includes('all')) {
-        pipeline.push({ $match: { brand: { $in: brands } } });
-        console.log('pipeline: ',pipeline);
-      }
-      // If 'all' is present in brands, it doesn't filter by brand
-  }
-
-  if (sizes && sizes.length > 0) {
-    if (!sizes.includes('all')) {
-      const sizeFilters = sizes.map(size => ({ sizeUnits: { $exists: true, $gte: size } }));
-      pipeline.push({ $match: { $or: sizeFilters } });
-      console.log('pipeline: ',pipeline);
-    }
-    // If 'all' is present in sizes, it doesn't filter by size
-  }
-
-  console.log('Aggregation Pipeline:', pipeline);
-  const result = await productCollection.aggregate(pipeline).toArray();
-  console.log('Filtered Products:', result);
-  return result;
-  } catch (error) {
-  console.log('Error occurred while filtering.', error);
-  return [];
-};
 }
 
 const loadWishlist = async (req, res) => {
@@ -1493,7 +1444,7 @@ const removeSavedItem = async (req, res) => {
     const result = await wishlistCollection.updateOne(
       { _id: new ObjectId(wishlistId) },
       {
-        $pull: { products: new ObjectId(productId) }
+        $pull: { products: new ObjectId(productId) } 
       }
     );
 

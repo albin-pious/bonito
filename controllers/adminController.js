@@ -364,7 +364,7 @@ const catForBrand = async (req, res) => {
     }
 };
 
-  const loadCategory = async (req, res) => {
+const loadCategory = async (req, res) => {
     const catPageNum = parseInt(req.query.catpage,10) || 1;
     const perPage = 5;
     const catSkipValue = (catPageNum - 1) * perPage;
@@ -385,26 +385,39 @@ const catForBrand = async (req, res) => {
         const brandData = await brandCollection.find().skip(brandSkipValue).limit(perPage).toArray();
         const totalBrandPage = Math.ceil(brandCount / perPage);
         const currentBrandPageCount = Math.max(1,Math.min(brandPageNum,totalBrandPage));
-        const brandsWithCatName = await Promise.all(brandData.map(async brand =>{
-            if(brand.categoryId && Array.isArray(brand.categoryId)){
-                const categoryNames = await Promise.all(brand.categoryId.map(async categoryId =>{
-                    const category = await catCollection.findOne({'_id':new ObjectId(categoryId)})
-                    return category?category.categoryName:'Unknown Name';
+        const brandsWithCatName = await Promise.all(brandData.map(async brand => {
+            if (brand.categoryId && Array.isArray(brand.categoryId)) {
+                const categoryNames = await Promise.all(brand.categoryId.map(async categoryId => {
+                    const category = await catCollection.findOne({ '_id': new ObjectId(categoryId) });
+                    return category ? category.categoryName : 'Unknown Name';
                 }));
-            return{
-                _id:brand._id,
-                brandName:brand.brandName,
-                categoryNames:categoryNames
+        
+                return {
+                    _id: brand._id,
+                    brandName: brand.brandName,
+                    categoryNames: categoryNames
+                };
+            } else if (brand.categoryId) {
+                // If categoryId exists but is not an array, fetch the category name directly
+                const category = await catCollection.findOne({ '_id': new ObjectId(brand.categoryId) });
+                const categoryName = category ? category.categoryName : 'Unknown Name';
+        
+                return {
+                    _id: brand._id,
+                    brandName: brand.brandName,
+                    categoryNames: [categoryName]
+                };
+            } else {
+                // If categoryId doesn't exist, set categoryNames to ['Unknown Category']
+                return {
+                    _id: brand._id,
+                    brandName: brand.brandName,
+                    categoryNames: ['Unknown Category']
+                };
             }
-        }else{
-            return{
-                _id:brand._id,
-                brandName:brand.brandName,
-                categoryNames: ['Unknown Category']
-            }
-        }    
-
-        }));
+        }));        
+        
+               
         console.log('brand with cat is ',brandsWithCatName);
         if (catData.length > 0) {
             res.render('categoryView', { 
@@ -662,7 +675,6 @@ const loadCustomer = async(req,res)=>{
         const db = getDb();
         const userCollection = db.collection('users');
         let { result: userData, currentPage, totalPages, totalcount } = await paginate( userCollection, pageNum, perPage );
-        userData = await userData.toArray();
         res.render('customerView',
             {
                 userData,
