@@ -36,13 +36,11 @@ const loadHome = async (req, res) => {
     let userData = null;
     if (req.session.user) {
       const userId = req.session.user._id;
-      console.log('userId ',userId);
       const objectIdUserId = new ObjectId(userId)
       userData = await userCollection.findOne({ _id: objectIdUserId });
       let cartCount = await getCartCount(objectIdUserId );
       let wishlistCount = await getWishlistCount(objectIdUserId);
-      console.log('wishlist count is: ',wishlistCount);
-      console.log('recentProducts');
+      
       res.render('home', { 
         userData: userData,
         recentProducts:recentProducts,
