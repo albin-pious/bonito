@@ -42,6 +42,7 @@ const loadHome = async (req, res) => {
       let cartCount = await getCartCount(objectIdUserId );
       let wishlistCount = await getWishlistCount(objectIdUserId);
       console.log('wishlist count is: ',wishlistCount);
+      console.log('recentProducts');
       res.render('home', { 
         userData: userData,
         recentProducts:recentProducts,
