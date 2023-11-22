@@ -60,7 +60,7 @@ const loadHome = async(req,res)=>{
 
 const loadProductList = async(req,res)=>{
     const pageNum = parseInt(req.query.page,10)|| 1;
-    const perPage = 5;
+    const perPage = 3;
     try {
         console.log('rendering product view');
         const db = getDb();
@@ -271,7 +271,6 @@ const editProduct = async (req, res) => {
         res.status(500).send('Internal server problem.');
     }
 }
-
 
 const deleteProduct = async (req,res)=>{
     const {id} = req.params;
