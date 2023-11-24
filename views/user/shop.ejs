@@ -398,70 +398,72 @@
                                 </div> -->
                             </div>
                         </div>
-                        <% if(productData && productData.length>0){ %>
-                            <% productData.forEach((product)=>{ %>
-                                <div class="col-lg-4 col-md-6 col-sm-12 pb-1">
-                                    <div class="card product-item border-0 mb-4" style="width: 18rem;max-height: 504px;">
-                                        <div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
-                                            <img class="img-fluid w-100" src="/uploads/<%= product.images[0] %>" alt="Product-Image">
-                                        </div>
-                                        <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
-                                            <h6 class="text-truncate mb-3"><%= product.title %></h6>
-                                            <div class="d-flex justify-content-center">
-                                                <h6>&#8377;<%= product.price %></h6><h6 class="text-muted ml-2"><%= product.offer %>%</h6>
+                        <div id="product-container" class="row pb-1">
+                            <% if(productData && productData.length>0){ %>
+                                <% productData.forEach((product)=>{ %>
+                                    <div class="col-lg-4 col-md-6 col-sm-12 pb-1">
+                                        <div class="card product-item border-0 mb-4" style="width: 18rem;max-height: 504px;">
+                                            <div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
+                                                <img class="img-fluid w-100" src="/uploads/<%= product.images[0] %>" alt="Product-Image">
+                                            </div>
+                                            <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
+                                                <h6 class="text-truncate mb-3"><%= product.title %></h6>
+                                                <div class="d-flex justify-content-center">
+                                                    <h6>&#8377;<%= product.price %></h6><h6 class="text-muted ml-2"><%= product.offer %>%</h6>
+                                                </div>
+                                            </div>
+                                            <div class="card-footer d-flex justify-content-between bg-light border">
+                                                <a href="/product_detailes/<%= product._id %>" class="btn btn-sm text-dark p-0"><i class="fas fa-eye text-primary mr-1"></i>View Detail</a>
+                                                <a href="" class="btn btn-sm text-dark p-0"><i class="fas fa-heart text-primary mr-1"></i>Save Product</a>
                                             </div>
                                         </div>
-                                        <div class="card-footer d-flex justify-content-between bg-light border">
-                                            <a href="/product_detailes/<%= product._id %>" class="btn btn-sm text-dark p-0"><i class="fas fa-eye text-primary mr-1"></i>View Detail</a>
-                                            <a href="" class="btn btn-sm text-dark p-0"><i class="fas fa-heart text-primary mr-1"></i>Save Product</a>
-                                        </div>
                                     </div>
-                                </div>
-                            <% }) %>
-                           
-                        <div class="col-12 pb-1">
-                            <nav aria-label="Page navigation">
-                              <ul class="pagination justify-content-center mb-3">
-                                <li class="page-item">
-                                    <% if(currentPage === 1){ %>
-                                        <a class="page-link" href="#" aria-label="Previous">
-                                            <span aria-hidden="true">&laquo;</span>
-                                            <span class="sr-only">Previous</span>
-                                        </a>
-                                    <% }else{ %>
-                                        <a class="page-link" href="/bonito_shop?page=<%= currentPage-1 %>" aria-label="Previous">
-                                            <span aria-hidden="true">&laquo;</span>
-                                            <span class="sr-only">Previous</span>
-                                        </a>
+                                <% }) %>
+                               
+                                <div class="col-12 pb-1">
+                                    <nav aria-label="Page navigation">
+                                  <ul class="pagination justify-content-center mb-3">
+                                    <li class="page-item">
+                                        <% if(currentPage === 1){ %>
+                                            <a class="page-link" href="#" aria-label="Previous">
+                                                <span aria-hidden="true">&laquo;</span>
+                                                <span class="sr-only">Previous</span>
+                                            </a>
+                                        <% }else{ %>
+                                            <a class="page-link" href="/bonito_shop?page=<%= currentPage-1 %>" aria-label="Previous">
+                                                <span aria-hidden="true">&laquo;</span>
+                                                <span class="sr-only">Previous</span>
+                                            </a>
+                                        <% } %>
+                                    </li>
+                                    <% for(let i=1;i<=pages;i++){ %>
+                                        <% if(i === currentPage){ %>
+                                            <li class="page-item active"><a class="page-link" href="#"><%= i %></a></li>
+                                        <% }else{ %>
+                                            <li class="page-item"><a class="page-link" href="#"><%= i %></a></li>
+                                        <% } %>
                                     <% } %>
-                                </li>
-                                <% for(let i=1;i<=pages;i++){ %>
-                                    <% if(i === currentPage){ %>
-                                        <li class="page-item active"><a class="page-link" href="#"><%= i %></a></li>
-                                    <% }else{ %>
-                                        <li class="page-item"><a class="page-link" href="#"><%= i %></a></li>
-                                    <% } %>
-                                <% } %>
-                                <li class="page-item">
-                                    <% if(currentPage === pages){ %>
-                                        <a class="page-link" href="#" aria-label="Next">
-                                            <span aria-hidden="true">&raquo;</span>
-                                            <span class="sr-only">Next</span>
-                                        </a>
-                                    <% }else{ %>
-                                        <a class="page-link" href="/bonito_shop/<% currentPage+1 %>" aria-label="Next">
-                                            <span aria-hidden="true">&raquo;</span>
-                                            <span class="sr-only">Next</span>
-                                        </a>
-                                    <% } %>
-                                  
-                                </li>
-                              </ul>
-                            </nav>
-                        </div>
+                                    <li class="page-item">
+                                        <% if(currentPage === pages){ %>
+                                            <a class="page-link" href="#" aria-label="Next">
+                                                <span aria-hidden="true">&raquo;</span>
+                                                <span class="sr-only">Next</span>
+                                            </a>
+                                        <% }else{ %>
+                                            <a class="page-link" href="/bonito_shop/<% currentPage+1 %>" aria-label="Next">
+                                                <span aria-hidden="true">&raquo;</span>
+                                                <span class="sr-only">Next</span>
+                                            </a>
+                                        <% } %>
+                                      
+                                    </li>
+                                  </ul>
+                                </nav>
+                            </div>
                         <% }else{ %>
                             <p class="text-center fs-2 text-danger">No Products Available.</p>
                         <% } %> 
+                        </div>
                     </div>
                 </div>
           
@@ -573,25 +575,38 @@
         });
 
         // Function to handle checkbox changes and filter products
-        function filterProducts() {
+        $(document).ready(function () {
+            function filterProducts() {
             console.log('Filter function triggered');
             console.log('hai');
             const selectedPrices = [];
             const selectedBrands = [];
             const selectedSizes = [];
 
+            // Check if "All" checkboxes are checked
+            const isPriceAllChecked = $('#price-all').prop('checked');
+            const isBrandAllChecked = $('#brand-all').prop('checked');
+            const isSizeAllChecked = $('#size-all').prop('checked');
+
             // Find checked checkboxes and collect their values
-            $('input[name="prices"]:checked').each(function () {
-                selectedPrices.push($(this).val());
-            });
+            if(!isPriceAllChecked){
+                $('input[name="prices"]:checked').each(function () {
+                    selectedPrices.push($(this).val());
+                });
+            }
 
-            $('input[name="brands"]:checked').each(function () {
-                selectedBrands.push($(this).val());
-            });
+            if(!isBrandAllChecked){
+                $('input[name="brands"]:checked').each(function () {
+                    selectedBrands.push($(this).val());
+                });
+            }
 
-            $('input[name="sizes"]:checked').each(function () {
-                selectedSizes.push($(this).val());
-            });
+            if(!isSizeAllChecked){
+                $('input[name="sizes"]:checked').each(function () {
+                    selectedSizes.push($(this).val());
+                });
+            }
+
             console.log('Hai',selectedBrands,selectedPrices,selectedSizes);
             console.log('Data sent in the AJAX request', selectedPrices, selectedBrands, selectedSizes);
             $.ajax({
@@ -610,24 +625,55 @@
                         console.log('success');
                         // Assuming response.productData contains the filtered products array
                         const filteredProducts = response.productData;
+                        console.log('response',response);
                         // Perform operations to update the product display using filteredProducts
                         // For example:
-                        // displayProducts(filteredProducts);
-                    } else {
-                        console.error('Invalid response format or no products found.');
+                        updateUIWithFilteredProducts(filteredProducts);
+                        } else {
+                            console.error('Invalid response format or no products found.');
+                        }
+                    },
+                    error: function (err) {
+                        console.error('Error:', err);
+                        // Handle error scenarios
                     }
-                },
-                error: function (err) {
-                    console.error('Error:', err);
-                    // Handle error scenarios
-                }
-            });
+                });
 
-        }
+            }
 
-        // Listen for checkbox changes and call the filter function
-        $('input[type="checkbox"]').on('change', filterProducts);
+            // Listen for checkbox changes and call the filter function
+            $('input[type="checkbox"]').on('change', filterProducts);
+        });
+        
+        // Function to update the UI with filtered products
+function updateUIWithFilteredProducts(filteredProducts) {
+    const productContainer = $('#product-container');
+    productContainer.empty(); // Clear existing products
 
-    </script>
+    filteredProducts.forEach(function (product) {
+        // Append product HTML to the container
+        productContainer.append(`
+            <div class="col-lg-4 col-md-6 col-sm-12 pb-1">
+                <div class="card product-item border-0 mb-4" style="width: 18rem;max-height: 504px;">
+                    <div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
+                        <img class="img-fluid w-100" src="/uploads/${product.images[0]}" alt="Product-Image">
+                    </div>
+                    <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
+                        <h6 class="text-truncate mb-3">${product.title}</h6>
+                        <div class="d-flex justify-content-center">
+                            <h6>&#8377;${product.price}</h6><h6 class="text-muted ml-2">${product.offer}%</h6>
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between bg-light border">
+                        <a href="/product_detailes/${product._id}" class="btn btn-sm text-dark p-0"><i class="fas fa-eye text-primary mr-1"></i>View Detail</a>
+                        <a href="" class="btn btn-sm text-dark p-0"><i class="fas fa-heart text-primary mr-1"></i>Save Product</a>
+                    </div>
+                </div>
+            </div>
+        `);
+    });
+}
+
+</script>
 
     <%- include('../partials/userFooter.ejs') %>    

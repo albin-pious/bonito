@@ -1335,16 +1335,75 @@ const loadShopBasedCategory = async(req,res)=>{
   }
 }
 
-const shopFilter = async(req,res)=>{
-  const { prices, brands, sizes } = req.body;
-  try {
-    console.log(req.body);
-
-
-  } catch (error) {
-    console.error('error occured while loading filter data',error);
-  }
+const setLowerBound = async(prices) => {
+  if (prices.includes(1)) return 0;
+  if (prices.includes(2)) return 300;
+  if (prices.includes(3)) return 500;
+  if (prices.includes(4)) return 1000;
+  if (prices.includes(5)) return 1500;
+  return 0;
 }
+
+const setUpperBound = async(prices) => {
+  if (prices.includes(1)) return 300;
+  if (prices.includes(2)) return 500;
+  if (prices.includes(3)) return 1000;
+  if (prices.includes(4)) return 1500;
+  if (prices.includes(5)) return Infinity;
+  return Infinity;
+}
+
+  const shopFilter = async(req, res) => {
+    const { prices, brands, sizes } = req.body;
+    const pageNum = parseInt(req.query.page,10) || 1;
+    const perPage = 9;
+    try {
+      const db = getDb();
+      const productCollection = db.collection('products');
+      const brandCollection = db.collection('brand');
+      const userCollection = db.collection('users');
+      const catCollection = db.collection('category');
+      const catData = await catCollection.find().toArray();
+      const brandData = await brandCollection.find().sort({ fieldName: 1 }).limit(10).toArray();
+      let { result: productData, currentPage, totalPages, totalcount } = await paginate( productCollection, pageNum, perPage );
+      console.log(req.body);
+      let numericPrices = prices && prices.length > 0 ? prices.map(Number) : [];
+
+      // Build individual size conditions
+      const sizeFilter = Array.isArray(sizes) ? sizes.map((size) => ({
+        [`sizeUnits.${size}`]: { $gte: 1 }
+      })) : [];  
+      
+      const combinedSizeFilter = sizeFilter.length > 0 ? { $or: sizeFilter } : {};
+      
+      const query = {
+        $and: [
+          combinedSizeFilter,
+          {
+            price: {
+              $gte: await setLowerBound(numericPrices),
+              $lte: await setUpperBound(numericPrices)
+            }
+          },
+          brands && brands.length > 0 ? { brand: { $in: brands } } : {},
+        ]
+      };
+      
+      console.log('MongoDB Query:', JSON.stringify(query, null, 2));
+      
+      // Execute the query
+      const filteredProducts = await productCollection.find(query).toArray();
+      
+      res.json({
+        success: true, 
+        productData:filteredProducts 
+      })
+       
+    } catch (error) {
+      console.error('error occurred while loading filter data', error);
+      res.status(500).json({ success: false, error: 'Internal Server Error' });
+    }
+  }
 
 const loadWishlist = async (req, res) => {
   try {
