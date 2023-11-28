@@ -385,17 +385,18 @@
                                         </div>
                                     </div>
                                 </form> -->
-                                <!-- <div class="dropdown ml-4">
+                                <div class="dropdown ml-4">
                                     <button class="btn border dropdown-toggle" type="button" id="triggerId" data-toggle="dropdown" aria-haspopup="true"
-                                            aria-expanded="false">
-                                                Sort by
-                                            </button>
-                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="triggerId">
-                                        <a class="dropdown-item" href="#">Latest</a>
-                                        <a class="dropdown-item" href="#">Popularity</a>
-                                        <a class="dropdown-item" href="#">Best Rating</a>
+                                        aria-expanded="false">
+                                        Sort by
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-right " aria-labelledby="triggerId">
+                                        <a class="dropdown-item" href="#" data-sort="latest">Latest</a>
+                                        <a class="dropdown-item" href="#" data-sort="lowToHigh">Price: Low to High</a>
+                                        <a class="dropdown-item" href="#" data-sort="highToLow">Price: High to Low</a>
+                                        <a class="dropdown-item" href="#" data-sort="bestRating">Best Rating</a>
                                     </div>
-                                </div> -->
+                                </div>
                             </div>
                         </div>
                         <div id="product-container" class="row pb-1">
@@ -422,47 +423,46 @@
                                
                                 <div class="col-12 pb-1">
                                     <nav aria-label="Page navigation">
-                                  <ul class="pagination justify-content-center mb-3">
-                                    <li class="page-item">
-                                        <% if(currentPage === 1){ %>
-                                            <a class="page-link" href="#" aria-label="Previous">
-                                                <span aria-hidden="true">&laquo;</span>
-                                                <span class="sr-only">Previous</span>
-                                            </a>
-                                        <% }else{ %>
-                                            <a class="page-link" href="/bonito_shop?page=<%= currentPage-1 %>" aria-label="Previous">
-                                                <span aria-hidden="true">&laquo;</span>
-                                                <span class="sr-only">Previous</span>
-                                            </a>
-                                        <% } %>
-                                    </li>
-                                    <% for(let i=1;i<=pages;i++){ %>
-                                        <% if(i === currentPage){ %>
-                                            <li class="page-item active"><a class="page-link" href="#"><%= i %></a></li>
-                                        <% }else{ %>
-                                            <li class="page-item"><a class="page-link" href="#"><%= i %></a></li>
-                                        <% } %>
-                                    <% } %>
-                                    <li class="page-item">
-                                        <% if(currentPage === pages){ %>
-                                            <a class="page-link" href="#" aria-label="Next">
-                                                <span aria-hidden="true">&raquo;</span>
-                                                <span class="sr-only">Next</span>
-                                            </a>
-                                        <% }else{ %>
-                                            <a class="page-link" href="/bonito_shop/<% currentPage+1 %>" aria-label="Next">
-                                                <span aria-hidden="true">&raquo;</span>
-                                                <span class="sr-only">Next</span>
-                                            </a>
-                                        <% } %>
-                                      
-                                    </li>
-                                  </ul>
-                                </nav>
-                            </div>
-                        <% }else{ %>
-                            <p class="text-center fs-2 text-danger">No Products Available.</p>
-                        <% } %> 
+                                        <ul class="pagination justify-content-center mb-3">
+                                            <li class="page-item">
+                                                <% if(currentPage === 1){ %>
+                                                    <a class="page-link" href="#" aria-label="Previous">
+                                                        <span aria-hidden="true">&laquo;</span>
+                                                        <span class="sr-only">Previous</span>
+                                                    </a>
+                                                <% }else{ %>
+                                                    <a class="page-link" href="/bonito_shop?page=<%= currentPage-1 %>" aria-label="Previous">
+                                                        <span aria-hidden="true">&laquo;</span>
+                                                        <span class="sr-only">Previous</span>
+                                                    </a>
+                                                <% } %>
+                                            </li>
+                                            <% for(let i=1;i<=pages;i++){ %>
+                                                <% if(i === currentPage){ %>
+                                                    <li class="page-item active"><a class="page-link" href="#"><%= i %></a></li>
+                                                <% }else{ %>
+                                                    <li class="page-item"><a class="page-link" href="#"><%= i %></a></li>
+                                                <% } %>
+                                            <% } %>
+                                            <li class="page-item">
+                                                <% if(currentPage === pages){ %>
+                                                    <a class="page-link" href="#" aria-label="Next">
+                                                        <span aria-hidden="true">&raquo;</span>
+                                                        <span class="sr-only">Next</span>
+                                                    </a>
+                                                <% }else{ %>
+                                                    <a class="page-link" href="/bonito_shop/<% currentPage+1 %>" aria-label="Next">
+                                                        <span aria-hidden="true">&raquo;</span>
+                                                        <span class="sr-only">Next</span>
+                                                    </a>
+                                                <% } %>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            <% }else{ %>
+                                <p class="text-center fs-2 text-danger">No Products Available.</p>
+                            <% } %> 
                         </div>
                     </div>
                 </div>
@@ -550,7 +550,7 @@
 
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     <script src="/lib/easing/easing.min.js"></script>
     <script src="/lib/owlcarousel/owl.carousel.min.js"></script>
 
@@ -625,10 +625,13 @@
                         console.log('success');
                         // Assuming response.productData contains the filtered products array
                         const filteredProducts = response.productData;
+                        const currentPage = response.currentPage;
+                        const totalDocument = response.totalDocument;
+                        const pages = response.pages;
                         console.log('response',response);
                         // Perform operations to update the product display using filteredProducts
                         // For example:
-                        updateUIWithFilteredProducts(filteredProducts);
+                        updateUIWithFilteredProducts(filteredProducts,currentPage,totalDocument,pages);
                         } else {
                             console.error('Invalid response format or no products found.');
                         }
@@ -646,7 +649,7 @@
         });
         
         // Function to update the UI with filtered products
-function updateUIWithFilteredProducts(filteredProducts) {
+function updateUIWithFilteredProducts(filteredProducts,currentPage,totalDocument,pages) {
     const productContainer = $('#product-container');
     productContainer.empty(); // Clear existing products
 
@@ -672,6 +675,145 @@ function updateUIWithFilteredProducts(filteredProducts) {
             </div>
         `);
     });
+    productContainer.append(`
+        <div class="col-12 pb-1">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center mb-3">
+                    <li class="page-item">
+                        <% if(currentPage === 1){ %>
+                            <a class="page-link" href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                                <span class="sr-only">Previous</span>
+                            </a>
+                        <% }else{ %>
+                            <a class="page-link" href="/bonito_shop?page=<%= currentPage-1 %>" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                                <span class="sr-only">Previous</span>
+                            </a>
+                        <% } %>
+                    </li>
+                    <% for(let i=1;i<=pages;i++){ %>
+                        <% if(i === currentPage){ %>
+                            <li class="page-item active"><a class="page-link" href="#"><%= i %></a></li>
+                        <% }else{ %>
+                            <li class="page-item"><a class="page-link" href="#"><%= i %></a></li>
+                        <% } %>
+                    <% } %>
+                    <li class="page-item">
+                        <% if(currentPage === pages){ %>
+                            <a class="page-link" href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                                <span class="sr-only">Next</span>
+                            </a>
+                        <% }else{ %>
+                            <a class="page-link" href="/bonito_shop/<% currentPage+1 %>" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                                <span class="sr-only">Next</span>
+                            </a>
+                        <% } %>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    `)
+}
+
+document.querySelectorAll('.dropdown-item').forEach(function(item){
+    item.addEventListener('click',(event)=>{
+        event.preventDefault();
+        const sortOption = item.dataset.sort;
+        console.log('sorting option: ',sortOption);
+        $.ajax({
+            url: '/bonito/sort',
+            method: 'post',
+            data: {
+                forSort: sortOption
+            },
+            success: function (response){
+                console.log('Sorting success',response);
+                if(response && response.success && response.productData){
+                    const productData = response.productData;
+                    const currentPage = response.currentPage;
+                    const totalDocument = response.totalDocument;
+                    const pages = response.pages;
+                    updateUIWithSortedProducts(productData,currentPage,totalDocument,pages);
+                }
+            },
+            error: function (error){
+                console.log('Error during sorting request ',error);
+            }        
+        })
+    })
+})
+
+// Function to update the UI with filtered products
+function updateUIWithSortedProducts(filteredProducts,currentPage,totalDocument,pages) {
+    const productContainer = $('#product-container');
+    productContainer.empty(); // Clear existing products
+
+    filteredProducts.forEach(function (product) {
+        // Append product HTML to the container
+        productContainer.append(`
+            <div class="col-lg-4 col-md-6 col-sm-12 pb-1">
+                <div class="card product-item border-0 mb-4" style="width: 18rem;max-height: 504px;">
+                    <div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
+                        <img class="img-fluid w-100" src="/uploads/${product.images[0]}" alt="Product-Image">
+                    </div>
+                    <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
+                        <h6 class="text-truncate mb-3">${product.title}</h6>
+                        <div class="d-flex justify-content-center">
+                            <h6>&#8377;${product.price}</h6><h6 class="text-muted ml-2">${product.offer}%</h6>
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between bg-light border">
+                        <a href="/product_detailes/${product._id}" class="btn btn-sm text-dark p-0"><i class="fas fa-eye text-primary mr-1"></i>View Detail</a>
+                        <a href="" class="btn btn-sm text-dark p-0"><i class="fas fa-heart text-primary mr-1"></i>Save Product</a>
+                    </div>
+                </div>
+            </div>
+        `);
+    });
+    productContainer.append(`
+        <div class="col-12 pb-1">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center mb-3">
+                    <li class="page-item">
+                        <% if(currentPage === 1){ %>
+                            <a class="page-link" href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                                <span class="sr-only">Previous</span>
+                            </a>
+                        <% }else{ %>
+                            <a class="page-link" href="/bonito_shop?page=<%= currentPage-1 %>" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                                <span class="sr-only">Previous</span>
+                            </a>
+                        <% } %>
+                    </li>
+                    <% for(let i=1;i<=pages;i++){ %>
+                        <% if(i === currentPage){ %>
+                            <li class="page-item active"><a class="page-link" href="#"><%= i %></a></li>
+                        <% }else{ %>
+                            <li class="page-item"><a class="page-link" href="#"><%= i %></a></li>
+                        <% } %>
+                    <% } %>
+                    <li class="page-item">
+                        <% if(currentPage === pages){ %>
+                            <a class="page-link" href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                                <span class="sr-only">Next</span>
+                            </a>
+                        <% }else{ %>
+                            <a class="page-link" href="/bonito_shop/<% currentPage+1 %>" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                                <span class="sr-only">Next</span>
+                            </a>
+                        <% } %>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    `)
 }
 
 </script>

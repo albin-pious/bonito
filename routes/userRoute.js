@@ -37,6 +37,7 @@ userRouter.get('/product_detailes/:id',userCtrl.loadProductDetailes);
 userRouter.get('/bonito_shop/:gen',userCtrl.loadShopMenorWomen);
 userRouter.get('/bonito_shop/category/:id',userCtrl.loadShopBasedCategory);
 userRouter.post('/filter',userCtrl.shopFilter);
+userRouter.post('/bonito/sort',userCtrl.shopSort)
 
 // cart & whishlist
 userRouter.get('/bonito_cart',userCtrl.loadCart);
