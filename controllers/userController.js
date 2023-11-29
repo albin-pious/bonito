@@ -625,7 +625,6 @@ const loadProductDetailes = async(req,res)=>{
   try {
     console.log('id from params: ',productId);
     const db = getDb();
-    console.log('hai 1');
     const productCollection = db.collection('products');
     const objectIdProductId = new ObjectId(productId);
     const productData = await productCollection.findOne({_id:objectIdProductId});
@@ -633,6 +632,7 @@ const loadProductDetailes = async(req,res)=>{
     const category = productData.category;
     console.log('category id is: ',category);
     const productSuggestion = await fetchRandomProducts(category,productId,5);
+    console.log('product suggestion is: ',productSuggestion);
     console.log('hai 2');
     console.log('suggestion data is: ',productSuggestion);
     res.render('product',{

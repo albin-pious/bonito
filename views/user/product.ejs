@@ -270,17 +270,18 @@
     <!-- Shop Detail End -->
 
 
-    <!-- Products Start -->
-    <div class="container-fluid py-5">
-        <div class="text-center mb-4">
-            <h2 class="section-title px-5"><span class="px-2">You May Also Like</span></h2>
-        </div>
-        <div class="row px-xl-5">
-            <% if(suggestion && suggestion >0){ %>
-            <div class="col">
-                <div class="owl-carousel related-carousel">
-                    <div class="card product-item border-0">
-                        <% suggestion.forEach(product =>{ %>
+<!-- Products Start -->
+<div class="container-fluid py-5">
+    <div class="text-center mb-4">
+        <h2 class="section-title px-5"><span class="px-2">You May Also Like</span></h2>
+    </div>
+    <div class="row px-xl-5">
+        <% if(suggestion && suggestion.length >0){ %>
+        <div class="col">
+            <div class="row">
+                <% suggestion.forEach(product => { %>
+                    <div class="col-lg-4 col-md-6 col-sm-12 pb-1">
+                        <div class="card product-item border-0 mb-4" style="width: 18rem;max-height: 504px;">
                             <div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
                                 <img class="img-fluid w-100" src="/uploads/<%= product.images[0] %>" alt="Product-Image">
                             </div>
@@ -292,19 +293,20 @@
                             </div>
                             <div class="card-footer d-flex justify-content-between bg-light border">
                                 <a href="/product_detailes/<%= product._id %>" class="btn btn-sm text-dark p-0"><i class="fas fa-eye text-primary mr-1"></i>View Detail</a>
-                                <a href="" class="btn btn-sm text-dark p-0"><i class="fas fa-shopping-cart text-primary mr-1"></i>Add To Cart</a>
+                                <a href="" class="btn btn-sm text-dark p-0"><i class="fas fa-heart text-primary mr-1"></i>Save Product</a>
                             </div>
-                        <% }) %>
-                        
+                        </div>
                     </div>
-                </div>
+                <% }) %>
             </div>
-            <% }else{ %>
-                <p>No similar Products Available</p>
-            <% } %>
         </div>
+        <% } else { %>
+            <p>No similar Products Available</p>
+        <% } %>
     </div>
-    <!-- Products End -->
+</div>
+<!-- Products End -->
+
 
 
     <!-- Footer Start -->
