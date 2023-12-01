@@ -22,11 +22,12 @@
                 <table class="table table-bordered text-start mb-0">
                     <thead class="bg-secondary text-dark">
                         <tr>
-                            <th>Products</th>
-                            <th>Price</th>
-                            <th>Quantity</th>
-                            <th>Total</th>
-                            <th>Remove</th>
+                            <th class="text-center">Products</th>
+                            <th class="text-center">Price</th>
+                            <th class="text-center">Size</th>
+                            <th class="text-center">Quantity</th>
+                            <th class="text-center">Total</th>
+                            <th class="text-center">Remove</th>
                         </tr>
                     </thead>
                     <tbody class="align-middle" data-user="<%= userData._id %>">
@@ -34,18 +35,27 @@
                         <tr data-cart-id="<%= product._id %>" data-product-id="<%= product.product._id %>"></tr>
                             <td class="align-middle">
                                 <img src="/uploads/<%= product.product.images[0] %>" alt="Product-Image" style="width: 50px;">
-                                <%= product.product.title %>
+                                <% function truncateString(str, maxLength) { %>
+                                <% if (str.length > maxLength) { %>
+                                    <%= str.slice(0, maxLength) + "..." %>
+                                <% } else { %>
+                                    <%= str %>
+                                <% } %>
+                            <% } %>
+                                <% const productName = truncateString(product.product.title,20) %>
+                                <%= productName %>
                             </td>
-                            <td class="align-middle">&#8377;<span class="price"><%= product.product.price %></span></td>
+                            <td class="align-middle text-center">&#8377;<span class="price"><%= product.product.price %></span></td>
+                            <td class="align-middle text-center"><span class="productSize text-center"><%= product.selectedSize %></span></td>
                             <td class="align-middle">
                                 <div class="input-group quantity mx-auto" style="width: 100px;">
-                                    <button class="cart-item-count btn-danger mr-3 decrementButton" data-product-id="<%= product._id %>" data-product-item-id="<%= product.product._id %>" data-action="-">-</button>
+                                    <button class="cart-item-count btn-danger mr-3 decrementButton" data-product-id="<%= product._id %>" data-product-item-id="<%= product.product._id %>" data-action="-" >-</button>
                                     <span class="quantityDisplay"><%= product.quantity %></span>
                                     <button class="cart-item-count btn-success ml-3 incrementButton" data-product-id="<%= product._id %>" data-product-item-id="<%= product.product._id %>" data-action="+">+</button>
                                 </div>
                             </td>
-                            <td class="align-middle">&#8377;<span class="totalPrice"><%= product.product.price * product.quantity %></span></td>
-                            <td class="align-middle">
+                            <td class="align-middle text-center">&#8377;<span class="totalPrice"><%= product.product.price * product.quantity %></span></td>
+                            <td class="align-middle text-center">
                                 <button class="btn btn-sm btn-primary removeButton" onclick="removeCartItem('<%= product._id %>','<%= product.product._id %>')">
                                     <i class="fa fa-times"></i>
                                 </button>
@@ -74,11 +84,11 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between mb-3 pt-1">
                             <h6 class="font-weight-medium">Subtotal</h6>
-                            <h6 class="font-weight-medium">$150</h6>
+                            <h6 class="font-weight-medium">&#8377;150</h6>
                         </div>
                         <div class="d-flex justify-content-between">
                             <h6 class="font-weight-medium">Shipping</h6>
-                            <h6 class="font-weight-medium">$10</h6>
+                            <h6 class="font-weight-medium" data-value="0">Free</h6>
                         </div>
                     </div>
                     <div class="card-footer border-secondary bg-transparent">
@@ -171,6 +181,15 @@
     <a href="#" class="btn btn-primary back-to-top"><i class="fa fa-angle-double-up"></i></a>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+
+        function truncateString(str, maxLength) {
+            if (str.length > maxLength) {
+                return str.slice(0, maxLength) + "...";
+            } else {
+                return str;
+            }
+        }
+
        $(document).ready(function() {
     // jQuery event handler for increment and decrement buttons
     $(document).on('click', '.incrementButton, .decrementButton', function() {
@@ -185,6 +204,11 @@
 
         // Get the current quantity after $quantityDisplay is defined
         var currentQuantity = parseInt($quantityDisplay.text());
+
+        if(action === '+' && currentQuantity === 3){
+            alert('Maximum quantity for one product is reached');
+            return;
+        }
         $.ajax({
             url: `/change_quantity`,
             data: {
@@ -195,6 +219,7 @@
             },
             method: 'post',
             success: function(response) {
+                console.log('response is: ',response);
                 if (response.status) {
                     var newQuantity = currentQuantity + (action === '+' ? 1 : -1);
                     $quantityDisplay.text(newQuantity);
@@ -204,6 +229,9 @@
                     var newTotalPrice = productPrice * newQuantity;
                     console.log('new total price ',newTotalPrice);
                     $totalPrice.text(newTotalPrice);
+                    console.log(response);
+                    let newTotal = response.totalValue
+                    document.getElementById('total').innerHTML= newTotal
 
                     var $decrementButton = $row.find('.decrementButton');
                     if (newQuantity === 1) {
@@ -211,7 +239,9 @@
                     } else {
                         $decrementButton.prop('disabled', false);
                     }
-                    document.getElementById('total').innerHTML= response.totalValue
+
+                    window.location.reload()
+                    
                 }
             }
         });

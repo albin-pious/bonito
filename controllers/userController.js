@@ -905,7 +905,8 @@ const loadCart = async (req, res) => {
     {
       $project:{
         item:'$productId.item',
-        quantity:'$productId.quantity'
+        quantity:'$productId.quantity',
+        selectedSize:'$productId.selectedSize'
       }
     },
     {
@@ -920,6 +921,7 @@ const loadCart = async (req, res) => {
       $project:{
         item:1,
         quantity:1,
+        selectedSize:1,
         product:{$arrayElemAt:['$product',0]}
       }
     }
@@ -942,22 +944,26 @@ const loadCart = async (req, res) => {
 
 const addProductToCart = async (req, res) => {
   const { id } = req.params;
+  const selectedSize = req.query.size;
   try {
       const db = getDb();
+      console.log('Id: ',id,'size: ',selectedSize);
       const cartCollection = db.collection('cart');
       const user = req.session.user;
       const userId = user._id;
       const objectIdUserId = new ObjectId(userId);
       const objectIdProductId = new ObjectId(id);
       let proObj = {
-          item: objectIdProductId,
-          quantity: 1
+        item: objectIdProductId,
+        quantity: 1,
+        selectedSize: selectedSize
       }
 
       // Check if the product already exists in the cart
       const existingCartItem = await cartCollection.findOne({
           userId: objectIdUserId,
-          'productId.item': objectIdProductId
+          'productId.item': objectIdProductId,
+          'productId.selectedSize': selectedSize
       });
 
       if (existingCartItem) {
@@ -965,7 +971,8 @@ const addProductToCart = async (req, res) => {
           const result = await cartCollection.updateOne(
               {
                   userId: objectIdUserId,
-                  'productId.item': objectIdProductId
+                  'productId.item': objectIdProductId,
+                  'productId.selectedSize': selectedSize
               },
               {
                   $inc: { 'productId.$.quantity': 1 }
@@ -1402,7 +1409,7 @@ const shopFilter = async(req, res) => {
       console.error('error occurred while loading filter data', error);
       res.status(500).json({ success: false, error: 'Internal Server Error' });
     }
-  }
+}
 
 const shopSort = async (req, res) => {
   const { forSort } = req.body;

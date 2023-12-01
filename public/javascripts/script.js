@@ -5,20 +5,30 @@
 
 
 
-function addToCart(productId){
+function addToCart(productId) {
+    const selectedSizeElement = $('input[name="size"]:checked');
+
+    if (!selectedSizeElement.length) {
+        alert('Please select size to continue.');
+        return;
+    }
+
+    const selectedSize = selectedSizeElement.val();
+    const url = `/add_to_cart/${productId}?size=${selectedSize}`;
+
     $.ajax({
-        url:'/add_to_cart/'+productId,
-        method:'get',
-        success:(response)=>{
-            if(response.status){
-                let count=$('#cart-count').html();
-                count = parseInt(count)+1;
-                $('#cart-count').html(count)
+        url: url,
+        method: 'get',
+        success: (response) => {
+            if (response.status) {
+                let count = $('#cart-count').html();
+                count = parseInt(count) + 1;
+                $('#cart-count').html(count);
             }
-            
         }
-    })
+    });
 }
+
 
 // Wishlist
 function addToWishlist(productId){

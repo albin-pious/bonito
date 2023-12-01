@@ -20,7 +20,7 @@ userRouter.post('/home',userCtrl.verifyLogin);
 userRouter.get('/resend_otp',userCtrl.resendOtp);
 userRouter.get('/resend_login_otp',userCtrl.resendLoginOtp)
 userRouter.get('/otp_login',userCtrl.loadOtpLogin);
-userRouter.post('/register',userCtrl.loadOtp);
+userRouter.post('/register',userCtrl.loadOtp); 
 userRouter.post('/otp',userCtrl.verifyOtp);
 userRouter.post('/send_login_otp',userCtrl.sendLoginOtp);
 
@@ -39,7 +39,7 @@ userRouter.get('/bonito_shop/category/:id',userCtrl.loadShopBasedCategory);
 userRouter.post('/filter',userCtrl.shopFilter);
 userRouter.post('/bonito/sort',userCtrl.shopSort)
 
-// cart & whishlist
+// cart & whishlist 
 userRouter.get('/bonito_cart',userCtrl.loadCart);
 userRouter.get('/add_to_cart/:id',userCtrl.addProductToCart);
 userRouter.post('/change_quantity',userCtrl.changeQuantity);
