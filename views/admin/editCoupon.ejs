@@ -1,0 +1,124 @@
+<%- include('../partials/adminHeader.ejs') %>
+
+<div class="container tm-mt-big tm-mb-big">
+    <!-- BreadCrumb -->
+    <div class="container w-50 m-auto">
+        <ol class="breadcrumb" style="background: none;">
+            <li class="breadcrumb-item"><a href="/admin/coupon">Coupon</a></li>
+            <li class="breadcrumb-item active text-white">Edit Category</li>
+        </ol>
+    </div>
+    <!-- End BreadCrumb -->
+    <% if(couponData){ %>
+        <div class="row">
+            <div class="col-xl-9 col-lg-10 col-md-12 col-sm-12 mx-auto">
+                <div class="tm-bg-primary-dark tm-block tm-block-h-auto">
+                    <div class="row">
+                        <div class="col-6">
+                            <h2 class="tm-block-title d-inline-block">Add Coupon</h2>
+                        </div>
+                        <% if(typeof(message)!=='undefined'){ %>
+                            <div class="alert col-6">
+                                <small class="text-warning"><%= message %></small>
+                            </div>
+                        <% } %>
+                    </div>
+    
+                    <form action="/admin/edit_coupon" method="post" class="tm-add-coupon-form">
+                        <div class="row tm-add-product-row">
+                            <div class="col-12 col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="couponName">Coupon Name</label>
+                                    <input 
+                                        type="text"
+                                        name="couponName"
+                                        id="couponName"
+                                        class="form-control validate"
+                                        value="<%= couponData.couponName %>"
+                                    >
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="couponOffer">Offer</label>
+                                    <input 
+                                        type="text" 
+                                        name="couponOffer" 
+                                        id="couponOffer"
+                                        class="form-control validate"
+                                        value="<%= couponData.couponOffer %>"
+                                    >
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="brand">Brand Name <small class="text-danger">*not mandatory</small></label>
+                                    <input 
+                                        type="text"
+                                        name="brand"
+                                        id="brand"
+                                        class="form-control validate"
+                                        value="<%= couponData.brand || 'ALL' %>"
+                                    >
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="couponName">Category Name <small class="text-danger">*not mandatory</small></label>
+                                    <input 
+                                        type="text"
+                                        name="category"
+                                        id="category"
+                                        class="form-control validate"
+                                        value="<%= couponData.category || 'ALL' %>" 
+                                    >
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="minPurchase">Min. Purchase</label>
+                                    <input 
+                                        type="text" 
+                                        name="minAmount" 
+                                        id="minAmount"
+                                        class="form-control validate"
+                                        value="<%= couponData.minAmount %>"
+                                    >
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="validity">Valid Upto</label>
+                                    <input 
+                                        type="date" 
+                                        name="validity" 
+                                        id="validity"
+                                        class="form-control validate"
+                                        value="<%= couponData.expireDate %>"
+                                    >
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="status">Status</label>
+                                    <select class="form-select" name="status" required>
+                                        <option value="active" <%= couponData.status==='active' ? 'selected': ''%>>Active</option>
+                                        <option value="inactive" <%= couponData.status==='inactive' ? 'selected': ''%>>Inactive</option>
+                                    </select>
+                                    <input type="hidden" name="id" value="<%= couponData._id %>">
+                                </div>
+                            </div>
+                            <div class="col-12 text-center">
+                                <button type="submit" class="btn btn-primary text-uppercase" id="submitButton">Create coupon</button>
+                            </div>
+                        </div>    
+                    </form> 
+                </div>
+            </div>
+        </div>
+    <% }else{ %>
+        <p>Try after sometime...</p>
+    <% } %>
+    
+</div>
+<%- include('../partials/adminFooter.ejs') %>

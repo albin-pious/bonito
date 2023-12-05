@@ -1,0 +1,175 @@
+<%- include('../partials/adminHeader.ejs') %>
+
+<div class="container tm-mt-big tm-mb-big">
+    <!-- BreadCrumb -->
+    <div class="container w-50 m-auto">
+        <ol class="breadcrumb" style="background: none;">
+            <li class="breadcrumb-item"><a href="/admin/coupon">Coupon</a></li>
+            <li class="breadcrumb-item active text-white">Add Category</li>
+        </ol>
+    </div>
+    <!-- End BreadCrumb -->
+    <div class="row">
+        <div class="col-xl-9 col-lg-10 col-md-12 col-sm-12 mx-auto">
+            <div class="tm-bg-primary-dark tm-block tm-block-h-auto">
+                <div class="row">
+                    <div class="col-6">
+                        <h2 class="tm-block-title d-inline-block">Add Coupon</h2>
+                    </div>
+                    <% if(typeof(message)!=='undefined'){ %>
+                        <div class="alert col-6">
+                            <small class="text-warning"><%= message %></small>
+                        </div>
+                    <% } %>
+                </div>
+                
+                <form action="/admin/createcoupon" method="post" class="tm-add-coupon-form">
+                    <div class="row tm-add-product-row">
+                        <div class="col-12 col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="couponName">Coupon Name</label>
+                                <input 
+                                    type="text"
+                                    name="couponName"
+                                    id="couponName"
+                                    class="form-control validate"
+                                >
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="couponOffer">Offer</label>
+                                <input 
+                                    type="text" 
+                                    name="couponOffer" 
+                                    id="couponOffer"
+                                    class="form-control validate"
+                                >
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="brand">Brand Name <small class="text-danger">*not mandatory</small></label>
+                                <input 
+                                    type="text"
+                                    name="brand"
+                                    id="brand"
+                                    class="form-control validate"
+                                >
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="couponName">Category Name <small class="text-danger">*not mandatory</small></label>
+                                <input 
+                                    type="text"
+                                    name="category"
+                                    id="category"
+                                    class="form-control validate"
+                                >
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="minPurchase">Min. Purchase</label>
+                                <input 
+                                    type="text" 
+                                    name="minAmount" 
+                                    id="minAmount"
+                                    class="form-control validate"
+                                >
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="validity">Valid Upto</label>
+                                <input 
+                                    type="date" 
+                                    name="validity" 
+                                    id="validity"
+                                    class="form-control validate"
+                                >
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="status">Status</label>
+                                <select class="form-select" name="status" required>
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-primary text-uppercase" id="submitButton">Create coupon</button>
+                        </div>
+                    </div>    
+                </form>           
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function validateForm() {
+        // Get form inputs
+        var couponName = document.getElementById('couponName').value;
+        var couponOffer = document.getElementById('couponOffer').value;
+        var minAmount = document.getElementById('minAmount').value;
+        var validity = document.getElementById('validity').value;
+        var category = document.getElementById('category').value;
+        var brand = document.getElementById('brand').value;
+
+        // Validate Coupon Name
+        if(!couponName.trim()===''){
+            alert('Coupon Name is required.');
+            return false;
+        }else if(!couponName.match(/^[a-zA-Z0-9-]+$/)) {
+            alert('Coupon Name should valid.');
+            return false;
+        }
+
+        // Validate Coupon Offer
+        if (!couponOffer.match(/^[0-9]+$/)) {
+            alert('Coupon Offer shoud valid.');
+            return false;
+        }else if(couponOffer.trim()===''){
+            alert('Coupon Offer is required.');
+            return false;
+        }
+
+        // Validate Min. Purchase
+        if (!minAmount.match(/^[0-9]+$/)) {
+            alert('Minimum Purchase amout should proper.');
+            return false;
+        }else if(minAmount.trim()===''){
+            alert('Minimum Purchase amount is required.')
+        }
+
+        // Validate Valid Upto
+        if (!validity.trim() === '') {
+            alert('Valid Upto is required.');
+            return false;
+        }
+        
+        return true;
+    }
+
+    // Attach the validateForm function to the form's onsubmit event
+    document.querySelector('.tm-edit-category-form').onsubmit = function() {
+        return validateForm();
+    };
+
+    // Add event listeners to the form inputs to enable/disable the submit button
+    var formInputs = document.querySelectorAll('.validate');
+    formInputs.forEach(function(input) {
+        input.addEventListener('submit', function(e) {
+            e.preventDefault();
+            var submitButton = document.getElementById('submitButton');
+            // submitButton.disabled = !validateForm();
+        });
+    });
+</script>
+
+<%- include('../partials/adminFooter.ejs') %>
