@@ -1382,7 +1382,6 @@ const shopFilter = async(req, res) => {
     })) : [];  
       
     const combinedSizeFilter = sizeFilter.length > 0 ? { $or: sizeFilter } : {};
-      
     const query = {
       $and: [
         combinedSizeFilter,

@@ -1,6 +1,7 @@
 const  express = require('express');
 const adminRouter = express();
 const adminController = require('../controllers/adminController');
+const couponController = require('../controllers/couponController');
 const auth = require('../middleware/auth');
 
 const store = require('../helpers/multer');
@@ -8,7 +9,7 @@ const store = require('../helpers/multer');
 adminRouter.set('view engine','ejs');
 adminRouter.set('views','./views/admin');
 
-adminRouter.use(['/productlist', '/product_add', '/newbrand', '/categorylist', '/category_create', '/category_edit/:id', '/customerlist','/edit_brand/:id'], auth.adminLogin);
+adminRouter.use(['/productlist', '/product_add', '/newbrand', '/categorylist', '/category_create', '/category_edit/:id', '/customerlist','/edit_brand/:id','/coupon','/coupon_create'], auth.adminLogin);
 
 
 adminRouter.get('/',auth.adminLogOut,adminController.loadLogin);
@@ -43,6 +44,14 @@ adminRouter.delete('/category_delete/:id',adminController.deleteCategory);
 // *********** CUSTOMER MANAGEMENT *********** //
 adminRouter.get('/customerlist',adminController.loadCustomer);
 adminRouter.put('/customerlist/:action/:id',adminController.restrictUser);
+
+// *********** COUPON MANAGEMENT *********** //
+adminRouter.get('/coupon',couponController.loadCoupon);
+adminRouter.get('/coupon_create',couponController.loadCreateCoupon);
+adminRouter.post('/createcoupon',couponController.createCoupon);
+adminRouter.get('/coupon_editpage/:id',couponController.loadEditCoupon);
+adminRouter.post('/edit_coupon',couponController.editCoupon)
+adminRouter.delete('/coupon_delete/:id',couponController.deleteCoupon);
 
 // *********** ADMIN LOGOUT *********** //
 adminRouter.get('/logout',adminController.adminLogout)

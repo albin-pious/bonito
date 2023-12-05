@@ -556,7 +556,6 @@ const deleteCategory = async (req, res) => {
     }
 };
 
-
 const loadBrandAdd = async(req,res)=>{
     try {
         const db = getDb();
