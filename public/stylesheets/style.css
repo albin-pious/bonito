@@ -7754,6 +7754,33 @@ button.bg-dark:focus {
   font-size: 8px;
 }
 
+
+
+.col-6,
+.col-4,
+.col-8 {
+    position: relative;
+}
+
+.col-6 a:hover .material-symbols-outlined,
+.col-4 a:hover .material-symbols-outlined,
+.col-8 a:hover .material-symbols-outlined {
+    padding: 1px;
+    transition: padding 0.3s ease; /* Optional: Add a smooth transition effect */
+}
+
+.col-6 a:hover strong,
+.col-4 a:hover strong,
+.col-8 a:hover strong {
+    background-color: blue;
+    color: white; /* Optional: Set text color to white for better visibility */
+    transition: background-color 0.zs ease; /* Optional: Add a smooth transition effect */
+}
+
+#profile-page-coupon{
+  background-color: blue !important;
+}
+
 @media (min-width: 576px) {
   .m-sm-0 {
     margin: 0 !important;

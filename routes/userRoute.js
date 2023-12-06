@@ -4,7 +4,7 @@ const auth = require('../middleware/auth');
 const userCtrl = require('../controllers/userController');
 
 userRouter.use(['/bonito_shop','/product_detailes/:id','/checkout/:id','/bonito_cart','/add_to_cart/:id','checkout/success_page'
-,'/bonito/order_view','/view_order_products/:id','/bonito_shop/:gen','/bonito_shop/category/:id'],auth.userLogin);
+,'/bonito/order_view','/view_order_products/:id','/bonito_shop/:gen','/bonito_shop/category/:id','/profile'],auth.userLogin);
 
 userRouter.set('view engine','ejs');
 userRouter.set('views','./views/user');
@@ -58,7 +58,10 @@ userRouter.post('/verify_payment',userCtrl.verifyRPPayment);
 
 // order
 userRouter.get('/bonito/order_view',userCtrl.loadOrderView);
-userRouter.get('/view_order_products/:id',userCtrl.loadProductFromOrder)
+userRouter.get('/view_order_products/:id',userCtrl.loadProductFromOrder);
+
+// account and other related routes.
+userRouter.get('/profile',userCtrl.loadUserAccount)
 
 
 module.exports = userRouter;

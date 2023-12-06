@@ -1564,6 +1564,17 @@ const removeSavedItem = async (req, res) => {
   }
 };
 
+const loadUserAccount = async (req,res)=>{
+  try {
+    let userId = req.session.user;
+    console.log('user id is: ',userId);
+    res.render('profile');
+  } catch (error) {
+    console.error('Error occured while loading users account: ',error);
+    res.json({status:500,message:'Internal Server Problem.'})
+  }
+}
+
 module.exports = {
   loadHome,
   loadShop,
@@ -1580,6 +1591,7 @@ module.exports = {
   loadShopMenorWomen,
   loadShopBasedCategory,
   loadWishlist,
+  loadUserAccount,
   sendLoginOtp,
   sendForgotOtp,
   resendOtp,
