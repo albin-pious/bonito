@@ -2,7 +2,7 @@ const { ObjectId } = require('mongodb');
 const { getDb } = require('../config/dbConnect');
 
 class Coupon{
-    constructor(couponName,couponCode,couponOffer,minAmount,expireDate,brand,category,status){
+    constructor(couponName,couponCode,couponOffer,minAmount,expireDate,brand,category,status,apply){
         this.couponName = couponName,
         this.couponCode = couponCode,
         this.couponOffer = couponOffer,
@@ -11,6 +11,7 @@ class Coupon{
         this.brand = brand,
         this.category = category,
         this.status = status,
+        this.apply = apply,
         this.usedBy = 0
     }
 

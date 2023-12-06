@@ -8,6 +8,7 @@ const { getDb } = require('../config/dbConnect');
 const { ObjectId } = require('mongodb');
 const otpService = require('../utilities/otpService');
 const { paginate } = require('../helpers/pagination');
+const { addCouponToUser } = require('../helpers/dynamicCoupon');
 const bcrypt = require('bcrypt');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
@@ -210,11 +211,25 @@ const verifyOtp = async (req, res) => {
 
       const db = getDb();
       const collection = db.collection('users');
+      const couponCollection = db.collection('coupons');
+      const couponData = await couponCollection.findOne({apply:'welcome',status:'active'});
       const hashedPassword = await bcrypt.hash(password, 10);
       const newUser = new User(name, email, hashedPassword, mobile);
 
       const result = await collection.insertOne(newUser);
       delete req.session.userData;
+      if(couponData && couponData.status==='active'){
+        const insertedId = new ObjectId(result.insertedId);
+        const coupon = {
+          _id: couponData._id,
+          name: couponData.couponOffer,
+          code: couponData.couponCode,
+          offer: couponData.couponOffer,
+          expireDate: couponData.expireDate
+        }
+
+        await addCouponToUser(collection,insertedId,coupon);
+      }
       res.render('login', { title: 'Registration completed. Please Login',message:'' });
     } else {
       return res.render('otpVerify', { message: 'Invalid OTP.' });

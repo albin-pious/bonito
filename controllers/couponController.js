@@ -43,7 +43,7 @@ function generateCouponCode(){
 }
 
 const createCoupon = async (req, res) => {
-    let { couponName, couponOffer, minAmount, validity, brand, category,status } = req.body;
+    let { couponName, couponOffer, minAmount, validity, brand, category,status,apply } = req.body;
     try {
         const db = getDb();
         brand = brand.toUpperCase(); // Update to uppercase
@@ -64,7 +64,7 @@ const createCoupon = async (req, res) => {
             return res.render('addCoupon', { message: 'Please check category name before adding coupon.' });
         }
         if (!existingCoupons) {
-            const newCoupon = new Coupon(couponName, couponCode, couponOffer, minAmount, expireDate, brand, category,status);
+            const newCoupon = new Coupon(couponName, couponCode, couponOffer, minAmount, expireDate, brand, category,status,apply);
             const result = await couponCollection.insertOne(newCoupon);
             if (result) {
                 res.redirect('/admin/coupon');
@@ -100,7 +100,7 @@ const loadEditCoupon = async (req,res)=>{
 }
 
 const editCoupon = async(req,res)=>{
-    const {couponName,couponOffer,brand,category,minAmount,validity,status,id} = req.body;
+    const {couponName,couponOffer,brand,category,minAmount,validity,status,apply,id} = req.body;
     try {
         const db = getDb();
         const couponCollection = db.collection('coupons');
@@ -113,7 +113,7 @@ const editCoupon = async(req,res)=>{
             if(!couponCheck){
                 const result = await couponCollection.updateOne({
                     _id:objectIdCouponId },
-                    { $set: { couponName,couponCode,couponOffer,minAmount,expireDate,brand,category,status}
+                    { $set: { couponName,couponCode,couponOffer,minAmount,expireDate,brand,category,status,apply}
                 })
 
                 if(result.modifiedCount === 1){
@@ -122,7 +122,7 @@ const editCoupon = async(req,res)=>{
                     res.render('editCoupon',{ message: `Couldn't update the coupon try again later.`});
                 }
             }else{
-                return res.render('editCoupon',{ message: `Couponcode is taken to another coupon.`})
+                return res.render('editCoupon',{ message: `Couponcode is taken to another coupon.`});
             }
         }
     } catch (error) {

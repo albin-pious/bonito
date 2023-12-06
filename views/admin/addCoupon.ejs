@@ -97,8 +97,20 @@
                                 <select class="form-select" name="status" required>
                                     <option value="active">Active</option>
                                     <option value="inactive">Inactive</option>
+                                    <option value="" disabled>Expired</option>
                                 </select>
                             </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="apply">Status</label>
+                                <select name="apply" class="form-select" required>
+                                    <option value="welcome">Welcome Bonus</option>
+                                    <option value="purchase">Purchase Bonus</option>
+                                    <option value="random" disabled>Admin Bonus</option>
+                                </select>
+                            </div>
+
                         </div>
                         <div class="col-12 text-center">
                             <button type="submit" class="btn btn-primary text-uppercase" id="submitButton">Create coupon</button>
@@ -132,7 +144,7 @@
 
         // Validate Coupon Offer
         if (!couponOffer.match(/^[0-9]+$/)) {
-            alert('Coupon Offer shoud valid.');
+            alert('Coupon Offer should valid.');
             return false;
         }else if(couponOffer.trim()===''){
             alert('Coupon Offer is required.');
@@ -167,7 +179,6 @@
         input.addEventListener('submit', function(e) {
             e.preventDefault();
             var submitButton = document.getElementById('submitButton');
-            // submitButton.disabled = !validateForm();
         });
     });
 </script>

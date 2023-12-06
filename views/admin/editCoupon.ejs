@@ -102,14 +102,24 @@
                                 <div class="form-group mb-3">
                                     <label for="status">Status</label>
                                     <select class="form-select" name="status" required>
-                                        <option value="active" <%= couponData.status==='active' ? 'selected': ''%>>Active</option>
+                                        <option value="active" <%= couponData.status==='active' ? 'selected': '' %>>Active</option>
                                         <option value="inactive" <%= couponData.status==='inactive' ? 'selected': ''%>>Inactive</option>
                                     </select>
                                     <input type="hidden" name="id" value="<%= couponData._id %>">
                                 </div>
                             </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="status">Type of Coupon</label>
+                                    <select class="form-select" name="apply" required>
+                                        <option value="welcome" <%= couponData.apply=== 'welcome' ? 'selected': '' %>> Welcome Bonus</option>
+                                        <option value="purchase" <%= couponData.apply=== 'purchase' ? 'selected': '' %>> Purchase Bonus</option>
+                                        <option disabled value="random" <%= couponData.apply=== 'random' ? 'selected': '' %>> Admin Bonus</option>
+                                    </select>
+                                </div>
+                            </div>
                             <div class="col-12 text-center">
-                                <button type="submit" class="btn btn-primary text-uppercase" id="submitButton">Create coupon</button>
+                                <button type="submit" class="btn btn-primary text-uppercase" id="submitButton">Edit Coupon</button>
                             </div>
                         </div>    
                     </form> 
@@ -121,4 +131,42 @@
     <% } %>
     
 </div>
+
+<script>
+    function validateForm(){
+        var couponName = document.getElementById('couponName').value;
+        var couponOffer = document.getElementById('couponOffer').value;
+        var minAmount = document.getElementById('minAmount').value;
+        var validity = document.getElementById('validity').value;
+        var category = document.getElementById('category').value;
+        var brand = document.getElementById('brand').value;
+
+        if(!couponName.match(/^[a-zA-Z0-9-]+$/)){
+            alert('Coupon Name should valid.');
+            return false;
+        }
+
+        if(!couponOffer.match(/^[0-9]+$/)){
+            alert('Coupon offer should valid.');
+            return false;
+        }
+
+        if(!minAmount.match(/^[0-9]+$/)){
+            alert('Minimum Purchase amount is required.');
+            return false;
+        }
+    }
+
+    document.querySelector('.tm-edit-category-form').onsubmit = function (){
+        return validateForm();
+    }
+
+    var formInputs = document.querySelectorAll('.validate');
+    formInputs.forEach(function(input){
+        input.addEventListener('submit', function(e){
+            e.preventDefault();
+            var submitButton = document.getElementById('submitButton');
+        })
+    })
+</script>
 <%- include('../partials/adminFooter.ejs') %>
