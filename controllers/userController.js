@@ -222,7 +222,7 @@ const verifyOtp = async (req, res) => {
         const insertedId = new ObjectId(result.insertedId);
         const coupon = {
           _id: couponData._id,
-          name: couponData.couponOffer,
+          name: couponData.couponName,
           code: couponData.couponCode,
           offer: couponData.couponOffer,
           expireDate: couponData.expireDate
@@ -962,7 +962,6 @@ const addProductToCart = async (req, res) => {
   const selectedSize = req.query.size;
   try {
       const db = getDb();
-      console.log('Id: ',id,'size: ',selectedSize);
       const cartCollection = db.collection('cart');
       const user = req.session.user;
       const userId = user._id;
@@ -1258,7 +1257,7 @@ const getUserOders = async(orderId)=>{
 
 const loadOrderView = async (req, res) => {
   const userId = req.session.user._id;
-  const pageNum = parseInt(req.query.page, 10) || 1;
+  let pageNum = parseInt(req.query.page, 10) || 1;
   const perPage = 7;
 
   try {
@@ -1279,7 +1278,7 @@ const loadOrderView = async (req, res) => {
     }
 
     // Calculate the skip value to fetch the correct page of data
-    const skip = (pageNum - 1) * perPage;
+    const skip = Math.max(0,(pageNum - 1) * perPage);
 
     // Retrieve the data for the current page
     const orderData = await orderCollection
@@ -1567,7 +1566,7 @@ const removeSavedItem = async (req, res) => {
 const loadUserAccount = async (req,res)=>{
   try {
     let userId = req.session.user;
-    console.log('user id is: ',userId);
+
     res.render('profile');
   } catch (error) {
     console.error('Error occured while loading users account: ',error);

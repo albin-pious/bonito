@@ -1,0 +1,81 @@
+<%- include('../partials/userHeader.ejs') %>
+
+<!-- Page Header Start -->
+<div class="container-fluid bg-secondary mb-5">
+    <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 300px">
+        <h1 class="font-weight-semi-bold text-uppercase mb-3">Rewards</h1>
+        <div class="d-inline-flex">
+            <p class="m-0"><a href="/">Home</a></p>
+            <p class="m-0 px-2">-</p>
+            <p class="m-0">Coupons</p>
+        </div>
+    </div>
+</div>
+<!-- Page Header End -->
+<div class="container w-75 pt-5">
+    <% if(userData && userData.coupon && userData.coupon.length > 0){ %>
+        <div class="row px-xl-5 text-center">
+            <table class="table">
+                <% userData.coupon.forEach((coupon)=>{ %>
+                    <tr class="border border-1 mt-3" id="coupon">
+                        <div class="row border border-1">
+                            <div class="col-6 mt-2 fs-3 "><i class="text-success"><%= coupon.coupon.name %> <strong class="text-danger"><%= coupon.coupon.offer %>%</strong></i></div>
+                            <div class="col-6 fs-4 mt-2 text-primary">
+                                <% const currentDate = new Date() %>
+                                <% if(coupon.coupon.expireDate > currentDate){ %>
+                                    <p class="text-danger">Expired</p>
+                                <% }else{ %>
+                                    <em>Valid till: <span style="color: blue;"><%= coupon.coupon.expireDate %></span></em>
+                                <% } %>
+                            </div>
+                            <div class="col-12" id="coupon-input">
+                            <% if(coupon.coupon.expireDate > currentDate){ %>
+                                <div class="div"></div>
+                            <% }else{ %>
+                                <div class="col d-flex justify-content-center coupon-outer">
+                                    <div class="copy-link">
+                                        <input type="text" class="copy-link-input" value="<%= coupon.coupon.code %>" readonly>
+                                        <button class="copy-link-button"><i class="fa fa-clone"></i>
+                                        </button>  
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </tr>
+                <% }) %>
+            </table>
+        </div>
+    <% }else{ %>
+        <strong class="fs-3 text-center text-secondary">No coupons for you currently!!!</strong>
+        <strong class="fs-3 text-center text-dark mt-5">No coupons for you currently!!!</strong>
+    <% } %>
+    
+</div>
+<!-- Coupons -->
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    let copyText = document.querySelectorAll('.copy-link').forEach(copyLinkContainer=>{
+        const inputField = copyLinkContainer.querySelector('.copy-link-input');
+        const copyButton = copyLinkContainer.querySelector('.copy-link-button');
+    
+
+        inputField.addEventListener('focus',()=>{
+            inputField.select();
+        })
+
+        copyButton.addEventListener('click',()=>{
+            const text = inputField.value;
+            inputField.select();
+            navigator.clipboard.writeText(text);
+            inputField.value = 'Copied!';
+            setTimeout(() => {
+                inputField.value = text 
+            }, 2000);
+        })
+    })
+});
+</script>
+
+<%- include('../partials/userFooter.ejs') %>

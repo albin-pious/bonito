@@ -2,9 +2,11 @@ const express = require('express');
 const userRouter = express();
 const auth = require('../middleware/auth');
 const userCtrl = require('../controllers/userController');
+const couponCtrl = require('../controllers/couponController');
 
-userRouter.use(['/bonito_shop','/product_detailes/:id','/checkout/:id','/bonito_cart','/add_to_cart/:id','checkout/success_page'
-,'/bonito/order_view','/view_order_products/:id','/bonito_shop/:gen','/bonito_shop/category/:id','/profile'],auth.userLogin);
+userRouter.use(['/bonito_shop','/product_detailes/:id','/checkout/:id','/bonito_cart','/add_to_cart/:id','checkout/success_page',
+'/bonito/order_view','/view_order_products/:id','/bonito_shop/:gen','/bonito_shop/category/:id','/profile','/user_coupon_page',
+],auth.userLogin);
 
 userRouter.set('view engine','ejs');
 userRouter.set('views','./views/user');
@@ -61,7 +63,8 @@ userRouter.get('/bonito/order_view',userCtrl.loadOrderView);
 userRouter.get('/view_order_products/:id',userCtrl.loadProductFromOrder);
 
 // account and other related routes.
-userRouter.get('/profile',userCtrl.loadUserAccount)
+userRouter.get('/profile',userCtrl.loadUserAccount);
+userRouter.get('/user_coupon_page',couponCtrl.loadUserCoupon)
 
 
 module.exports = userRouter;

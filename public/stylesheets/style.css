@@ -7774,11 +7774,60 @@ button.bg-dark:focus {
 .col-8 a:hover strong {
     background-color: blue;
     color: white; /* Optional: Set text color to white for better visibility */
-    transition: background-color 0.zs ease; /* Optional: Add a smooth transition effect */
+    transition: background-color 0.3s ease; /* Optional: Add a smooth transition effect */
 }
 
 #profile-page-coupon{
   background-color: blue !important;
+}
+
+.copy-link{
+  --hight:30px;
+  display: flex;
+  max-width: 30px;
+}
+
+.copy-link-input{
+ flex-grow: 1;
+ padding: 0 8px;
+ font-size: 14px;
+ border: 1px solid #cccccc;
+ border-right: none;
+ outline: none;
+}
+
+.copy-link-input:hover{
+  background-color: #eeeeee;
+}
+
+.copy-link-button{
+  flex-shrink: 0;
+  height: var(--hight);
+  width: var(--hight);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #dddddd;
+  color: #333333;
+  border: 1px solid #cccccc;
+  cursor: pointer;
+}
+
+.copy-link-button:hover{
+  background-color: #cccccc;
+}
+
+.coupon-outer{
+  background-color: var(--gray-dark);
+}
+
+#coupon{
+  background-color: #138496 !important;
+}
+@media (max-width: 544px) {
+  #coupon-input{
+    max-width: fit-content;
+  }
 }
 
 @media (min-width: 576px) {

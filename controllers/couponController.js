@@ -148,11 +148,27 @@ const deleteCoupon = async (req,res)=>{
     }
 }
 
+const loadUserCoupon = async (req,res)=>{
+    try {
+        const db = getDb();
+        const userCollection = db.collection('users');
+        const userId = req.session.user._id;
+        const objectIdUserId = new ObjectId(userId);
+        const userData = await userCollection.findOne({ _id:objectIdUserId});
+        console.log('user data is: ',userData);
+        res.render('userCoupon',{userData});
+    } catch (error) {
+        console.log('error occured while loading coupon page.',error);
+        res.json({status:500,message:'Internal Server Problem'});
+    }
+}
+
 module.exports = {
     loadCoupon,
     loadCreateCoupon,
-    createCoupon,
     loadEditCoupon,
+    loadUserCoupon,
+    createCoupon,
     editCoupon,
     deleteCoupon
 }
