@@ -64,7 +64,9 @@ userRouter.get('/view_order_products/:id',userCtrl.loadProductFromOrder);
 
 // account and other related routes.
 userRouter.get('/profile',userCtrl.loadUserAccount);
-userRouter.get('/user_coupon_page',couponCtrl.loadUserCoupon)
+userRouter.get('/user_coupon_page',couponCtrl.loadUserCoupon);
+userRouter.post('/apply_bonito_coupon',couponCtrl.applyCoupon);
+
 
 
 module.exports = userRouter;

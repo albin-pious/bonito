@@ -163,6 +163,51 @@ const loadUserCoupon = async (req,res)=>{
     }
 }
 
+const applyCoupon = async (req, res) => {
+    const { userId, coupon,total } = req.body;
+    try {
+        const db = getDb();
+        const userCollection = db.collection('users');
+        const cartCollection = db.collection('cart');
+        const objectIdUserId = new ObjectId(userId);
+        const userData = await userCollection.findOne({ _id: objectIdUserId });
+        const cartData = await cartCollection.findOne({ userId: objectIdUserId});
+        console.log('cartData is: ',cartData);
+        if(cartData){
+            if(userData && userData.coupon){
+                const providedCode = coupon;
+                const couponExist = userData.coupon.find(
+                    userCoupon => userCoupon.coupon.code === providedCode
+                )
+                if(couponExist){
+                    const currentDate = new Date();
+                    const expireDate = couponExist.expireDate;
+                    if(currentDate > expireDate){
+                        return res.json({status:false,message:'Coupon validity expired.'});
+                    }
+    
+                    if(couponExist.brand || couponExist.category){
+                        console.log('hi brand and category section');
+                    }else{
+                        let offer = parseInt(couponExist.coupon.offer,10);
+                        const discountAmount = Math.ceil(offer*total/100);
+                        const discountTotal = total - discountAmount;
+                        res.status(200).json({status:true,offer:offer,discountAmount:discountAmount,discountTotal:discountTotal,total:total});
+                    }
+                }else{
+                    return res.json({status:false,message:'Invalid coupon code.'});
+                }
+            }else{
+                return res.json({status:false,message:'Invalid coupon'});
+            }
+        }
+    } catch (error) {
+        console.log('error occurred while applying coupon.', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+
 module.exports = {
     loadCoupon,
     loadCreateCoupon,
@@ -170,5 +215,6 @@ module.exports = {
     loadUserCoupon,
     createCoupon,
     editCoupon,
-    deleteCoupon
+    deleteCoupon,
+    applyCoupon
 }

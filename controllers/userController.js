@@ -222,7 +222,7 @@ const verifyOtp = async (req, res) => {
         const insertedId = new ObjectId(result.insertedId);
         const coupon = {
           _id: couponData._id,
-          name: couponData.couponName,
+          name: couponData.couponOffer,
           code: couponData.couponCode,
           offer: couponData.couponOffer,
           expireDate: couponData.expireDate
@@ -962,6 +962,7 @@ const addProductToCart = async (req, res) => {
   const selectedSize = req.query.size;
   try {
       const db = getDb();
+      console.log('Id: ',id,'size: ',selectedSize);
       const cartCollection = db.collection('cart');
       const user = req.session.user;
       const userId = user._id;

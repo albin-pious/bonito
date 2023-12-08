@@ -14,77 +14,72 @@
     </div>
     <!-- Page Header End -->
 
-     <!-- Cart Start -->
-     <div class="container-fluid pt-5">
+    <!-- Cart Start -->
+    <div class="container-fluid pt-5">
         <div class="row px-xl-5">
-            <div class="col-lg-8 table-responsive mb-5">
-                <% if (productData && productData.length > 0) { %>
-                <table class="table table-bordered text-start mb-0">
-                    <thead class="bg-secondary text-dark">
-                        <tr>
-                            <th class="text-center">Products</th>
-                            <th class="text-center">Price</th>
-                            <th class="text-center">Size</th>
-                            <th class="text-center">Quantity</th>
-                            <th class="text-center">Total</th>
-                            <th class="text-center">Remove</th>
-                        </tr>
-                    </thead>
-                    <tbody class="align-middle" data-user="<%= userData._id %>">
-                        <% productData.forEach((product) => { %>
-                        <tr data-cart-id="<%= product._id %>" data-product-id="<%= product.product._id %>"></tr>
-                            <td class="align-middle">
-                                <img src="/uploads/<%= product.product.images[0] %>" alt="Product-Image" style="width: 50px;">
-                                <% function truncateString(str, maxLength) { %>
-                                <% if (str.length > maxLength) { %>
-                                    <%= str.slice(0, maxLength) + "..." %>
-                                <% } else { %>
-                                    <%= str %>
-                                <% } %>
-                            <% } %>
-                                <% const productName = truncateString(product.product.title,20) %>
-                                <%= productName %>
-                            </td>
-                            <td class="align-middle text-center">&#8377;<span class="price"><%= product.product.price %></span></td>
-                            <td class="align-middle text-center"><span class="productSize text-center"><%= product.selectedSize %></span></td>
-                            <td class="align-middle">
-                                <div class="input-group quantity mx-auto" style="width: 100px;">
-                                    <button class="cart-item-count btn-danger mr-3 decrementButton" data-product-id="<%= product._id %>" data-product-item-id="<%= product.product._id %>" data-action="-" >-</button>
-                                    <span class="quantityDisplay"><%= product.quantity %></span>
-                                    <button class="cart-item-count btn-success ml-3 incrementButton" data-product-id="<%= product._id %>" data-product-item-id="<%= product.product._id %>" data-action="+">+</button>
-                                </div>
-                            </td>
-                            <td class="align-middle text-center">&#8377;<span class="totalPrice"><%= product.product.price * product.quantity %></span></td>
-                            <td class="align-middle text-center">
-                                <button class="btn btn-sm btn-primary removeButton" onclick="removeCartItem('<%= product._id %>','<%= product.product._id %>')">
-                                    <i class="fa fa-times"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <% }); %> 
-                    </tbody>                    
-                </table>
-                <% } else { %>
-                    <p>Add Products to Cart.</p>
-                <% } %>
-            </div>
-            <div class="col-lg-4">
-                <form class="mb-5" action="">
+            <% if (productData && productData.length > 0) { %>
+                <div class="col-lg-8 table-responsive mb-5">
+                    <table class="table table-bordered text-start mb-0">
+                        <thead class="bg-secondary text-dark">
+                            <tr>
+                                <th class="text-center">Products</th>
+                                <th class="text-center">Price</th>
+                                <th class="text-center">Size</th>
+                                <th class="text-center">Quantity</th>
+                                <th class="text-center">Total</th>
+                                <th class="text-center">Remove</th>
+                            </tr>
+                        </thead>
+                        <tbody class="align-middle" data-user="<%= userData._id %>">
+                            <% productData.forEach((product) => { %>
+                                <tr data-cart-id="<%= product._id %>" data-product-id="<%= product.product._id %>">
+                                    <td class="align-middle">
+                                        <img src="/uploads/<%= product.product.images[0] %>" alt="Product-Image" style="width: 50px;">
+                                        <% function truncateString(str, maxLength) { %>
+                                            <% if (str.length > maxLength) { %>
+                                                <%= str.slice(0, maxLength) + "..." %>
+                                            <% } else { %>
+                                                <%= str %>
+                                            <% } %>
+                                        <% } %>
+                                        <% const productName = truncateString(product.product.title,20) %>
+                                        <%= productName %>
+                                    </td>
+                                    <td class="align-middle text-center">&#8377;<span class="price"><%= product.product.price %></span></td>
+                                    <td class="align-middle text-center"><span class="productSize text-center"><%= product.selectedSize %></span></td>
+                                    <td class="align-middle">
+                                        <div class="input-group quantity mx-auto" style="width: 100px;">
+                                            <button class="cart-item-count btn-danger mr-3 decrementButton" data-product-id="<%= product._id %>" data-product-item-id="<%= product.product._id %>" data-action="-" >-</button>
+                                            <span class="quantityDisplay"><%= product.quantity %></span>
+                                            <button class="cart-item-count btn-success ml-3 incrementButton" data-product-id="<%= product._id %>" data-product-item-id="<%= product.product._id %>" data-action="+">+</button>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle text-center">&#8377;<span class="totalPrice"><%= product.product.price * product.quantity %></span></td>
+                                    <td class="align-middle text-center">
+                                        <button class="btn btn-sm btn-primary removeButton" onclick="removeCartItem('<%= product._id %>','<%= product.product._id %>')">
+                                            <i class="fa fa-times"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            <% }); %> 
+                        </tbody>                    
+                    </table>  
+                </div>
+                <div class="col-lg-4" id="cart-summary-container">
                     <div class="input-group">
-                        <input type="text" class="form-control p-4" placeholder="Coupon Code">
+                        <input type="text" class="form-control p-4 text-secondary" placeholder="Coupon Code" name="coupon" id="coupon">
                         <div class="input-group-append">
-                            <button class="btn btn-primary">Apply Coupon</button>
+                            <button class="btn btn-primary" onclick="applyCouponToProduct('<%= userData._id %>','<%= totalValue %>')">Apply Coupon</button>
                         </div>
                     </div>
-                </form>
-                <div class="card border-secondary mb-5">
-                    <div class="card-header bg-secondary border-0">
-                        <h4 class="font-weight-semi-bold m-0">Cart Summary</h4>
-                    </div>
-                    <div class="card-body">
+                    <div class="card border-secondary mb-5">
+                        <div class="card-header bg-secondary border-0">
+                            <h4 class="font-weight-semi-bold m-0">Cart Summary</h4>
+                        </div>
+                        <div class="card-body">
                         <div class="d-flex justify-content-between mb-3 pt-1">
                             <h6 class="font-weight-medium">Subtotal</h6>
-                            <h6 class="font-weight-medium">&#8377;150</h6>
+                            <h6 class="font-weight-medium">&#8377;<%= totalValue %></h6>
                         </div>
                         <div class="d-flex justify-content-between">
                             <h6 class="font-weight-medium">Shipping</h6>
@@ -99,7 +94,9 @@
                         <a href="/checkout"><button class="btn btn-block btn-primary my-3 py-3">Proceed To Checkout</button></a>
                     </div>
                 </div>
-            </div>
+            <% } else { %>
+                <p>Add Products to Cart.</p>
+            <% } %>
         </div>
     </div>
     <!-- Cart End -->
@@ -209,6 +206,10 @@
             alert('Maximum quantity for one product is reached');
             return;
         }
+        if(action === '-' && currentQuantity === 1){
+            alert('Use close icon to remove product.')
+            return
+        }
         $.ajax({
             url: `/change_quantity`,
             data: {
@@ -279,6 +280,68 @@ function removeCartItem(cartId, productId) {
 });
 }
 
+function applyCouponToProduct(userData,total){
+    const coupon = $('#coupon').val();
+    console.log('user data is: ', JSON.stringify(userData, null, 2));
+    $.ajax({
+        url: '/apply_bonito_coupon',
+        method: 'post',
+        data: {
+            userId: userData,
+            coupon,
+            total
+        },
+        success: function(response){
+            console.log('response is',response);
+            let message = response.message;
+            if(response && response.status===true){
+                updateCouponUI(response);
+            }else{
+                console.log('its not come',response);
+                alert(message);
+            }
+        }
+    })
+}
+
+const updateCouponUI = (data)=>{
+    const cartSummaryContainer = $('#cart-summary-container');
+    cartSummaryContainer.empty();
+
+    cartSummaryContainer.append(`
+        <div class="input-group">
+            <input type="text" class="form-control p-4 text-secondary" placeholder="Coupon Code" name="coupon" id="coupon">
+            <div class="input-group-append">
+                <button class="btn btn-primary" onclick="applyCouponToProduct('<%= userData._id %>','<%= totalValue %>')">Apply Coupon</button>
+            </div>
+        </div>
+        <div class="card border-secondary mb-5">
+            <div class="card-header bg-secondary border-0">
+                <h4 class="font-weight-semi-bold m-0">Cart Summary</h4>
+            </div>
+            <div class="card-body">
+            <div class="d-flex justify-content-between mb-3 pt-1">
+                <h6 class="font-weight-medium">Subtotal</h6>
+                <h6 class="font-weight-medium">&#8377;${data.total}</h6>
+            </div>
+            <div class="d-flex justify-content-between mb-3 pt-1">
+                <h6 class="font-weight-medium">Discount Price</h6>
+                <h6 class="font-weight-medium">&#8377;${data.discountAmount}</h6>
+            </div>
+            <div class="d-flex justify-content-between">
+                <h6 class="font-weight-medium">Shipping</h6>
+                <h6 class="font-weight-medium" data-value="0">Free</h6>
+            </div>
+        </div>
+        <div class="card-footer border-secondary bg-transparent">
+            <div class="d-flex justify-content-between mt-2">
+                <h5 class="font-weight-bold">Total</h5>
+                <h5 class="font-weight-bold">&#8377;<span id="total">${data.discountTotal}</span></h5>
+            </div>
+            <a href="/checkout"><button class="btn btn-block btn-primary my-3 py-3">Proceed To Checkout</button></a>
+        </div>
+    `)
+}
 </script>
 
 <%- include('../partials/userFooter.ejs') %>
