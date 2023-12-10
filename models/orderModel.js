@@ -2,7 +2,7 @@ const { ObjectId } = require('mongodb');
 const { getDb } = require('../config/dbConnect');
 
 class Order {
-    constructor(userId, productDetails, totalPrice, status, address, paymentType) {
+    constructor(userId, productDetails, totalPrice, status, address, paymentType,coupon) {
         this.userId = userId;
         this.productDetails = productDetails;
         this.totalPrice = totalPrice;
@@ -11,6 +11,7 @@ class Order {
         this.status = status;
         this.address = address;
         this.paymentType = paymentType;
+        this.coupon = coupon;
     }
 
     async save(){

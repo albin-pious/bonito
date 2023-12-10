@@ -45,6 +45,9 @@ function generateCouponCode(){
 const createCoupon = async (req, res) => {
     let { couponName, couponOffer, minAmount, validity, brand, category,status,apply } = req.body;
     try {
+        minAmount = parseInt(minAmount);
+        couponOffer = parseInt(couponOffer);
+        validity = parseInt(validity);
         const db = getDb();
         brand = brand.toUpperCase(); // Update to uppercase
         category = category.toUpperCase(); // Update to uppercase
@@ -100,14 +103,19 @@ const loadEditCoupon = async (req,res)=>{
 }
 
 const editCoupon = async(req,res)=>{
-    const {couponName,couponOffer,brand,category,minAmount,validity,status,apply,id} = req.body;
+    let {couponName,couponOffer,brand,category,minAmount,validity,status,apply,id} = req.body;
     try {
+        minAmount = parseInt(minAmount);
+        couponOffer = parseInt(couponOffer);
+        validity = parseInt(validity);
+
         const db = getDb();
         const couponCollection = db.collection('coupons');
         const objectIdCouponId = new ObjectId(id);
         const couponData = await couponCollection.findOne({ _id: objectIdCouponId });
         const couponCode = couponData.couponCode;
         const expireDate = validity;
+
         if(couponData){
             const couponCheck = await couponCollection.findOne({ couponCode, _id: { $ne: objectIdCouponId}});
             if(!couponCheck){
@@ -125,6 +133,7 @@ const editCoupon = async(req,res)=>{
                 return res.render('editCoupon',{ message: `Couponcode is taken to another coupon.`});
             }
         }
+
     } catch (error) {
         console.error('Error occured while editing coupon.',error);
     }
@@ -164,7 +173,8 @@ const loadUserCoupon = async (req,res)=>{
 }
 
 const applyCoupon = async (req, res) => {
-    const { userId, coupon,total } = req.body;
+    let { userId, coupon,total } = req.body;
+    total = parseInt(total);
     try {
         const db = getDb();
         const userCollection = db.collection('users');
@@ -192,6 +202,19 @@ const applyCoupon = async (req, res) => {
                         let offer = parseInt(couponExist.coupon.offer,10);
                         const discountAmount = Math.ceil(offer*total/100);
                         const discountTotal = total - discountAmount;
+                        const couponObj = {
+                            code: coupon,
+                            offer: offer,
+                            discountAmount: discountAmount,
+                            discountTotal: discountTotal,
+                            total: total
+                        }
+                        req.session.appliedCoupon = couponObj;
+                        console.log('coupon saved in session is: ',req.session.appliedCoupon);
+                        setTimeout(() => {
+                            delete req.session.appliedCoupon; 
+                            console.log('deleted applied coupon.');
+                        }, 5*60*1000);
                         res.status(200).json({status:true,offer:offer,discountAmount:discountAmount,discountTotal:discountTotal,total:total});
                     }
                 }else{

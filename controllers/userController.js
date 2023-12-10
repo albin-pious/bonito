@@ -222,7 +222,7 @@ const verifyOtp = async (req, res) => {
         const insertedId = new ObjectId(result.insertedId);
         const coupon = {
           _id: couponData._id,
-          name: couponData.couponOffer,
+          name: couponData.couponName,
           code: couponData.couponCode,
           offer: couponData.couponOffer,
           expireDate: couponData.expireDate
@@ -670,7 +670,18 @@ const loadCheckout = async(req,res)=>{
     const userCollection = db.collection('users');
     const objectIdUserId = new ObjectId(userId);
     const userData = await userCollection.findOne({_id:objectIdUserId});
-    const totalValue = await calculateCartTotal(cartCollection,userId)
+    const couponData = req.session.appliedCoupon;
+    console.log('coupon data from session is: ',couponData);
+    let totalValue,discountAmount,discountTotal,total,couponCode;
+    if(couponData){
+      totalValue = couponData.total;
+      discountAmount = couponData.discountAmount;
+      discountTotal = couponData.discountTotal;
+      total = couponData.total;
+      couponCode = couponData.code;
+    }else{
+      totalValue = await calculateCartTotal(cartCollection,userId);
+    }
     const cartId = await cartCollection.findOne({userId: objectIdUserId},{$project:{_id:0}});
     const cartData = await cartCollection.aggregate([
       {
@@ -705,7 +716,11 @@ const loadCheckout = async(req,res)=>{
       userData,
       totalValue,
       productData:cartData,
-      cartId
+      cartId,
+      couponCode,
+      total,
+      discountTotal,
+      discountAmount
     });
   } catch (error) {
     console.log('error occured loading checkout ',error);
@@ -1082,35 +1097,69 @@ const removeCartItem = async (req, res) => {
 const placeOrder = async (req, res) => {
   const { paymentMethod, userId, cartId } = req.body;
   try {
-      const db = getDb();
-      const orderCollection = db.collection('order');
-      const cartCollection = db.collection('cart');
-      const userCollection = db.collection('users');
-      let productDetails = await getCartProducts(userId);
-      let totalPrice = await calculateCartTotal(cartCollection, userId);
-      let status = paymentMethod === 'cod' ? 'Placed' : 'Pending';
-      const userData = await userCollection.findOne({ _id: new ObjectId(userId) });
-      const address = userData.addresses || null;
+    const db = getDb();
 
-      const newOrder = new Order(userId, productDetails, totalPrice, status, address, paymentMethod);
-      const result = await orderCollection.insertOne(newOrder);
+    const orderCollection = db.collection('order');
+    const cartCollection = db.collection('cart');
+    const userCollection = db.collection('users');
+    const productCollection = db.collection('products');
+    let productDetails = await getCartProducts(userId);
+    let totalPrice;
+    let couponData = req.session.appliedCoupon;
+    console.log('cart product detailes',productDetails);
+    if(couponData){
+      totalPrice = couponData.discountTotal
+    }else{
+      totalPrice = await calculateCartTotal(cartCollection, userId);
+    }
+    console.log('cart product detailes with coupon, ',productDetails);
+    let status = paymentMethod === 'cod' ? 'Placed' : 'Pending';
+    const userData = await userCollection.findOne({ _id: new ObjectId(userId) });
+    const address = userData.addresses || null;
 
-      if (result.insertedId) {
-          console.log('result after insert order: ', result.insertedId);
-          await cartCollection.deleteOne({ userId: new ObjectId(userId) });
+    const newOrder = new Order(userId, productDetails, totalPrice, status, address, paymentMethod,couponData);
+    const result = await orderCollection.insertOne(newOrder);
 
-          if (paymentMethod === 'cod') {
-              res.json({ codSuccess: true, orderId: result.insertedId });
-          } else if (paymentMethod === 'online') {
-              const rpayOrder = await generateRP(result.insertedId, totalPrice);
-              console.log('order ', rpayOrder);
-              res.json({ order: rpayOrder });
-          }
+    if (result.insertedId) {
+        console.log('result after insert order: ', result.insertedId);
+        await updateQuantity(orderCollection,productCollection,result.insertedId);
+        await cartCollection.deleteOne({ userId: new ObjectId(userId) });
+        if (paymentMethod === 'cod') {
+            res.json({ codSuccess: true, orderId: result.insertedId });
+        } else if (paymentMethod === 'online') {
+            const rpayOrder = await generateRP(result.insertedId, totalPrice);
+            console.log('order ', rpayOrder);
+            res.json({ order: rpayOrder });
+        }
       } else {
           console.log('Error: No inserted ID found');
       }
   } catch (error) {
       console.log('error occurred while placing an order. ', error);
+  }
+}
+
+async function updateQuantity(orderCollection, productCollection, orderId) {
+  const db = getDb();
+  const orderData = await orderCollection.findOne({ _id: orderId });
+  console.log('order data is: ', orderData);
+
+  for (let productDetails of orderData.productDetails) {
+    console.log('hi from inside of for of loop.');
+    const productId = productDetails.item;
+    const selectedSize = productDetails.selectedSize;
+    const quantityToDecrease = productDetails.quantity;
+
+    try {
+      await productCollection.updateOne(
+        { _id: productId, [`sizeUnits.${selectedSize}`]: { $gte: quantityToDecrease } },
+        { $inc: { [`sizeUnits.${selectedSize}`]: -quantityToDecrease, stock: -quantityToDecrease } }
+      );
+      console.log(`productId: ${productId}, selectedSize: ${selectedSize}, and quantityToDecrease: ${quantityToDecrease}`);
+      console.log('Product quantities updated successfully.');
+    } catch (error) {
+      console.error('Error updating product quantities:', error);
+    }
   }
 }
 

@@ -217,6 +217,12 @@
                                 <h6 class="font-weight-medium">Subtotal</h6>
                                 <h6 class="font-weight-medium">&#8377;<%= totalValue %></h6>
                             </div>
+                            <% if(discountAmount){ %>
+                                <div class="d-flex justify-content-between mb-3 pt-1">
+                                    <h6 class="font-weight-medium">Discount Amount</h6>
+                                    <h6 class="font-weight-medium">&#8377;<%= discountAmount %></h6>
+                                </div>
+                            <% } %>
                             <div class="d-flex justify-content-between">
                                 <h6 class="font-weight-medium">Shipping</h6>
                                 <h6 class="font-weight-medium">Free</h6>
@@ -225,7 +231,7 @@
                         <div class="card-footer border-secondary bg-transparent">
                             <div class="d-flex justify-content-between mt-2">
                                 <h5 class="font-weight-bold">Total</h5>
-                                <h5 class="font-weight-bold">&#8377;<%= totalValue %></h5>
+                                <h5 class="font-weight-bold">&#8377;<%= discountTotal? discountTotal : totalValue %></h5>
                             </div>
                         </div>
                     </div>
@@ -251,7 +257,7 @@
                             </div>
                         </div>
                         <div class="card-footer border-secondary bg-transparent">
-                            <input type="submit" class="btn btn-lg btn-block btn-primary font-weight-bold my-3 py-3" id="placeholder" value="Place Order">
+                            <input type="submit" class="btn btn-lg btn-block btn-primary font-weight-bold my-3 py-3" id="placeholder" value="Place Order" <%= userData.addresses?'': 'disabled' %>>
                         </div>
                     </form>
                 </div>
