@@ -638,21 +638,20 @@ const loadShop = async(req,res)=>{
 const loadProductDetailes = async(req,res)=>{
   const {id:productId} = req.params;
   try {
-    console.log('id from params: ',productId);
     const db = getDb();
     const productCollection = db.collection('products');
+    const brandCollection = db.collection('brand')
     const objectIdProductId = new ObjectId(productId);
     const productData = await productCollection.findOne({_id:objectIdProductId});
-    console.log('product data ',productData);
     const category = productData.category;
-    console.log('category id is: ',category);
+    const brand = productData.brand;
+    const brandData = await brandCollection.findOne({ _id: new ObjectId(brand)});
+    const brandName = brandData.brandName;
     const productSuggestion = await fetchRandomProducts(category,productId,5);
-    console.log('product suggestion is: ',productSuggestion);
-    console.log('hai 2');
-    console.log('suggestion data is: ',productSuggestion);
     res.render('product',{
       data: productData,
-      suggestion: productSuggestion
+      suggestion: productSuggestion,
+      brandName
     });
   } catch (error) {
     console.log('error occured while creating product detailes. ',error);
@@ -997,23 +996,28 @@ const addProductToCart = async (req, res) => {
       });
 
       if (existingCartItem) {
-          // Case 1: Product already exists in the cart, increment the quantity
-          const result = await cartCollection.updateOne(
-              {
-                  userId: objectIdUserId,
-                  'productId.item': objectIdProductId,
-                  'productId.selectedSize': selectedSize
-              },
-              {
-                  $inc: { 'productId.$.quantity': 1 }
-              }
-          );
-
-          if (result.modifiedCount === 1) {
-              res.json({ status: true });
-          } else {
-              res.json({ status: false });
+        // Case 1: Product already exists in the cart, increment the quantity
+        
+        const existingQuantity = existingCartItem.productId && existingCartItem.productId[0] ? existingCartItem.productId[0].quantity : 0;
+        if (existingQuantity >= 3){
+          return res.json({ status:false,message:"Quantity limit reached."});
+        }
+        const result = await cartCollection.updateOne(
+          {
+              userId: objectIdUserId,
+              'productId.item': objectIdProductId,
+              'productId.selectedSize': selectedSize
+          },
+          {
+              $inc: { 'productId.$.quantity': 1 }
           }
+        );
+
+        if (result.modifiedCount === 1) {
+            res.json({ status: true });
+        } else {
+            res.json({ status: false });
+        }
       } else {
           // Case 2: User has a cart, add the product to the existing cart
           const userCart = await cartCollection.findOne({ userId: objectIdUserId });

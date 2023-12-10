@@ -25,6 +25,12 @@
 
     <!-- Customized Bootstrap Stylesheet -->
     <link href="/stylesheets/style.css" rel="stylesheet">
+    <style>
+        .has-offer{
+            color: rgb(255, 0, 0);
+            font-size: medium;
+        }
+    </style>
 </head>
 
 <body>
@@ -83,8 +89,8 @@
                     </div>
                     <small class="pt-1">(50 Reviews)</small>
                 </div>
-                <h3 class="font-weight-semi-bold mb-4">&#8377;<%= data.price %> <span class="mr-3 font-weight-light">offer: <%= data.offer %>%</span></h3>
-                <p class="mb-4"><span class="text-dark font-weight-medium mr-2 mb-0">Available:</span><%= data.stock %></p>
+                <h3 class="font-weight-semi-bold mb-4">&#8377;<%= data.price %> <small class="mr-3 font-weight-light <%= data.stock>0 ? 'has-offer' : '' %>"> <%= data.stock >0 ? 'offer:'+ data.offer + '%' : '' %></small></h3>
+                <p class="mb-4"><span class="text-dark font-weight-medium mr-2 mb-0">Brand:</span><strong><%= brandName %></strong></p>
                 <div class="d-flex mb-3">
                     <p class="text-dark font-weight-medium mb-0 mr-3">Sizes:</p>
                     <form>
@@ -92,7 +98,9 @@
                             <div class="custom-control custom-radio custom-control-inline">
                                 <input type="radio" class="custom-control-input" id="size-<%= size %>" name="size" value="<%= size %>" data-size="<%= size %>">
                                 <label class="custom-control-label" for="size-<%= size %>"><%= size %></label>
-                                <span class="ml-2">(<%= data.sizeUnits[size] %> available)</span>
+                                <sup class="ml-2 text-danger">
+                                    <%= data.sizeUnits[size] < 5 ? '('+ data.sizeUnits[size] + ' left)' : '' %>
+                                </sup>                                  
                             </div>
                         <% }) %>
                     </form>
@@ -234,7 +242,7 @@
 
 
     <!-- Footer Start -->
-    <div class="container-fluid bg-secondary text-dark mt-5 pt-5">
+    <div class="container-fluid bg-secondary text-dark mt-5 pt-5">  
         <div class="row px-xl-5 pt-5">
             <div class="col-lg-4 col-md-12 mb-5 pr-3 pr-xl-5">
                 <a href="" class="text-decoration-none">
