@@ -638,20 +638,40 @@ const loadShop = async(req,res)=>{
 const loadProductDetailes = async(req,res)=>{
   const {id:productId} = req.params;
   try {
+    const user = req.session.user._id;
     const db = getDb();
     const productCollection = db.collection('products');
-    const brandCollection = db.collection('brand')
+    const brandCollection = db.collection('brand');
+    const userCollection = db.collection('users');
+    const orderCollection = db.collection('order')
     const objectIdProductId = new ObjectId(productId);
     const productData = await productCollection.findOne({_id:objectIdProductId});
     const category = productData.category;
     const brand = productData.brand;
     const brandData = await brandCollection.findOne({ _id: new ObjectId(brand)});
+    const userData = await userCollection.findOne({ _id: new ObjectId(user) });
+    const orderData = await orderCollection.find({userId:user,'productDetails.item': objectIdProductId}).toArray();
     const brandName = brandData.brandName;
+    const reviewData = await userCollection
+    .find(
+      {
+        'reviews': {
+          $elemMatch: {
+            'productId': productId
+          }
+        }
+      }
+    ).toArray();
+    isReviewAdded = reviewData ? true: false;
     const productSuggestion = await fetchRandomProducts(category,productId,5);
     res.render('product',{
       data: productData,
-      suggestion: productSuggestion,
-      brandName
+      suggestion: productSuggestion, 
+      brandName,
+      orderData,
+      userData,
+      reviewData,
+      isReviewAdded
     });
   } catch (error) {
     console.log('error occured while creating product detailes. ',error);
@@ -976,7 +996,6 @@ const addProductToCart = async (req, res) => {
   const selectedSize = req.query.size;
   try {
       const db = getDb();
-      console.log('Id: ',id,'size: ',selectedSize);
       const cartCollection = db.collection('cart');
       const user = req.session.user;
       const userId = user._id;
@@ -1110,13 +1129,11 @@ const placeOrder = async (req, res) => {
     let productDetails = await getCartProducts(userId);
     let totalPrice;
     let couponData = req.session.appliedCoupon;
-    console.log('cart product detailes',productDetails);
     if(couponData){
       totalPrice = couponData.discountTotal
     }else{
       totalPrice = await calculateCartTotal(cartCollection, userId);
     }
-    console.log('cart product detailes with coupon, ',productDetails);
     let status = paymentMethod === 'cod' ? 'Placed' : 'Pending';
     const userData = await userCollection.findOne({ _id: new ObjectId(userId) });
     const address = userData.addresses || null;
@@ -1125,7 +1142,6 @@ const placeOrder = async (req, res) => {
     const result = await orderCollection.insertOne(newOrder);
 
     if (result.insertedId) {
-        console.log('result after insert order: ', result.insertedId);
         await updateQuantity(orderCollection,productCollection,result.insertedId);
         await cartCollection.deleteOne({ userId: new ObjectId(userId) });
         if (paymentMethod === 'cod') {
@@ -1146,10 +1162,8 @@ const placeOrder = async (req, res) => {
 async function updateQuantity(orderCollection, productCollection, orderId) {
   const db = getDb();
   const orderData = await orderCollection.findOne({ _id: orderId });
-  console.log('order data is: ', orderData);
 
   for (let productDetails of orderData.productDetails) {
-    console.log('hi from inside of for of loop.');
     const productId = productDetails.item;
     const selectedSize = productDetails.selectedSize;
     const quantityToDecrease = productDetails.quantity;
@@ -1159,8 +1173,6 @@ async function updateQuantity(orderCollection, productCollection, orderId) {
         { _id: productId, [`sizeUnits.${selectedSize}`]: { $gte: quantityToDecrease } },
         { $inc: { [`sizeUnits.${selectedSize}`]: -quantityToDecrease, stock: -quantityToDecrease } }
       );
-      console.log(`productId: ${productId}, selectedSize: ${selectedSize}, and quantityToDecrease: ${quantityToDecrease}`);
-      console.log('Product quantities updated successfully.');
     } catch (error) {
       console.error('Error updating product quantities:', error);
     }
@@ -1628,6 +1640,56 @@ const loadUserAccount = async (req,res)=>{
   }
 }
 
+const productReview = async (req, res) => {
+  let { rating, reviewMessage, userId, productId } = req.body;
+  try {
+    const db = getDb();
+    let isReviewAdded;
+    const userCollection = db.collection('users');
+    const reviewObj = {
+      rating,
+      reviewMessage,
+      userId,
+      productId,
+      date: new Date()
+    }
+    const result = await userCollection.updateOne(
+      { _id: new ObjectId(userId) },
+      {
+        $push: {
+          reviews: reviewObj
+        }
+      }
+    );
+
+    if (result.matchedCount > 0) {
+      const reviewData = await userCollection
+      .find(
+        {
+          'reviews': {
+            $elemMatch: {
+              'productId': productId
+            }
+          }
+        }
+      ).toArray();
+      
+      isReviewAdded = true;
+      console.log('review data ',reviewData);
+      // The update was successful
+      console.log('Review submitted successfully.');
+      res.status(200).json({ success: true, message: 'Thankyou for Review.',reviewData,isReviewAdded });
+    } else {
+      // No matching user found
+      console.log('User not found for the given userId.');
+      res.status(404).json({ success: false, message: 'User not found for the given userId.' });
+    }
+  } catch (error) {
+    console.error('Error occurred while submitting product review. ', error);
+    res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+};
+
 module.exports = {
   loadHome,
   loadShop,
@@ -1666,5 +1728,6 @@ module.exports = {
   placeOrder,
   successPage,
   shopFilter,
-  shopSort
+  shopSort,
+  productReview
 };

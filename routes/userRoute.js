@@ -61,6 +61,7 @@ userRouter.post('/verify_payment',userCtrl.verifyRPPayment);
 // order
 userRouter.get('/bonito/order_view',userCtrl.loadOrderView);
 userRouter.get('/view_order_products/:id',userCtrl.loadProductFromOrder);
+userRouter.post('/submit-review',userCtrl.productReview);
 
 // account and other related routes.
 userRouter.get('/profile',userCtrl.loadUserAccount);

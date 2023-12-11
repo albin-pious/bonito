@@ -87,27 +87,33 @@
                         <small class="fas fa-star-half-alt"></small>
                         <small class="far fa-star"></small>
                     </div>
-                    <small class="pt-1">(50 Reviews)</small>
+                    <small class="pt-1 text-success">(<%= reviewData.length %> Reviews)</small>
                 </div>
                 <h3 class="font-weight-semi-bold mb-4">&#8377;<%= data.price %> <small class="mr-3 font-weight-light <%= data.stock>0 ? 'has-offer' : '' %>"> <%= data.stock >0 ? 'offer:'+ data.offer + '%' : '' %></small></h3>
                 <p class="mb-4"><span class="text-dark font-weight-medium mr-2 mb-0">Brand:</span><strong><%= brandName %></strong></p>
                 <div class="d-flex mb-3">
                     <p class="text-dark font-weight-medium mb-0 mr-3">Sizes:</p>
-                    <form>
-                        <% Object.keys(data.sizeUnits).forEach(function(size){ %>
-                            <div class="custom-control custom-radio custom-control-inline">
-                                <input type="radio" class="custom-control-input" id="size-<%= size %>" name="size" value="<%= size %>" data-size="<%= size %>">
-                                <label class="custom-control-label" for="size-<%= size %>"><%= size %></label>
-                                <sup class="ml-2 text-danger">
-                                    <%= data.sizeUnits[size] < 5 ? '('+ data.sizeUnits[size] + ' left)' : '' %>
-                                </sup>                                  
-                            </div>
-                        <% }) %>
-                    </form>
+                    <% if(data.stock > 0){ %>
+                        <form>
+                            <% Object.keys(data.sizeUnits).forEach(function(size){ %>
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input type="radio" class="custom-control-input" id="size-<%= size %>" name="size" value="<%= size %>" data-size="<%= size %>" <%= data.sizeUnits[size] >0 ?'': 'disabled' %>>
+                                    <label class="custom-control-label" for="size-<%= size %>"><%= size %></label>
+                                    <sup class="ml-2 text-danger">
+                                        <%= data.sizeUnits[size] < 5&& data.sizeUnits[size] !== 0 ? '('+ data.sizeUnits[size] + ' left)' : '' %>
+                                    </sup>                                  
+                                </div>
+                            <% }) %>
+                        </form>
+                    <% } %>
                 </div>
                
                 <div class="d-flex align-items-center mb-4 pt-2">
-                    <button class="btn btn-primary px-3 mr-3" onclick="addToCart('<%= data._id %>')"><i class="fa fa-shopping-cart mr-1"></i> Add To Cart</button>
+                    <% if(data.stock > 0){ %>
+                        <button class="btn btn-primary px-3 mr-3" onclick="addToCart('<%= data._id %>')"><i class="fa fa-shopping-cart mr-1"></i> Add To Cart</button>
+                    <% }else{ %>
+                        <button class="btn btn-danger text-white px-3 mr-3" disabled>Out of Stock</button>
+                    <% } %>
                 </div>
                 <div class="d-flex pt-2">
                     <p class="text-dark font-weight-medium mb-0 mr-2">Share on:</p>
@@ -142,54 +148,69 @@
                     </div>
                     <div class="tab-pane fade" id="tab-pane-3">
                         <div class="row">
-                            <div class="col-md-6">
-                                <h4 class="mb-4">1 review for "Colorful Stylish Shirt"</h4>
-                                <div class="media mb-4">
-                                    <img src="/img/user.jpg" alt="Image" class="img-fluid mr-3 mt-1" style="width: 45px;">
-                                    <div class="media-body">
-                                        <h6>John Doe<small> - <i>01 Jan 2045</i></small></h6>
-                                        <div class="text-primary mb-2">
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star-half-alt"></i>
-                                            <i class="far fa-star"></i>
+                            <div class="<%= orderData && orderData.length > 0 ? 'col-6' : 'col-12 w-50' %> <%= isReviewAdded ? 'col-12' : '' %>" id="review-container">
+                                <h4 class="mb-4"><%= reviewData.length %> review<%= reviewData.length > 1 ? 's' : '' %> for "<%= data.title %>"</h4>
+                                <% if(reviewData && reviewData.length > 0){ %>
+                                    <% function generateStarRatingHtml(rating) { %>
+                                        <% const fullStars = Math.floor(rating); %>
+                                        <% let starHtml = ''; %>
+                                
+                                        <% for (let i = 0; i < fullStars; i++) { %>
+                                            <% starHtml += '<i class="fas fa-star"></i>'; %>
+                                        <% } %>
+                                
+                                        <% const remainingStars = 5 - fullStars; %>
+                                
+                                        <% for (let i = 0; i < remainingStars; i++) { %>
+                                            <% starHtml += '<i class="far fa-star"></i>'; %>
+                                        <% } %>
+                                
+                                        <% return starHtml; %>
+                                    <% } %>
+                                
+                                    <% const formattedDate = new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'numeric', day: 'numeric' }) %>
+                                    <% reviewData.forEach((review) => { %>
+                                        <div class="media mb-4">
+                                            <div class="media-body">
+                                                <h6><%= review.name %><small> - <i><%= formattedDate.format(review.reviews.date) %></i></small></h6>
+                                                <% review.reviews.forEach((review)=>{ %>
+                                                    <div class="text-primary mb-2">
+                                                        <%- generateStarRatingHtml(review.rating) %>
+                                                    </div>
+                                                    <p><%= review.reviewMessage %></p>
+                                                <% }) %>
+                                            </div>
                                         </div>
-                                        <p>Diam amet duo labore stet elitr ea clita ipsum, tempor labore accusam ipsum et no at. Kasd diam tempor rebum magna dolores sed sed eirmod ipsum.</p>
-                                    </div>
-                                </div>
+                                    <% }) %>
+                                <% } else { %>
+                                    No users review for "<%= data.title %>".
+                                <% } %>                                
                             </div>
-                            <div class="col-md-6">
-                                <h4 class="mb-4">Leave a review</h4>
-                                <small>Your email address will not be published. Required fields are marked *</small>
-                                <div class="d-flex my-3">
-                                    <p class="mb-0 mr-2">Your Rating * :</p>
-                                    <div class="text-primary">
-                                        <i class="far fa-star"></i>
-                                        <i class="far fa-star"></i>
-                                        <i class="far fa-star"></i>
-                                        <i class="far fa-star"></i>
-                                        <i class="far fa-star"></i>
+                            <% if(orderData && orderData.length && !isReviewAdded){ %>
+                                <div class="col-md-6" data-userId="<%= userData._id %>" id="review-container">
+                                    <h4 class="mb-4">Leave a review</h4>
+                                    <small>Your email address will not be published. Required fields are marked *</small>
+                                    <div class="d-flex my-3" data-productId="<%= data._id %>">
+                                        <p class="mb-0 mr-2">Your Rating * :</p>
+                                        <div class="text-primary" id="starRating" style="cursor: pointer;">
+                                            <i class="far fa-star" data-rating="1"></i>
+                                            <i class="far fa-star" data-rating="2"></i>
+                                            <i class="far fa-star" data-rating="3"></i>
+                                            <i class="far fa-star" data-rating="4"></i>
+                                            <i class="far fa-star" data-rating="5"></i>
+                                        </div>
                                     </div>
+                                    <form id="reviewForm">
+                                        <div class="form-group">
+                                            <label for="message">Your Review *</label>
+                                            <textarea id="message" cols="30" rows="5" class="form-control"></textarea>
+                                        </div>
+                                        <div class="form-group mb-0">
+                                            <button type="button" id="submitReview" class="btn btn-primary px-3">Leave Your Review</button>
+                                        </div>
+                                    </form>
                                 </div>
-                                <form>
-                                    <div class="form-group">
-                                        <label for="message">Your Review *</label>
-                                        <textarea id="message" cols="30" rows="5" class="form-control"></textarea>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="name">Your Name *</label>
-                                        <input type="text" class="form-control" id="name">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="email">Your Email *</label>
-                                        <input type="email" class="form-control" id="email">
-                                    </div>
-                                    <div class="form-group mb-0">
-                                        <input type="submit" value="Leave Your Review" class="btn btn-primary px-3">
-                                    </div>
-                                </form>
-                            </div>
+                            <% } %>
                         </div>
                     </div>
                 </div>
@@ -329,7 +350,120 @@
     <!-- Template Javascript -->
     <script src="/javascripts/script.js"></script>
     <script src="/javascripts/main.js"></script>
-</body>
+
+    <script>
+        $(document).ready(function () {
+            $('#starRating i').click(function () {
+                $(this).removeClass('far').addClass('fas');
+                $(this).prevAll().removeClass('far').addClass('fas');
+                $(this).nextAll().removeClass('fas').addClass('far');
+                $('#starRating').attr('data-rating', $(this).data('rating'));
+            });
+
+            $('#submitReview').click(function (event) {
+                event.preventDefault();
+                const rating = $('#starRating').data('rating');
+                const reviewMessage = $('#message').val();
+                const userId = $('#starRating').closest('.col-md-6').attr('data-userId');
+                const productId = $('#starRating').closest('.d-flex').attr('data-productId');
+                $.ajax({
+                    url: '/submit-review',
+                    type: 'POST',
+                    data: { 
+                        rating: rating, 
+                        reviewMessage: reviewMessage,
+                        userId: userId,
+                        productId: productId
+                    },
+                    success: function (response) { 
+                        if(response.message){
+                            alert(response.message)
+                        }
+                        let data = response.reviewData;
+                        let isUserReviewAdded = response.reviewData;
+                        updateReviewUI(data,isUserReviewAdded);
+                    },
+                    error: function (error) {
+                        console.error(error);
+                    }
+                });
+            });
+
+            function updateReviewUI(data,userReviewChecker) {
+                const reviewContainer = $('#review-container');
+                reviewContainer.empty();
+    
+                const formattedDate = new Intl.DateTimeFormat('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+
+                // Assuming data is an array of reviews
+                data.forEach(user => {
+                    const userName = user.name;
+                    const userId = user._id;
+
+                    user.reviews.forEach(review => {
+                        const rating = review.rating;
+                        const reviewMessage = review.reviewMessage;
+                        const formattedReviewDate = formattedDate.format(review.date);
+
+                        // Create the HTML structure for displaying each review
+                        const reviewHtml = `
+                            <div class="media mb-4">
+                                <div class="media-body">
+                                    <h6>${userName}<small> - <i>${formattedReviewDate}</i></small></h6>
+                                    <div class="text-primary mb-2">
+                                        ${generateStarRatingHtml(rating)}
+                                    </div>
+                                    <p>${reviewMessage}</p>
+                                </div>
+                            </div>
+                        `;
+
+                            // Append the review HTML to the review container
+                            reviewContainer.append(reviewHtml);
+                        });
+                    });
+
+                    // Display the total number of reviews for the product
+                    reviewContainer.prepend(`<h4 class="mb-4">${data.length} review${data.length > 1 ? 's' : ''} for "${data.title}"</h4>`);
+
+                    const reviewFormContainer = $('#review-container .col-md-6');
+                    if(userReviewChecker){
+                        reviewContainer.hide();
+                    }else{
+                        reviewContainer.show();
+                    }
+                }
+
+                // Function to generate HTML for star rating
+                function generateStarRatingHtml(rating) {
+                    const fullStars = Math.floor(rating);
+                    const halfStar = rating % 1 !== 0;
+                    
+                    let starHtml = '';
+                    
+                    for (let i = 0; i < fullStars; i++) {
+                        starHtml += '<i class="fas fa-star"></i>';
+                    }
+                    
+                    if (halfStar) {
+                        starHtml += '<i class="fas fa-star-half-alt"></i>';
+                    }
+                    
+                    const remainingStars = 5 - Math.ceil(rating);
+                    
+                    for (let i = 0; i < remainingStars; i++) {
+                        starHtml += '<i class="far fa-star"></i>';
+                    }
+
+                    return starHtml;
+                }
+            });
+        </script>
+    </body>
 
 </html>
 
