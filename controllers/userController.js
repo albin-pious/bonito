@@ -662,6 +662,8 @@ const loadProductDetailes = async(req,res)=>{
         }
       }
     ).toArray();
+    const averageRating = calculateAverageRating(reviewData[0]?.reviews);
+    console.log('averageRating is ',averageRating);
     isReviewAdded = reviewData ? true: false;
     const productSuggestion = await fetchRandomProducts(category,productId,5);
     res.render('product',{
@@ -671,12 +673,32 @@ const loadProductDetailes = async(req,res)=>{
       orderData,
       userData,
       reviewData,
-      isReviewAdded
+      isReviewAdded,
+      averageRating,
     });
   } catch (error) {
     console.log('error occured while creating product detailes. ',error);
   }
 }
+
+const calculateAverageRating = (reviews) => {
+  if (!reviews || reviews.length === 0) {
+    return 0; // Default to 0 if there are no reviews
+  }
+
+  const totalRating = reviews.reduce((sum, review) => {
+    const rating = parseInt(review.rating);
+    console.log(`Review ID: ${review._id}, Rating: ${rating}`);
+    return isNaN(rating) ? sum : sum + rating;
+  }, 0);
+
+  const averageRating = totalRating / reviews.length;
+  console.log('Total Rating:', totalRating);
+  console.log('Average Rating:', averageRating);
+
+  return averageRating;
+};
+
 
 const loadCheckout = async(req,res)=>{
   try {
@@ -690,7 +712,6 @@ const loadCheckout = async(req,res)=>{
     const objectIdUserId = new ObjectId(userId);
     const userData = await userCollection.findOne({_id:objectIdUserId});
     const couponData = req.session.appliedCoupon;
-    console.log('coupon data from session is: ',couponData);
     let totalValue,discountAmount,discountTotal,total,couponCode;
     if(couponData){
       totalValue = couponData.total;

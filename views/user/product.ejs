@@ -76,18 +76,20 @@
                     </a>
                 </div>
             </div>
-
             <div class="col-lg-7 pb-5">
                 <h3 class="font-weight-semi-bold"><%= data.title %></h3>
                 <div class="d-flex mb-3">
                     <div class="text-primary mr-2">
-                        <small class="fas fa-star"></small>
-                        <small class="fas fa-star"></small>
-                        <small class="fas fa-star"></small>
-                        <small class="fas fa-star-half-alt"></small>
-                        <small class="far fa-star"></small>
-                    </div>
-                    <small class="pt-1 text-success">(<%= reviewData.length %> Reviews)</small>
+                        <% for (let i = 1; i <= 5; i++) { %>
+                            <% if (i <= averageRating) { %>
+                                <small class="fas fa-star"></small>
+                            <% } else { %>
+                                <small class="far fa-star"></small>
+                            <% } %>
+                        <% } %>
+                        <span class="ml-2"><%= averageRating.toFixed(1) %></span>
+                    </div>                    
+                    <small class="pt-1 text-success">(<%= reviewData.length %> Review<%= reviewData.length> 1 ? 's' : '' %>)</small>
                 </div>
                 <h3 class="font-weight-semi-bold mb-4">&#8377;<%= data.price %> <small class="mr-3 font-weight-light <%= data.stock>0 ? 'has-offer' : '' %>"> <%= data.stock >0 ? 'offer:'+ data.offer + '%' : '' %></small></h3>
                 <p class="mb-4"><span class="text-dark font-weight-medium mr-2 mb-0">Brand:</span><strong><%= brandName %></strong></p>
@@ -139,7 +141,7 @@
                 <div class="nav nav-tabs justify-content-center border-secondary mb-4">
                     <a class="nav-item nav-link active" data-toggle="tab" href="#tab-pane-1">Description</a>
                    
-                    <a class="nav-item nav-link" data-toggle="tab" href="#tab-pane-3">Reviews (0)</a>
+                    <a class="nav-item nav-link" data-toggle="tab" href="#tab-pane-3">Reviews (<%= reviewData.length %>)</a>
                 </div>
                 <div class="tab-content">
                     <div class="tab-pane fade show active" id="tab-pane-1">
