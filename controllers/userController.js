@@ -662,9 +662,11 @@ const loadProductDetailes = async(req,res)=>{
         }
       }
     ).toArray();
+    console.log('orderData ',orderData);   
     const averageRating = calculateAverageRating(reviewData[0]?.reviews);
     console.log('averageRating is ',averageRating);
-    isReviewAdded = reviewData ? true: false;
+    let isReviewAdded = reviewData && reviewData.length > 0 && reviewData[0].reviews.some(review => review.productId === productId);
+    console.log(`is review added: ${isReviewAdded} and order data is ${orderData}`);
     const productSuggestion = await fetchRandomProducts(category,productId,5);
     res.render('product',{
       data: productData,
@@ -698,7 +700,6 @@ const calculateAverageRating = (reviews) => {
 
   return averageRating;
 };
-
 
 const loadCheckout = async(req,res)=>{
   try {
@@ -989,15 +990,24 @@ const loadCart = async (req, res) => {
     },
     {
       $project:{
-        item:1,
+        item:1, 
         quantity:1,
         selectedSize:1,
         product:{$arrayElemAt:['$product',0]}
-      }
+      } 
     }
-   ]).toArray();
+   ]).toArray(); 
+   
+   const productsOutOfStock = cartData.filter(product => {
+    const selectedSizeUnit = product.sizeUnits && product.sizeUnits.length > 0
+        ? product.sizeUnits.find(sizeUnit => sizeUnit.size === product.selectedSize)
+        : null;
+    return !selectedSizeUnit || selectedSizeUnit.stock <= 0;
+});
+
+console.log('Products out of stock: ', productsOutOfStock); 
+  
    let totalValue = await calculateCartTotal(cartCollection,userId);
-   console.log('Total cart amount: ',totalValue);
     const catData = await catCollection.find().toArray();
     const userData = await userCollection.findOne({ _id: objectIdUserId });
     console.log('cart data is: ',cartData);

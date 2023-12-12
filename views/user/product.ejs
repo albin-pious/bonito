@@ -34,8 +34,6 @@
 </head>
 
 <body>
-  
-
 
     <!-- Page Header Start -->
     <div class="container-fluid bg-secondary mb-5">
@@ -49,7 +47,6 @@
         </div>
     </div>
     <!-- Page Header End -->
-
 
     <!-- Shop Detail Start -->
     <% if(data !== 'undefined'){ %>
@@ -150,9 +147,10 @@
                     </div>
                     <div class="tab-pane fade" id="tab-pane-3">
                         <div class="row">
-                            <div class="<%= orderData && orderData.length > 0 ? 'col-6' : 'col-12 w-50' %> <%= isReviewAdded ? 'col-12' : '' %>" id="review-container">
-                                <h4 class="mb-4"><%= reviewData.length %> review<%= reviewData.length > 1 ? 's' : '' %> for "<%= data.title %>"</h4>
+                            <div class=" <%= orderData && orderData.length > 0 || isReviewAdded === false ? 'col-6' : 'col-md-12' %>" id="review-container">
+                                <h4 class="mb-4"><%= reviewData.length > 0 %> review<%= reviewData.length > 1 ? 's' : '' %> for "<%= data.title %>"</h4>
                                 <% if(reviewData && reviewData.length > 0){ %>
+                                    
                                     <% function generateStarRatingHtml(rating) { %>
                                         <% const fullStars = Math.floor(rating); %>
                                         <% let starHtml = ''; %>
@@ -171,24 +169,30 @@
                                     <% } %>
                                 
                                     <% const formattedDate = new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'numeric', day: 'numeric' }) %>
+                                    
                                     <% reviewData.forEach((review) => { %>
                                         <div class="media mb-4">
                                             <div class="media-body">
                                                 <h6><%= review.name %><small> - <i><%= formattedDate.format(review.reviews.date) %></i></small></h6>
-                                                <% review.reviews.forEach((review)=>{ %>
-                                                    <div class="text-primary mb-2">
-                                                        <%- generateStarRatingHtml(review.rating) %>
-                                                    </div>
-                                                    <p><%= review.reviewMessage %></p>
-                                                <% }) %>
+                                                <% review.reviews.forEach((review) => { %>
+                                                    <% if (data._id == review.productId) { %>
+                                                        <div class="text-primary mb-2">
+                                                            <%- generateStarRatingHtml(review.rating) %>
+                                                        </div>
+                                                        <p><%= review.reviewMessage %></p>
+                                                    <% } %>
+                                                <% }) %>                                                
                                             </div>
                                         </div>
                                     <% }) %>
+
                                 <% } else { %>
+
                                     No users review for "<%= data.title %>".
+                                
                                 <% } %>                                
                             </div>
-                            <% if(orderData && orderData.length && !isReviewAdded){ %>
+                            <% if(orderData && orderData.length > 0 && isReviewAdded === false){ %>
                                 <div class="col-md-6" data-userId="<%= userData._id %>" id="review-container">
                                     <h4 class="mb-4">Leave a review</h4>
                                     <small>Your email address will not be published. Required fields are marked *</small>
@@ -379,7 +383,8 @@
                     },
                     success: function (response) { 
                         if(response.message){
-                            alert(response.message)
+                            alert(response.message);
+                            window.location.reload();
                         }
                         let data = response.reviewData;
                         let isUserReviewAdded = response.reviewData;
