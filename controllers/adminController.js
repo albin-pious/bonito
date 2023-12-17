@@ -7,6 +7,11 @@ const { ObjectId } = require('mongodb')
 const dotenv = require('dotenv').config();
 const multer = require('multer');
 const { paginate } = require('../helpers/pagination');
+const Order = require('../models/orderModel');
+const ejs = require('ejs');
+const fs = require('fs');
+const path = require('path');
+const puppeteer = require('puppeteer')
 
 const loadLogin = async(req,res)=>{
     try {
@@ -56,6 +61,313 @@ const loadHome = async(req,res)=>{
     } catch (error) {
         console.log('error occured while getting home',error);
     }
+} 
+
+const fetchlineChartData = async(req,res)=>{
+    try {
+        const db = getDb();
+        const orderCollection = db.collection('order');
+        const processData = await orderCollection.aggregate([
+            {
+                $group: {
+                    _id: {
+                        $dateToString: { format: "%Y-%m-%d", date: "$orderDate"}
+                    },
+                    count: { $sum:1}
+                }
+            },
+            {
+                $sort: {
+                    _id: -1
+                }
+            },
+            {
+                $limit: 6
+            },
+            {
+                $sort: {
+                    _id: 1
+                }
+            }
+        ]).toArray();
+        res.json({ result: processData}) 
+    } catch (error) {
+        res.status(500).json({message:'An error occured.'}); 
+        console.log('error occured while fetching data for line chart. ',error);
+    }
+} 
+
+const fetchbarChartData = async(req,res)=>{
+    try {
+        const db = getDb();
+        const orderCollection = db.collection('order');
+        const processData = await orderCollection.aggregate([
+            {
+                $group: {
+                    _id: {
+                        $dateToString: { format: "%Y-%m-%d", date:"$orderDate"}
+                    },
+                    totalPrice: { $sum: { $toInt: "$totalPrice"}}
+                }
+            },
+            {
+                $sort: {
+                    _id: -1
+                }
+            },
+            {
+                $limit: 6
+            },
+            {
+                $sort: {
+                    _id: 1
+                }
+            }
+        ]).toArray();
+        console.log('processData ',processData);
+        res.json({ result: processData});
+    } catch (error) {
+        res.status(500).json({message:'Error Occured.'});
+        console.log('error occured while fetching data for bar chart. ',error);
+    }
+}
+
+const fetchpieChartData = async(req,res)=>{
+    try {
+        const db = getDb();
+        const orderCollection = db.collection('order');
+        const processData = await orderCollection.aggregate([
+            {
+                $group: {
+                    _id: '$paymentType',
+                    count: {$sum: 1}
+                }
+
+
+            }
+        ]).toArray();
+        res.json({result:processData})
+    } catch (error) {
+        console.log('error occured while fetching data for pie chart. ',error);
+    }
+}
+
+const exportPdfDailySales = async (req,res)=>{
+    try {
+        const db = getDb();
+        const orderCollection = db.collection('order');
+        const today = new Date().toISOString().split('T')[0];
+        const todaysOrder = await orderCollection.aggregate([
+            {
+                $match: {
+                    orderData: {
+                        $gte: new Date(today),
+                        $lt: new Date(today+ 'T23:59:59:999z')
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'userId',
+                    foreignField: '_id',
+                    as: 'user'
+                }
+            },
+            {
+                $unwind: '$user'
+            },
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: 'productDetails.item',
+                    foreignField: '_id',
+                    as: 'productDetails'
+                }
+            }
+        ]).toArray();
+        console.log('data',todaysOrder);
+        const orderData = {
+            todaysOrders: todaysOrder
+        }
+        const filePathName = path.resolve(__dirname,"../views/admin/htmlToPdf.ejs");
+        const htmlString = fs.readFileSync(filePathName).toString();
+        const ejsData = ejs.render(htmlString,orderData);
+        await createDailySalesPDF(ejsData);
+        const pdfFilepath = 'DailySalesReport.pdf'
+        const pdfData = fs.readFileSync(pdfFilepath);
+        res.setHeader('Content-Type','application/pdf');
+        res.setHeader('Content-Disposition','attachment; filename="DailySalesReport.pdf"');
+        res.send(pdfData);
+    } catch (error) {
+        res.status(500).json({ message:'error occured in daily pdf report'})
+        console.error(`error occured while exporting daily sales pdf. ${error}`);
+    }
+}
+
+const createDailySalesPDF = async(html)=>{
+    const browser = await puppeteer.launch({
+        headless:"new",
+        args: ['--no-sandbox','--disabled-setuid-sandbox']
+    })
+    const page = await browser.newPage();
+    await page.setContent(html);
+    await page.pdf({ path: 'DailySalesReport.pdf'});
+    await browser.close();
+}
+
+const exportPdfWeeklySales = async (req,res)=>{
+    try {
+        const db = getDb();
+        const orderCollection = db.collection('order');
+        const today = new Date();
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() - today.getDay());
+        startOfWeek.setHours(0,0,0,0);
+        const endOfWeek = new Date(today);
+        endOfWeek.setDate(today.getDate() - today.getDay() - 6);
+        endOfWeek.setHours(23,59,59,999);
+
+const todaysOrder = await orderCollection.aggregate([
+            {
+                $match: {
+                    orderDate: {
+                        $gte: endOfWeek,
+                        $lt: startOfWeek
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'userId',
+                    foreignField: '_id',
+                    as: 'user'
+                }
+            },
+            {
+                $unwind: '$user'
+            },
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: 'productDetails.item',
+                    foreignField: '_id',
+                    as: 'productDetails'
+                }
+            }
+        ]).toArray();
+
+        const orderData = {
+            todaysOrders: todaysOrder
+        }
+
+        const filePathName = path.resolve(__dirname,"../views/admin/htmlToPdf.ejs");
+        const htmlString = fs.readFileSync(filePathName).toString();
+        const ejsData = ejs.render(htmlString,orderData);
+        await createWeeklySalesPDF(ejsData);
+        const pdfFilepath = 'WeeklySalesReport.pdf';
+        const pdfData = fs.readFileSync(pdfFilepath);
+        res.setHeader('Content-Type','application/json');
+        res.setHeader('Content-Disposition','attachment; filename= "WeeklySalesReport.pdf"');
+        res.send(pdfData);
+    } catch (error) {
+        res.status(500).json({ message:`error occured in daily pdf report ${error}`})
+        console.error(`error occured while exporting weekly sales pdf. ${error}`);
+    }
+}
+
+const createWeeklySalesPDF = async html=>{
+    const browser = await puppeteer.launch({
+        headless: "new",
+        args: ['--no-sandbox','--disable-setuid-sandbox']
+    })
+    const page = await browser.newPage();
+    await page.setContent(html);
+    await page.pdf({path: 'WeeklySalesReport.pdf'});
+    await browser.close();
+}
+
+const exportPdfYearlySales = async (req,res)=>{
+    try {
+        const db = getDb();
+        const orderCollection = db.collection('order');
+        const today = new Date();
+        const year = today.getFullYear();
+        const startOfYear = new Date(year,0,1);
+        startOfYear.setHours(0,0,0,0);
+        const endOfYear = new Date(year,11,31);
+        endOfYear.setHours(23,59,59,999);
+
+        console.log('start year: ',startOfYear);
+        console.log('end year: ',endOfYear);
+
+        const todaysOrder = await orderCollection.aggregate([
+            {
+                $match: {
+                    orderDate: {
+                        $gte: startOfYear,
+                        $lt: endOfYear
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'userId',
+                    foreignField: '_id',
+                    as: 'user'
+                }
+            },
+            {
+                $unwind: '$user'
+            },
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: 'productDetails.item',
+                    foreignField: '_id',
+                    as: 'productDetails'
+                }
+            }
+        ]).toArray();  
+
+        const testOrders = await orderCollection.find({
+            orderDate: {
+                $gte: startOfYear,
+                $lt: endOfYear
+            }
+        }).toArray();
+
+        console.log('Test Orders:', testOrders);
+
+        const orderData = {
+            todaysOrders:todaysOrder
+        }
+        const filePathName = path.resolve(__dirname,"../views/admin/htmlToPdf.ejs");
+        const htmlString = fs.readFileSync(filePathName).toString();
+        const ejsData = ejs.render(htmlString,orderData);
+        await createYearlySalesPDF(ejsData);
+        const pdfFilepath = 'YearlySalesReport.pdf';
+        const pdfData = fs.readFileSync(pdfFilepath);
+        res.setHeader('Content-Type','application/json');
+        res.setHeader('Content-Disposition','attachment; filename= "YearlySalesReport.pdf"');
+        res.send(pdfData);
+    } catch (error) {
+        res.status(500).json({ message:`error occured in yearly pdf report ${error}`});
+        console.error(`error occured while exporting daily sales pdf. ${error}`);
+    }
+}
+
+const createYearlySalesPDF = async html=>{
+    const browser = await puppeteer.launch({
+        headless: "new",
+        args: ['--no-sandbox','--disable-setuid-sandbox']
+    })
+    const page = await browser.newPage();
+    await page.setContent(html);
+    await page.pdf({path: 'YearlySalesReport.pdf'});
+    await browser.close();
 }
 
 const loadProductList = async(req,res)=>{
@@ -729,7 +1041,6 @@ const adminLogout = async(req,res)=>{
     }
 }
 
-
 module.exports = {
     verifyLogin,
     loadLogin,
@@ -755,5 +1066,11 @@ module.exports = {
     deleteProduct,
     deleteSelectedProducts,
     restrictUser,
-    adminLogout
+    adminLogout,
+    fetchlineChartData,
+    fetchbarChartData,
+    fetchpieChartData,
+    exportPdfDailySales,
+    exportPdfWeeklySales,
+    exportPdfYearlySales
 }

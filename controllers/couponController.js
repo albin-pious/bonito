@@ -47,7 +47,7 @@ const createCoupon = async (req, res) => {
     try {
         minAmount = parseInt(minAmount);
         couponOffer = parseInt(couponOffer);
-        validity = parseInt(validity);
+        validity = validity;
         const db = getDb();
         brand = brand.toUpperCase(); // Update to uppercase
         category = category.toUpperCase(); // Update to uppercase
@@ -107,7 +107,6 @@ const editCoupon = async(req,res)=>{
     try {
         minAmount = parseInt(minAmount);
         couponOffer = parseInt(couponOffer);
-        validity = parseInt(validity);
 
         const db = getDb();
         const couponCollection = db.collection('coupons');

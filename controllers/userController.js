@@ -657,7 +657,7 @@ const loadProductDetailes = async(req,res)=>{
       {
         'reviews': {
           $elemMatch: {
-            'productId': productId
+            'productId': productId 
           }
         }
       }
@@ -996,7 +996,7 @@ const loadCart = async (req, res) => {
         product:{$arrayElemAt:['$product',0]}
       } 
     }
-   ]).toArray(); 
+   ]).toArray();
    
    const productsOutOfStock = cartData.filter(product => {
     const selectedSizeUnit = product.sizeUnits && product.sizeUnits.length > 0
@@ -1004,27 +1004,55 @@ const loadCart = async (req, res) => {
         : null;
     return !selectedSizeUnit || selectedSizeUnit.stock <= 0;
 });
+  
+// Assuming productData is an array containing product information
+let stockChecker = [];
 
-console.log('Products out of stock: ', productsOutOfStock); 
+cartData.forEach(product => {
+    // Check if sizeUnits is defined and is an object
+    if (product.product.sizeUnits && typeof product.product.sizeUnits === 'object') {
+        Object.keys(product.product.sizeUnits).forEach(function (size) {
+            // Use the correct case for 'sizeUnits'
+            if (size === product.selectedSize && product.product.sizeUnits[size] < product.quantity) {
+                // Add item to stockChecker array
+                stockChecker.push({
+                    size: size,
+                    productQuantity: product.quantity,
+                    availableStock: product.product.sizeUnits[size]
+                });
+            }
+        });
+    } else {
+        console.error('Size units are not defined or not an object for product:', product);
+    }
+});
+
+// Log the stockChecker array
+// console.log(stockChecker); 
+ 
+
+// console.log('Products out of stock: ', productsOutOfStock); 
   
    let totalValue = await calculateCartTotal(cartCollection,userId);
     const catData = await catCollection.find().toArray();
     const userData = await userCollection.findOne({ _id: objectIdUserId });
-    console.log('cart data is: ',cartData);
+    // console.log('cart data is: ',cartData);
+
     res.render('cart', {
       catData,
       userData,
       productData: cartData,
-      totalValue
+      totalValue,
+      quantityChecker: stockChecker
     });
   } catch (error) {
     console.error('Error occurred while loading cart page:', error);
-  }
+  } 
 };
 
 const addProductToCart = async (req, res) => {
   const { id } = req.params;
-  const selectedSize = req.query.size;
+  const selectedSize = req.query.size; 
   try {
       const db = getDb();
       const cartCollection = db.collection('cart');
@@ -1037,7 +1065,6 @@ const addProductToCart = async (req, res) => {
         quantity: 1,
         selectedSize: selectedSize
       }
-
       // Check if the product already exists in the cart
       const existingCartItem = await cartCollection.findOne({
           userId: objectIdUserId,
@@ -1100,7 +1127,7 @@ const addProductToCart = async (req, res) => {
 }
 
 const changeQuantity = async (req,res)=>{
-  let { user,cart,product,count } = req.body;
+  let { user,cart,product,count,available,currentQuantity } = req.body;
   try {
     console.log(cart,product,count);
     console.log('req body is ',req.body);
@@ -1108,7 +1135,11 @@ const changeQuantity = async (req,res)=>{
     const db = getDb();
     const cartCollection = db.collection('cart');
     const totalValue = await calculateCartTotal(cartCollection,user);
+    console.log('availabe: ',available, "current quantity: ",currentQuantity);
     console.log('totalValue is ',totalValue);
+    if(currentQuantity > available && count == 1){
+      return res.json({status:false,message:'selected quantity is exceeds available quantity.'});
+    }
     const result = await cartCollection.updateOne(
       {_id: new ObjectId(cart),'productId.item': new ObjectId(product)},
       {
@@ -1120,7 +1151,7 @@ const changeQuantity = async (req,res)=>{
     }else{
       res.json({status:false});
     }
-    console.log('result is ',result);
+    // console.log('result is ',result);
   } catch (error) {
     console.log('error occure while changing quantity. ',error);
   }
@@ -1149,46 +1180,77 @@ const removeCartItem = async (req, res) => {
 }
 
 const placeOrder = async (req, res) => {
-  const { paymentMethod, userId, cartId } = req.body;
+  let { paymentMethod, userId, cartId } = req.body;
   try {
     const db = getDb();
-
     const orderCollection = db.collection('order');
     const cartCollection = db.collection('cart');
     const userCollection = db.collection('users');
     const productCollection = db.collection('products');
+
+    const ObjectIdUserId = new ObjectId(userId);
+
+    // Fetch product details from the cart and calculate the total price
     let productDetails = await getCartProducts(userId);
-    let totalPrice;
-    let couponData = req.session.appliedCoupon;
-    if(couponData){
-      totalPrice = couponData.discountTotal
-    }else{
-      totalPrice = await calculateCartTotal(cartCollection, userId);
-    }
+    let totalPrice = req.session.appliedCoupon ? req.session.appliedCoupon.discountTotal : await calculateCartTotal(cartCollection, userId);
+
+    // Determine the order status based on the payment method
     let status = paymentMethod === 'cod' ? 'Placed' : 'Pending';
+
+    // Fetch user data to get the address
     const userData = await userCollection.findOne({ _id: new ObjectId(userId) });
     const address = userData.addresses || null;
+    const appliedCoupon = req.session.appliedCoupon || null;
+    // Create a new order instance
+    const newOrder = new Order(
+      ObjectIdUserId,
+      productDetails,
+      totalPrice,
+      status,
+      address,
+      paymentMethod,
+      appliedCoupon
+    );
 
-    const newOrder = new Order(userId, productDetails, totalPrice, status, address, paymentMethod,couponData);
+    // Insert the new order into the database
     const result = await orderCollection.insertOne(newOrder);
-
     if (result.insertedId) {
-        await updateQuantity(orderCollection,productCollection,result.insertedId);
-        await cartCollection.deleteOne({ userId: new ObjectId(userId) });
-        if (paymentMethod === 'cod') {
-            res.json({ codSuccess: true, orderId: result.insertedId });
-        } else if (paymentMethod === 'online') {
-            const rpayOrder = await generateRP(result.insertedId, totalPrice);
-            console.log('order ', rpayOrder);
-            res.json({ order: rpayOrder });
-        }
-      } else {
-          console.log('Error: No inserted ID found');
+      
+      // Update product quantities, delete the cart, and handle payment
+      await updateQuantity(orderCollection, productCollection, result.insertedId);
+      await cartCollection.deleteOne({ userId: new ObjectId(userId) });
+
       }
+      if (paymentMethod === 'cod') {
+        const couponCollection = db.collection('coupons');
+        const couponData = await couponCollection.findOne({apply:'purchase',minAmount: { $gte: totalPrice}});
+      if(couponData && couponData.status === 'active'){
+        const coupon = {
+          _id: couponData._id,
+          name: couponData.couponName,
+          code: couponData.couponCode,
+          offer: couponData.couponOffer,
+          expireDate: couponData.expireDate
+        }
+      console.log('hai before addCouponToUser');
+      await addCouponToUser(userCollection,ObjectIdUserId,coupon);
+        console.log('hai');
+        res.json({ codSuccess: true, orderId: result.insertedId });
+      } else if (paymentMethod === 'online') {
+        const rpayOrder = await generateRP(result.insertedId, totalPrice);
+        console.log('order ', rpayOrder);
+        res.json({ order: rpayOrder });
+      }
+    } else {
+      console.log('Error: No inserted ID found');
+    }
   } catch (error) {
-      console.log('error occurred while placing an order. ', error);
+    console.log('Error occurred while placing an order. ', error);
+    // Send an appropriate response to the client, indicating the error
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 }
+
 
 async function updateQuantity(orderCollection, productCollection, orderId) {
   const db = getDb();
@@ -1223,13 +1285,14 @@ const getCartProducts = async(userId)=>{
 }
 
 const getOrderDetailes = async (userId) => {
+  console.log('hai from getOrderDetailes.');
   const db = getDb();
   const orderCollection = db.collection('order');
   console.log('orderId is ',userId);
   const aggregationPipeline = [
     {
       $match: {
-        userId: userId
+        userId: new ObjectId(userId)
       }
     },
     {

@@ -16,6 +16,14 @@ adminRouter.get('/',auth.adminLogOut,adminController.loadLogin);
 adminRouter.post('/dashboard',adminController.verifyLogin);
 adminRouter.get('/dashboard',auth.adminLogin,adminController.loadHome);
 
+// *********** CHART AND SALES MANAGEMENT *********** //
+adminRouter.post('/line_chart', adminController.fetchlineChartData);
+adminRouter.post('/bar_chart', adminController.fetchbarChartData);
+adminRouter.post('/pie_chart', adminController.fetchpieChartData);
+adminRouter.get('/export_pdf_daily_sales',adminController.exportPdfDailySales);
+adminRouter.get('/export_pdf_weekly_sales',adminController.exportPdfWeeklySales);
+adminRouter.get('/export_pdf_yearly_sales',adminController.exportPdfYearlySales);
+
 // *********** PRODUCT MANAGEMENT *********** //
 adminRouter.get('/productlist',adminController.loadProductList);
 adminRouter.get('/product_add',adminController.loadProductAdd);

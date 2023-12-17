@@ -18,6 +18,7 @@
     <div class="container-fluid pt-5">
         <div class="row px-xl-5">
             <% if (productData && productData.length > 0) { %>
+                <% let selectedSizeUnit = []; %>
                 <div class="col-lg-8 table-responsive mb-5">
                     <table class="table table-bordered text-start mb-0">
                         <thead class="bg-secondary text-dark">
@@ -31,6 +32,7 @@
                             </tr>
                         </thead>
                         <tbody class="align-middle" data-user="<%= userData._id %>">
+                            <% var availableValues = []; %>
                             <% productData.forEach((product) => { %>
                                 <tr data-cart-id="<%= product._id %>" data-product-id="<%= product.product._id %>">
                                     <td class="align-middle">
@@ -44,6 +46,16 @@
                                         <% } %>
                                         <% const productName = truncateString(product.product.title,20) %>
                                         <%= productName %>
+                                        <% Object.keys(product.product.sizeUnits).forEach(function(size){ %>
+                                            <% if (size === product.selectedSize) { %>
+                                                <% selectedSizeUnit.push({ size: product.product.sizeUnits[size] }); %>
+                                                <div class="custom-control custom-radio custom-control-inline size-info" data-product-id="<%= product.product.id %>" data-available="<%= product.product.sizeUnits[size] %>">
+                                                    <sup class="ml-2 text-danger">
+                                                        <%= product.product.sizeUnits[size] < 4 && product.product.sizeUnits[size] !== 0 ? '(' + product.product.sizeUnits[size] + ' left)' : '' %>
+                                                    </sup>
+                                                </div>
+                                            <% } %>
+                                        <% }) %>
                                     </td>
                                     <td class="align-middle text-center">&#8377;<span class="price"><%= product.product.price %></span></td>
                                     <td class="align-middle text-center"><span class="productSize text-center"><%= product.selectedSize %></span></td>
@@ -179,6 +191,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
 
+
+
         function truncateString(str, maxLength) {
             if (str.length > maxLength) {
                 return str.slice(0, maxLength) + "...";
@@ -194,6 +208,7 @@
         var product_id = $button.data('product-id');
         var userData = $("tbody").data("user");
         var product_item_id = $button.data('product-item-id');
+        var available = parseInt($('.size-info').data('available'))
         var action = $button.data('action');
         // Find the corresponding quantity display element
         var $row = $button.closest('tr');
@@ -201,6 +216,10 @@
 
         // Get the current quantity after $quantityDisplay is defined
         var currentQuantity = parseInt($quantityDisplay.text());
+        
+        if(action === '+' && currentQuantity > available){
+            return alert('Quantity exceeds stock. Remove the quantity.')
+        }
 
         if(action === '+' && currentQuantity === 3){
             alert('Maximum quantity for one product is reached');
@@ -217,18 +236,21 @@
                 cart: product_id,
                 product: product_item_id,
                 count: action === '+' ? 1 : -1,
+                available,
+                currentQuantity
             },
             method: 'post',
             success: function(response) {
-                console.log('response is: ',response);
+                if(response.message){
+                    return alert(response.message)
+                }
+                
                 if (response.status) {
                     var newQuantity = currentQuantity + (action === '+' ? 1 : -1);
                     $quantityDisplay.text(newQuantity);
-                    console.log('newQuantity is: ',newQuantity);
                     var productPrice = parseFloat($row.find('.price').text());
                     var $totalPrice = $row.find('.totalPrice');
                     var newTotalPrice = productPrice * newQuantity;
-                    console.log('new total price ',newTotalPrice);
                     $totalPrice.text(newTotalPrice);
                     console.log(response);
                     let newTotal = response.totalValue
