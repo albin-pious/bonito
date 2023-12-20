@@ -30,14 +30,14 @@
             </a>
         </div>
         <div class="col-4 col-md-6 col-lg-3">
-            <a href="">
+            <a href="/logout">
                 <span class="material-symbols-outlined bg-dark text-white" id="profile-page-logout">
                     logout
                 </span><strong class="profile-logout">LogOut</strong>
             </a>
         </div>
         <div class="col-8 col-md-6 col-lg-3">
-            <a href="">
+            <a href="" onclick="deleteAccount(event,'<%=userData._id %>')">
                 <span class="material-symbols-outlined bg-danger text-white" id="profile-page-delete">
                     delete
                 </span><strong class="profile-delete">Delete My Account</strong>
@@ -50,31 +50,31 @@
 <!-- User Detailes Start -->
 <div class="container w-75 mt-5">
     <h3 class="user-detailes text-center">User Detailes</h3>
-    <form action="" method="post" id="profile-edit-form">
+    <form action="/profile/edit_address" method="post" id="profile-edit-form">
         <div class="row">
             <div class="col-md-6 form-group">
                 <label for="firstName">First Name</label>
-                <input type="text" class="form-control">
+                <input type="text" class="form-control" value="<%= userData && userData.addresses ? userData.addresses.firstName : '' %>" name="fname" required>
             </div>
             <div class="col-md-6 form-group">
                 <label for="lastName">Last Name</label>
-                <input type="text" class="form-control">
+                <input type="text" class="form-control" value="<%= userData && userData.addresses ? userData.addresses.lastName : '' %>" name="lname" required>
             </div>
             <div class="col-md-6 form-group">
                 <label for="email">e-mail</label>
-                <input type="text" class="form-control">
+                <input type="text" class="form-control" value="<%= userData && userData.addresses ? userData.addresses.email : '' %>" name="email" required>
             </div>
             <div class="col-md-6 form-group">
                 <label for="mobile">Mobile Number</label>
-                <input type="text" class="form-control">
+                <input type="text" class="form-control" value="<%= userData && userData.addresses ? userData.addresses.mobile : '' %>" name="mobile" required>
             </div>
             <div class="col-md-6 form-group">
                 <label for="addressOne">Address Line 1</label>
-                <input type="text" class="form-control">
+                <input type="text" class="form-control" value="<%= userData && userData.addresses ? userData.addresses.address1 : '' %>" name="address1" required>
             </div>
             <div class="col-md-6 form-group">
                 <label for="addressTwo">Address Line 2</label>
-                <input type="text" class="form-control">
+                <input type="text" class="form-control" value="<%= userData && userData.addresses ? userData.addresses.address2 : '' %>" name="address2" required>
             </div>
             <div class="col-md-6 form-group">
                 <label for="country">Country</label>
@@ -82,15 +82,16 @@
             </div>
             <div class="col-md-6 form-group">
                 <label for="city">City</label>
-                <input type="text" class="form-control" >
+                <input type="text" class="form-control" value="<%= userData && userData.addresses ? userData.addresses.city : '' %>" name="city" required>
             </div>
             <div class="col-md-6 form-group">
                 <label for="state">State</label>
-                <input type="text" class="form-control">
+                <input type="text" class="form-control" value="<%= userData && userData.addresses ? userData.addresses.state : '' %>" name="state" required>
             </div>
             <div class="col-md-6 form-group">
                 <label for="zipcode">ZIP Code</label>
-                <input type="text" class="form-control">
+                <input type="text" class="form-control" value="<%= userData && userData.addresses ? userData.addresses.zipcode : '' %>" name="zipcode" required>
+                <input type="hidden" class="form-control" value="<%= userData && userData.addresses ? userData._id : '' %>" name="id">
             </div>
             <div class="col-12 form-group text-center">
                 <input type="submit" value="Save Changes" class="btn btn-primary">
@@ -174,4 +175,32 @@
 <!-- Back to Top -->
 <a href="#" class="btn btn-primary back-to-top"><i class="fa fa-angle-double-up"></i></a>
 
+
+
 <%- include('../partials/userHeader.ejs') %>
+
+<script>
+    async function deleteAccount(e,user){
+        e.preventDefault();
+        const confirmed = confirm('Are you sure do you want delete your account');
+        if(confirmed){
+            try {
+                const response = await fetch(`/delete_user_account/${user}`,{
+                    method: 'delete'
+                })
+
+                if(response.ok){
+                    console.log('Account deleted Successfully.');
+                    window.location.reload();
+                }else{
+                    throw new Error('Network response was not ok.')
+                }
+            } catch (error) {
+                console.error('error occured while requesting to delete user: ',error);
+            }
+        }else{
+            e.preventDefault();
+            console.log('Delete request cancelled.');
+        }
+    }
+</script>

@@ -97,7 +97,12 @@
                             <% Object.keys(data.sizeUnits).forEach(function(size){ %>
                                 <div class="custom-control custom-radio custom-control-inline">
                                     <input type="radio" class="custom-control-input" id="size-<%= size %>" name="size" value="<%= size %>" data-size="<%= size %>" <%= data.sizeUnits[size] >0 ?'': 'disabled' %>>
-                                    <label class="custom-control-label" for="size-<%= size %>"><%= size %></label>
+                                    <% if(data.sizeUnits[size] > 0){ %>
+                                        <label class="custom-control-label" for="size-<%= size %>"><%= size %></label>
+                                    <% }else{ %>
+                                        <label class="custom-control-label" for="size-<%= size %>"><del class="text-danger"><span class="text-secondary"><%= size %></span></del></label>
+                                    <% } %>
+                                    
                                     <sup class="ml-2 text-danger">
                                         <%= data.sizeUnits[size] < 5&& data.sizeUnits[size] !== 0 ? '('+ data.sizeUnits[size] + ' left)' : '' %>
                                     </sup>                                  

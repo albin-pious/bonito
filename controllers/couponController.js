@@ -26,7 +26,7 @@ const loadCoupon = async(req,res)=>{
 
 const loadCreateCoupon = async(req,res)=>{
     try {
-        res.render('addCoupon');
+        res.render('addCoupon',{title:'Bonito | AdminCoupon Add Page'});
     } catch (error) {
         console.error('error occured while loading coupon load. ',error);
     }
@@ -61,7 +61,7 @@ const createCoupon = async (req, res) => {
         let expireDate = validity; // Ensure validity is in the correct format
 
         if (brand && !brandExist) {
-            return res.render('addCoupon', { message: 'Please check brand name before adding coupon.' });
+            return res.render('addCoupon', { message: 'Please check brand name before adding coupon.',title:'Bonito | AdminCoupon Add Page' });
         }
         if (category && !categoryExist) {
             return res.render('addCoupon', { message: 'Please check category name before adding coupon.' });
@@ -72,7 +72,7 @@ const createCoupon = async (req, res) => {
             if (result) {
                 res.redirect('/admin/coupon');
             }else{
-                res.render('addCoupon', { message: `Error: ${result.errmsg}`||'Some Internal problems occured please try again.' });
+                res.render('addCoupon', { message: `Error: ${result.errmsg}`||'Some Internal problems occured please try again.',title:'Bonito | AdminCoupon Add Page' });
             }
         } else {
             return res.render('addCoupon', { message: 'Coupon already exists, try another one.' });
@@ -93,9 +93,9 @@ const loadEditCoupon = async (req,res)=>{
         const couponData = await couponCollection.findOne({ _id: objectIdCouponId });
         console.log('couponData is: ',couponData);
         if(couponData){
-            res.render('editCoupon',{couponData});
+            res.render('editCoupon',{couponData,title:'Bonito | AdminCoupon Edit Page'});
         }else{
-            res.render('coupon',{message:'Failed to load edit page.'});
+            res.render('coupon',{message:'Failed to load edit page.',title:'Bonito | AdminCoupon Page'});
         } 
     } catch (error) {
        console.log('Error occured while loading coupon edit.',error); 
@@ -126,7 +126,7 @@ const editCoupon = async(req,res)=>{
                 if(result.modifiedCount === 1){
                     res.redirect('/admin/coupon');
                 }else{
-                    res.render('editCoupon',{ message: `Couldn't update the coupon try again later.`});
+                    res.render('editCoupon',{ message: `Couldn't update the coupon try again later.`,title:'Bonito | AdminCoupon Edit Page'});
                 }
             }else{
                 return res.render('editCoupon',{ message: `Couponcode is taken to another coupon.`});
@@ -164,7 +164,7 @@ const loadUserCoupon = async (req,res)=>{
         const objectIdUserId = new ObjectId(userId);
         const userData = await userCollection.findOne({ _id:objectIdUserId});
         console.log('user data is: ',userData);
-        res.render('userCoupon',{userData});
+        res.render('userCoupon',{userData,title:'Bonito | MyCoupon Page'});
     } catch (error) {
         console.log('error occured while loading coupon page.',error);
         res.json({status:500,message:'Internal Server Problem'});

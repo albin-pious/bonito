@@ -11,13 +11,14 @@ const Order = require('../models/orderModel');
 const ejs = require('ejs');
 const fs = require('fs');
 const path = require('path');
-const puppeteer = require('puppeteer')
+const puppeteer = require('puppeteer');
+const { count } = require('console');
 
 const loadLogin = async(req,res)=>{
     try {
         console.log('session data is ',req.session.admin);
         if(!req.session.admin){
-        return res.render('adminLogin');
+        return res.render('adminLogin',{title:'Bonito | Admin Login Page.'});
         }else{
             return res.redirect('/admin/dashboard');
         }
@@ -46,9 +47,9 @@ const verifyLogin = async(req,res)=>{
             };
             console.log('this was ',req.session.admin);
             console.log('final');
-            res.render('dashboard');
+            res.render('dashboard',{title:'Bonito | Admin-Dashboard.'});
         }else{
-            return res.render('adminLogin',{ message:'email or password are incorrect.'})
+            return res.render('adminLogin',{ message:'email or password are incorrect.',title:'Bonito | Admin Login Page.'})
         }
     } catch (error) {
         return res.status(500).json({message:'failed to send'})
@@ -57,7 +58,7 @@ const verifyLogin = async(req,res)=>{
 
 const loadHome = async(req,res)=>{
     try {
-        res.render('dashboard');
+        res.render('dashboard',{title:'Bonito | Admin-Dashboard.'});
     } catch (error) {
         console.log('error occured while getting home',error);
     }
@@ -162,7 +163,7 @@ const exportPdfDailySales = async (req,res)=>{
                 $match: {
                     orderData: {
                         $gte: new Date(today),
-                        $lt: new Date(today+ 'T23:59:59:999z')
+                        $lt: new Date(today + 'T23:59:59.999Z')
                     }
                 }
             },
@@ -186,6 +187,9 @@ const exportPdfDailySales = async (req,res)=>{
                 }
             }
         ]).toArray();
+     
+        console.log(`today ${today}`);
+
         console.log('data',todaysOrder);
         const orderData = {
             todaysOrders: todaysOrder
@@ -386,7 +390,8 @@ const loadProductList = async(req,res)=>{
             brandData,
             currentPage,
             totalDocument: totalcount,
-            pages: totalPages
+            pages: totalPages,
+            title:'Bonito | Admin-Products View.'
         });
     } catch (error) {
         console.log('error occures in loading productlist',error);
@@ -401,7 +406,7 @@ const loadProductAdd = async(req,res)=>{
         const brandCollection = db.collection('brand');
         const catData = await catCollection.find().toArray();
         const brandData = await brandCollection.find().toArray();
-        res.render('addProducts',{catData:catData,brandData:brandData});
+        res.render('addProducts',{catData:catData,brandData:brandData,title:'Bonito | Admin-Addproducts Page.'});
     } catch (error) {
         console.log('error to loading product edit ',error);
         res.status(500).json({error:'Internal server problem. '});
@@ -457,7 +462,7 @@ const addNewProduct = async (req,res)=>{
             const result = await productCollection.insertOne(newProduct);
             res.redirect('/admin/productlist');
         }else{
-            return res.render('addProducts',{message:'Product is already existing'});
+            return res.render('addProducts',{message:'Product is already existing',title:'Bonito | Admin-AddProducts Page.'});
         }
     } catch (error) {
         console.log('error occured while creating product ',error);
@@ -479,6 +484,7 @@ const loadEditProduct = async(req,res)=>{
         const brandData = await brandCollection.find().toArray();
         const catData = await categoryCollection.find().toArray();
         res.render('editProduct',{
+            title:'Bonito | Admin-Editproducts page.',
             productData,
             catData,
             brandData,
@@ -576,7 +582,7 @@ const editProduct = async (req, res) => {
             res.redirect(`/admin/productlist`);
         } else {
             // Handle the case where the new title is a duplicate
-            return res.render('editProduct', { message: 'Duplicate title' });
+            return res.render('editProduct', { message: 'Duplicate title',title:'Bonito | Admin-Editproducts page.' });
         }
     } catch (error) {
         console.log('Error occurred while editing the product data: ', error);
@@ -740,10 +746,11 @@ const loadCategory = async (req, res) => {
                 brand: brandsWithCatName || [] ,
                 currentBrandPage:currentBrandPageCount,
                 totalBrandPage:totalBrandPage,
-                brandPages:totalBrandPage
+                brandPages:totalBrandPage,
+                title:'Bonito | Admin-Category page.'
             });
         } else {
-            res.render('categoryView', { catData: catData, title: 'Category list is empty.' });
+            res.render('categoryView', { catData: catData, title:'Bonito | Admin-Category.' });
         }
     } catch (error) {
         console.log('Error occurred in loading categoryList', error);
@@ -753,7 +760,7 @@ const loadCategory = async (req, res) => {
 
 const loadCreateCategory = async(req,res)=>{
     try {
-        res.render('addCategory');
+        res.render('addCategory',{title:'Bonito | Admin-Category Add Page.'});
     } catch (error) {
         console.log(error.message);
     }
@@ -774,7 +781,7 @@ const addNewCategory = async(req,res)=>{
         const result = await collection.insertOne(newCat)
         res.redirect('/admin/categorylist')
        }else{
-        res.render('category_create',{message:'Category already exists.'})
+        res.render('category_create',{message:'Category already exists.',title:'Bonito | Admin-Category Add Page.'})
        }
     } catch (error) {
         console.log('Error creating category ',error);
@@ -791,7 +798,7 @@ const loadeditCategory = async(req,res)=>{
         const ObjectIdCategoryId = new ObjectId(categoryId);
         const catData = await collection.findOne({_id:ObjectIdCategoryId});
         if(catData){
-            res.render('editCategory',{data:catData});
+            res.render('editCategory',{data:catData,title:'Bonito | Admin-Category Edit Page.'});
         }else{
             console.log('category not found.');
         }
@@ -874,9 +881,9 @@ const loadBrandAdd = async(req,res)=>{
         const collection = db.collection('category');
         const catData = await collection.find().toArray();
         if(catData){
-            res.render('addBrand',{data:catData,title:''});
+            res.render('addBrand',{data:catData,title:'Bonito | Admin-Brand Add Page.'});
         }else{
-            res.render('addBrand',{data:catData,title:'category is empty.'});
+            res.render('addBrand',{data:catData,title:'Bonito | Admin-Brand Add Page.'});
         }
         
     } catch (error) {
@@ -897,7 +904,7 @@ const addNewBrand = async(req,res)=>{
             const result = await newBrand.save();
             res.redirect('/admin/categorylist')
         }else{
-            res.render('addBrand',{title:'Brand is already existing.',data:brandData});
+            res.render('addBrand',{title:'Bonito | Admin-Brand Add Page.',data:brandData});
         }
     } catch (error) {
         console.log(error.message);
@@ -917,7 +924,7 @@ const LoadEditBrand = async(req,res)=>{
             return res.render('editBrand',{
                 catData:catData,
                 data:brandData,
-                title:'no category'
+                title:'Bonito | Admin-Brand Edit Page.'
             });
         }else{
             return res.status(404).send('Brand data not found');
@@ -949,7 +956,7 @@ const editBrand = async(req,res)=>{
                     res.redirect('/admin/categorylist');
                 }
             }else{
-                return res.render('editBrand',{title:'Brand name is already existing.'})
+                return res.render('editBrand',{title:'Bonito | Admin-Brand Edit Page.'})
             }
         }
     } catch (error) {
@@ -990,7 +997,8 @@ const loadCustomer = async(req,res)=>{
                 userData,
                 currentPage,
                 totalDocument: totalcount,
-                pages: totalPages
+                pages: totalPages,
+                title:'Bonito | Admin-Customer View Page.'
             }
         ); 
     } catch (error) {
@@ -1041,6 +1049,83 @@ const adminLogout = async(req,res)=>{
     }
 }
 
+const loadOrder = async(req,res)=>{
+    const pageNum = parseInt(req.query.page,10) || 1;
+    const perPage = 5;
+    const skipValue = (pageNum-1) * perPage;
+    try {
+        const db = getDb();
+        const orderCollection = db.collection('order');
+        const order = await orderCollection.aggregate([
+            {
+              $lookup: {
+                from: 'users',
+                localField: 'userId',
+                foreignField: '_id',
+                as: 'user'
+              }
+            },
+            {
+              $unwind: '$user'
+            },
+            {
+              $lookup: {
+                from: 'products',
+                localField: 'productDetails.item',
+                foreignField: '_id',
+                as: 'productDetails'
+              }
+            },
+            {
+              $unwind: '$productDetails' 
+            },
+            {
+              $sort: {
+                'productDetails.fieldToSortBy': -1
+              }
+            }
+        ]).skip(skipValue).limit(perPage).toArray();
+        let count = await orderCollection.countDocuments();
+        const totalPage = Math.ceil(count/perPage);
+        const currentPage = Math.max(1,Math.min(pageNum,totalPage))
+        console.log('order is: ',order);
+        res.render('orders',{
+            title:'Bonito | Admin-Order View Page.',
+            orderData: order,
+            currentPage,
+            totalDocument: count,
+            pages: totalPage
+        });
+    } catch (error) {
+        console.log('error occured while loaing order ',error);
+    }
+}
+
+const editStatus = async(req,res)=>{
+    try {
+        const db = getDb();
+        const orderCollection = db.collection('order');
+        const status = req.body.statusvalue;
+        const orderId = new ObjectId(req.body.id);
+        const result = await orderCollection.updateOne({
+            _id:orderId
+        },
+        {
+            $set:{
+                status: status
+            }
+        });
+
+        if(result){
+            res.json({status:true})
+        }else{
+            res.json({status:false})
+        }
+    } catch (error) {
+        console.error('error occured while updating status',error);
+    }
+}
+
 module.exports = {
     verifyLogin,
     loadLogin,
@@ -1054,6 +1139,7 @@ module.exports = {
     loadeditCategory,
     loadEditProduct,
     loadBrandAdd,
+    loadOrder,
     addNewProduct,
     addNewBrand,
     addNewCategory,
@@ -1061,6 +1147,7 @@ module.exports = {
     editProduct,
     editCategory,
     editBrand,
+    editStatus,
     deleteCategory,
     deleteBrand,
     deleteProduct,

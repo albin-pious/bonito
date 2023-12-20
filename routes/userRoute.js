@@ -33,13 +33,14 @@ userRouter.post('/forgot_password',userCtrl.sendForgotOtp);
 userRouter.post('/verify_forgot_otp',userCtrl.verifyForgotOtp);
 userRouter.post('/reset_password',userCtrl.resetPassword);
 
-// Filtering, Sorting and Load Shop
+// Filtering, Sorting, Searching and Load Shop
 userRouter.get('/bonito_shop',userCtrl.loadShop);
 userRouter.get('/product_detailes/:id',userCtrl.loadProductDetailes);
 userRouter.get('/bonito_shop/:gen',userCtrl.loadShopMenorWomen);
 userRouter.get('/bonito_shop/category/:id',userCtrl.loadShopBasedCategory);
 userRouter.post('/filter',userCtrl.shopFilter);
-userRouter.post('/bonito/sort',userCtrl.shopSort)
+userRouter.post('/bonito/sort',userCtrl.shopSort);
+userRouter.get('/bonito_search',userCtrl.productSearch);
 
 // cart & whishlist 
 userRouter.get('/bonito_cart',userCtrl.loadCart);
@@ -65,9 +66,12 @@ userRouter.post('/submit-review',userCtrl.productReview);
 
 // account and other related routes.
 userRouter.get('/profile',userCtrl.loadUserAccount);
+userRouter.post('/profile/edit_address',userCtrl.editProfileAddress);
 userRouter.get('/user_coupon_page',couponCtrl.loadUserCoupon);
 userRouter.post('/apply_bonito_coupon',couponCtrl.applyCoupon);
+userRouter.delete('/delete_user_account/:id',userCtrl.deleteUserAccount)
 
-
+// User LogOut
+userRouter.get('/logout',userCtrl.logout);
 
 module.exports = userRouter;

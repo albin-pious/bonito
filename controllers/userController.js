@@ -21,6 +21,42 @@ var instance = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
+const trendyProducts = async()=>{
+  const db = getDb();
+  const trend = await db.collection('order').aggregate([
+    { $unwind: '$productDetails'},
+    {
+      $group: {
+        _id: '$productDetails.item',
+        totalQuantity: { $sum: '$productDetails.quantity'}
+      }
+    },
+    { $sort: { totalQuantity: -1 }},
+    { $limit: 8},
+    {
+      $lookup: {
+        from: 'products',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'productDetails'
+      }
+    },
+    { $unwind: '$productDetails'},
+    {
+      $project: {
+        _id: '$productDetails._id',
+        name: '$productDetails.title',
+        totalQuantity: '$totalQuantity',
+        price: '$productDetails.price',
+        offer: '$productDetails.offer',
+        images: '$productDetails.images'
+      }
+    }
+  ]).toArray()
+
+  return trend;
+}
+
 const loadHome = async (req, res) => {
   try {
     const db = getDb();
@@ -34,6 +70,8 @@ const loadHome = async (req, res) => {
     .sort({ _id: -1 })
     .limit(8)
     .toArray();
+    const trends = await trendyProducts();
+    console.log('trendy products is: ',trends);
     let userData = null;
     if (req.session.user) {
       const userId = req.session.user._id;
@@ -45,14 +83,18 @@ const loadHome = async (req, res) => {
       res.render('home', { 
         userData: userData,
         recentProducts:recentProducts,
+        trendyProducts: trends,
         catData,
         cartCount,
-        wishlistCount
+        wishlistCount,
+        title:'Bonito | Home Page.'
        });
     }else{
       res.render('home',{
         recentProducts:recentProducts,
-        catData
+        trendyProducts:trends,
+        catData,
+        title:'Bonito | Home Page.'
       });
     }
   } catch (error) {
@@ -94,7 +136,7 @@ const getWishlistCount = async(userId)=>{
 
 const loadLogin = async (req, res) => {
   try {
-    res.render('login',{message:'',title:""});
+    res.render('login',{message:'',title:'Bonito | Login Page.'});
   } catch (error) {
     console.log(error.message);
   }
@@ -102,7 +144,7 @@ const loadLogin = async (req, res) => {
 
 const loadOtpLogin = async(req,res)=>{
   try {
-    res.render('otpLogin')
+    res.render('otpLogin',{title:'Bonito | OTP Page'})
   } catch (error) {
     console.log(error);
   }
@@ -110,7 +152,7 @@ const loadOtpLogin = async(req,res)=>{
 
 const loadRegister = async (req, res) => {
   try {
-    res.render('register');
+    res.render('register',{title:'Bonito | User Register Page.'});
   } catch (error) {
     console.log(error);
   }
@@ -147,13 +189,13 @@ const loadOtp = async(req,res)=>{
             console.log('deleted value otp from session');
           }, 60*1000);
         }else{
-          return res.render('otpVerify')
+          return res.render('otpVerify',{title:'Bonito | OTP Verify Page.'})
         }
       }else{
-        return res.render('register',{message:'email or mobile is already existing.'})
+        return res.render('register',{message:'email or mobile is already existing.',title:'Bonito | User Register Page.'})
       }
     }else{
-      return res.render('register',{message:'email or password is already existing.'})
+      return res.render('register',{message:'email or password is already existing.',title:'Bonito | User Register Page.'})
     }
   } catch (error) {
     console.error('error occured during loading the otp',error.message);
@@ -166,7 +208,7 @@ const resendOtp = async (req, res) => {
     const userData = req.session.userData;
     console.log('data from resendOtp ',userData);
     if (!userData) {
-      return res.render('register', { message: 'Please redirect to the login page.' });
+      return res.render('register', { message: 'Please redirect to the login page.',title:'Bonito | User Register Page.' });
     }
 
     // Generate a new OTP
@@ -185,7 +227,7 @@ const resendOtp = async (req, res) => {
     console.log('Regenerated OTP:', regeneratedOtp);
     console.log('User data retrieved from session:', userData);
 
-    return res.render('otpVerify');
+    return res.render('otpVerify',{ title:'Bonito | OTP Verify Page'});
   } catch (error) {
     console.error('Error during OTP regeneration:', error);
     return res.status(500).send('An error occurred during OTP regeneration.');
@@ -198,12 +240,12 @@ const verifyOtp = async (req, res) => {
   if(req.session.userData){
     userData = req.session.userData;
   }else{
-    return res.render('otpVerify', { message: `Your Data couldn't find try after some time.` });
+    return res.render('otpVerify', { message: `Your Data couldn't find try after some time.`,title:'Bonito | OTP Verify Page.' });
   }
   console.log('user data from verify login: ',userData);
   try {
     if (!userData) {
-      return res.render('otpVerify', { message: 'Invalid OTP request...' });
+      return res.render('otpVerify', { message: 'Invalid OTP request...',title:'Bonito | OTP Verify Page.' });
     }
     console.log('value of userData.generateOTP',userData.generatedOTP);
     if (otp === userData.generatedOTP) {
@@ -230,9 +272,9 @@ const verifyOtp = async (req, res) => {
 
         await addCouponToUser(collection,insertedId,coupon);
       }
-      res.render('login', { title: 'Registration completed. Please Login',message:'' });
+      res.render('login', { success: 'Registration completed. Please Login',title:'Bonito | Login Page.' });
     } else {
-      return res.render('otpVerify', { message: 'Invalid OTP.' });
+      return res.render('otpVerify', { message: 'Invalid OTP.',title:'Bonito | SMS Verify Page.' });
     }
   } catch (error) {
     console.error('Error during user registration:', error);
@@ -253,8 +295,7 @@ const sendLoginOtp = async(req,res)=>{
       console.log('otp for sms is',generatedOTP);
       const completeNumber = '+91'+mobile;
       const {_id,name,email,password,role}=user;
-      // const smsSend = await otpService.sendOtpSMS(completeNumber,generatedOTP)
-      const smsSend = 5;
+      const smsSend = await otpService.sendOtpSMS(completeNumber,generatedOTP);
       if(smsSend){
         req.session.loginData = {
           _id,
@@ -266,11 +307,11 @@ const sendLoginOtp = async(req,res)=>{
           role
         }
       }else{
-        return res.render('otpLogin',{message:`Otp send failed to mobile number please try again later.`})
+        return res.render('otpLogin',{message:`Otp send failed to mobile number please try again later.`,title:'Bonito | Login With OTP Page.'})
       }
-      res.render('smsVerify');
+      res.render('smsVerify',{title:'Bonito | SMS Verify Page.'});
       }else{
-        return res.render('otpLogin',{message:`number doesn't exit`})
+        return res.render('otpLogin',{message:`number doesn't exit`,title:'Bonito | Login With OTP Page'})
       }
       setTimeout(() => {
         req.session.loginData.generateOTP = null;
@@ -288,7 +329,7 @@ const resendLoginOtp = async(req,res)=>{
     const userData = req.session.loginData;
     console.log('detailes for resend OTP. ',userData);
     if(!userData){
-      return res.render('smsVerify',{message:'Please try again late.'});
+      return res.render('smsVerify',{message:'Please try again late.',title:'Bonito | Login Page.'});
     }
     const generatedOTP = otpService.generateOTP();
     console.log('resended otp is: ',generatedOTP);
@@ -318,7 +359,7 @@ const verifyLogin = async (req, res) => {
         console.log('user role is', user.role);
         if (user.role === 'User') {
           if(user.blocked){
-            return res.render('login',{message:'Your account is blocked.',title:''});
+            return res.render('login',{message:'Your account is blocked.',title:'Bonito | Home Page.'});
           }
           req.session.user = {
             _id:user._id,
@@ -334,6 +375,8 @@ const verifyLogin = async (req, res) => {
           .limit(8)
           .toArray();
           console.log('session is : ', req.session.user);
+          const trends = await trendyProducts();
+          console.log('trendy products is: ',trends);
           let cartCount = await getCartCount(userId);
           let wishlistCount = await getWishlistCount(userId);
           console.log('cart count is ',cartCount);
@@ -343,16 +386,18 @@ const verifyLogin = async (req, res) => {
             recentProducts,
             catData,
             cartCount,
-            wishlistCount
+            wishlistCount,
+            trendyProducts: trends,
+            title:'Bonito | Home Page'
           });
         } else {
-          return res.render('login', { message: 'permission denied.',title:'' });
+          return res.render('login', { message: 'permission denied.',title:'Bonito | Home Page.' });
         }
       } else {
-        return res.render('login', { message: 'e-mail or password are incorrect.',title:'' });
+        return res.render('login', { message: 'e-mail or password are incorrect.',title:'Bonito | Home Page.' });
       }
     } else {
-      return res.render('login', { message: 'e-mail or password incorrect',title:'' });
+      return res.render('login', { message: 'e-mail or password incorrect',title:'Bonito | Home Page' });
     }
   } catch (error) {
     console.log(error);
@@ -370,13 +415,13 @@ const verifyLoginWithOtp = async(req,res)=>{
     console.log('stored otp is: ',storedOTP); 
     console.log('loginData in verify login is ',userData)
     if(!userData){
-      return res.render('smsVerify',{message:'Failed to locate user.'})
+      return res.render('smsVerify',{message:'Failed to locate user.',title:'Bonito | SMS Verify Page.'})
     }
     console.log('value of userData.generatedOTP is: ',userData.generatedOTP);
     if(otp===storedOTP){
       if(userData.role==='User'){
         if(userData.blocked){
-          return res.render('smsVerify',{message:'your account is blocked.'})
+          return res.render('smsVerify',{message:'your account is blocked.',title:'Bonito | SMS Verify Page.'})
         }
         req.session.user = {
           _id:userData._id,
@@ -396,6 +441,7 @@ const verifyLoginWithOtp = async(req,res)=>{
           console.log('session is : ', req.session.user);
           let cartCount = await getCartCount(userId);
           let wishlistCount = await getWishlistCount(userId);
+          let trends = await trendyProducts();
           console.log('hai 2');
           console.log('cart count is ',cartCount);
           console.log('wishlist count is: ',wishlistCount);
@@ -404,13 +450,15 @@ const verifyLoginWithOtp = async(req,res)=>{
             recentProducts,
             catData,
             cartCount,
-            wishlistCount
+            wishlistCount,
+            trendyProducts: trends,
+            title:'Bonito | Home Page'
           });
       }else{
-        return res.render('smsVerify',{message:'not permitted to this section.'})
+        return res.render('smsVerify',{message:'not permitted to this section.',title:'Bonito | SMS Verify Page.'})
       }
     }else{
-      return res.render('otpVerify',{message:'Invalid OTP'});
+      return res.render('otpVerify',{message:'Invalid OTP',title:'Bonito | OTP Page.'});
     }
   } catch (error) {
     console.error('error occured during verifying sms ',error.message);
@@ -435,7 +483,7 @@ const sendForgotOtp = async(req,res)=>{
       const user = await collection.findOne({email})
       console.log('user data using email is: ',user);
       if(!user){
-        return res.render('forgotPasswordView',{message:`email doesn't exit please register.`})
+        return res.render('forgotPasswordView',{message:`email doesn't exit please register.`,title:'Bonito | Recover Password.'})
       }
       const generatedOTP = otpService.generateOTP();
       console.log('generated otp forgot password: ',generatedOTP);
@@ -448,7 +496,7 @@ const sendForgotOtp = async(req,res)=>{
         generatedOTP
       };
       otpService.sendOtp(email,generatedOTP);
-      res.render('forgotPasswordEnter');
+      res.render('forgotPasswordEnter',{title:'Bonito | Recover Password.'});
       setTimeout(() => {
         delete req.session.emailUserDetailes.generatedOTP;
         console.log('otp for forgot password is deleted.');
@@ -457,7 +505,7 @@ const sendForgotOtp = async(req,res)=>{
       const user = await collection.findOne({mobile});
       console.log('user data using mobile is: ',user);
       if(!user){
-        return res.render('forgotPasswordView',{message:`email doesn't exit please register.`});
+        return res.render('forgotPasswordView',{message:`email doesn't exit please register.`,title:'Bonito | Recover Password.'});
       }
       const generatedOTP = otpService.generateOTP();
       console.log('generatedOTP for forgot password using sms',generatedOTP);
@@ -471,7 +519,7 @@ const sendForgotOtp = async(req,res)=>{
       }
       const completeNumber = `+91${mobile}`;
     await otpService.sendOtpSMS(completeNumber,generatedOTP);
-    res.render('forgotPasswordEnter');
+    res.render('forgotPasswordEnter',{title:'Bonito | Recover Password'});
     setTimeout(() => {
       delete req.session.mobileUserDetailes.generatedOTP;
       console.log('otp for forgot password is deleted.');
@@ -492,14 +540,14 @@ const resendForgotOtp = async(req,res)=>{
     const mobile = userData && userData.mobile?userData.mobile:null;
     console.log('userData email is: ',email,'and mobile is: ',mobile);
     if(!userData){
-      return res.render('forgotPasswordEnter',{message:'Please try again later.'})
+      return res.render('forgotPasswordEnter',{message:'Please try again later.',title:'Bonito | Recover Password.'})
     }
     if(email){
       const generatedOTP = await otpService.generateOTP();
       console.log('regenerated otp is :',generatedOTP);  
       req.session.emailUserDetailes.generatedOTP=generatedOTP;
       await otpService.sendOtp(email,generatedOTP);
-      res.render('forgotPasswordEnter');
+      res.render('forgotPasswordEnter',{title:'Bonito | Recover Password.'});
       setTimeout(() => {
         delete req.session.emailUserDetailes.generatedOTP;
         console.log('regenarated otp is removed');
@@ -510,7 +558,7 @@ const resendForgotOtp = async(req,res)=>{
       req.session.mobileUserDetailes.generatedOTP=generatedOTP;
       const completeNumber = `+91${mobile}`;
       otpService.sendOtpSMS(completeNumber,generatedOTP);
-      res.render('forgotPasswordEnter');
+      res.render('forgotPasswordEnter',{title:'Bonito | Recover Password.'});
       setTimeout(() => {
         delete req.session.mobileUserDetailes.generateOTP;
         console.log('regenerated sms is removed.');
@@ -535,19 +583,19 @@ const verifyForgotOtp = async (req,res)=>{
       const email = otpViaEMail;
       user = await collection.findOne({email})
       if(!user){
-        return res.render('forgotPasswordEnter',{message:'Please type registered email'})
+        return res.render('forgotPasswordEnter',{message:'Please type registered email',title:'Bonito | Recover Password.'})
       }
     }else{
       const mobile = otpViaMobile;
       user = await collection.findOne({mobile});
       if(!user){
-        return res.render('forgotPasswordEnter',{message:'Please type registered mobile number'});
+        return res.render('forgotPasswordEnter',{message:'Please type registered mobile number',title:'Bonito | Recover Password.'});
       }
     }
     if(otp===sesseionData.generatedOTP){
-      res.render('resetPassword');
+      res.render('resetPassword',{title:'Bonito | Recover Password'});
     }else{
-      return res.render('forgotPasswordEnter',{message:'Invalid OTP.'})
+      return res.render('forgotPasswordEnter',{message:'Invalid OTP.',title:'Bonito | OTP Page.'})
     }
   } catch (error) {
     console.log('error occured while verifying otp. ',error.message);
@@ -563,7 +611,7 @@ const resetPassword = async (req, res) => {
     const db = getDb();
     const collection = db.collection('users');
     if (password !== confirmPassword) {
-      return res.render('resetPassword', { message: 'Confirm password is incorrect.' });
+      return res.render('resetPassword', { message: 'Confirm password is incorrect.',title:'Bonito | Recover Password.' });
     }
     const sessionData = req.session.emailUserDetailes || req.session.mobileUserDetailes;
     console.log('Session Data:', sessionData);
@@ -582,9 +630,9 @@ const resetPassword = async (req, res) => {
         { $or:[{email:findUser},{mobile:findUser}]},
         { $set: {password:securePassword}}
       );
-      res.render('login',{message:'Password reset successfull, please login.',title:''})
+      res.render('login',{message:'Password reset successfull, please login.',title:'Bonito | Login Page'})
     }
-    res.render('resetPassword',)
+    res.render('resetPassword',{title:'Bonito | Recover Password.'})
 
   } catch (error) {
     console.log('Error occurred while resetting password:', error);
@@ -619,7 +667,8 @@ const loadShop = async(req,res)=>{
         userData,
         cartCount,
         catData,
-        wishlistCount
+        wishlistCount,
+        title:'Bonito | Shop-Product Page.'
       });
     }else{
       res.render('shop',{
@@ -627,7 +676,8 @@ const loadShop = async(req,res)=>{
         currentPage,
         totalDocument: totalcount,
         pages: totalPages,
-        brandData
+        brandData,
+        title:'Bonito | Shop Page.'
       });
     }
   } catch (error) {
@@ -677,6 +727,7 @@ const loadProductDetailes = async(req,res)=>{
       reviewData,
       isReviewAdded,
       averageRating,
+      title:'Bonito | Shop-Product Page'
     });
   } catch (error) {
     console.log('error occured while creating product detailes. ',error);
@@ -761,7 +812,8 @@ const loadCheckout = async(req,res)=>{
       couponCode,
       total,
       discountTotal,
-      discountAmount
+      discountAmount,
+      title:'Bonito | Checkout Page.'
     });
   } catch (error) {
     console.log('error occured loading checkout ',error);
@@ -850,7 +902,7 @@ const setAddress = async (req, res) => {
 
 const editAddress = async (req, res) => {
   try {
-    const {
+    let {
       fname,
       lname,
       email,
@@ -860,18 +912,19 @@ const editAddress = async (req, res) => {
       country,
       city,
       state,
-      zipcode
+      zipcode,
     } = req.body;
 
     const db = getDb();
     const userCollection = db.collection('users');
     const user = req.session.user;
     const userId = user._id;
+    country = country || 'India';
     const objectIdUserId = new ObjectId(userId);
     const userData = await userCollection.findOne({ _id: objectIdUserId });
 
     if (!userData) {
-      return res.status(404).json({ error: 'User not found.' });
+      return res.json({ error: 'User not found.' });
     }
 
     // Check if the provided city and state match the address in the "addresses" object
@@ -892,7 +945,7 @@ const editAddress = async (req, res) => {
       );
 
       if (result.modifiedCount === 1) {
-        return res.redirect('/checkout');
+        return res.redirect('/profile');
       } else {
         return res.status(500).json({ error: 'Failed to update user.' });
       }
@@ -1026,12 +1079,6 @@ cartData.forEach(product => {
         console.error('Size units are not defined or not an object for product:', product);
     }
 });
-
-// Log the stockChecker array
-// console.log(stockChecker); 
- 
-
-// console.log('Products out of stock: ', productsOutOfStock); 
   
    let totalValue = await calculateCartTotal(cartCollection,userId);
     const catData = await catCollection.find().toArray();
@@ -1043,7 +1090,8 @@ cartData.forEach(product => {
       userData,
       productData: cartData,
       totalValue,
-      quantityChecker: stockChecker
+      quantityChecker: stockChecker,
+      title:'Bonito | Cart Page.'
     });
   } catch (error) {
     console.error('Error occurred while loading cart page:', error);
@@ -1127,7 +1175,7 @@ const addProductToCart = async (req, res) => {
 }
 
 const changeQuantity = async (req,res)=>{
-  let { user,cart,product,count,available,currentQuantity } = req.body;
+  let { user,cart,product,count,available,currentQuantity,selectedSize } = req.body;
   try {
     console.log(cart,product,count);
     console.log('req body is ',req.body);
@@ -1136,16 +1184,22 @@ const changeQuantity = async (req,res)=>{
     const cartCollection = db.collection('cart');
     const totalValue = await calculateCartTotal(cartCollection,user);
     console.log('availabe: ',available, "current quantity: ",currentQuantity);
+    let current = parseInt(currentQuantity);
     console.log('totalValue is ',totalValue);
-    if(currentQuantity > available && count == 1){
+    let stock = parseInt(available)
+    if(current > stock && count == 1){
       return res.json({status:false,message:'selected quantity is exceeds available quantity.'});
     }
     const result = await cartCollection.updateOne(
-      {_id: new ObjectId(cart),'productId.item': new ObjectId(product)},
       {
-        $inc:{'productId.$.quantity':count}
+        _id: new ObjectId(cart),
+        "productId.item": new ObjectId(product),
+        "productId.selectedSize": selectedSize
+      },
+      {
+        $inc: { "productId.$.quantity": count }
       }
-    )
+    );    
     if(result.modifiedCount === 1){
       res.json({status:true,totalValue:totalValue});
     }else{
@@ -1214,32 +1268,40 @@ const placeOrder = async (req, res) => {
 
     // Insert the new order into the database
     const result = await orderCollection.insertOne(newOrder);
+    console.log('result.insertedId ', result.insertedId);
+    await userCollection.updateOne({_id: ObjectIdUserId})
     if (result.insertedId) {
-      
       // Update product quantities, delete the cart, and handle payment
       await updateQuantity(orderCollection, productCollection, result.insertedId);
       await cartCollection.deleteOne({ userId: new ObjectId(userId) });
 
-      }
+      // Handle payment methods
       if (paymentMethod === 'cod') {
         const couponCollection = db.collection('coupons');
-        const couponData = await couponCollection.findOne({apply:'purchase',minAmount: { $gte: totalPrice}});
-      if(couponData && couponData.status === 'active'){
-        const coupon = {
-          _id: couponData._id,
-          name: couponData.couponName,
-          code: couponData.couponCode,
-          offer: couponData.couponOffer,
-          expireDate: couponData.expireDate
+        const couponData = await couponCollection.findOne({ apply: 'purchase', minAmount: { $gte: totalPrice } });
+
+        if (couponData && couponData.status === 'active') {
+          const coupon = {
+            _id: couponData._id,
+            name: couponData.couponName,
+            code: couponData.couponCode,
+            offer: couponData.couponOffer,
+            expireDate: couponData.expireDate
+          };
+
+          console.log('hai before addCouponToUser');
+          await addCouponToUser(userCollection, ObjectIdUserId, coupon);
+          console.log('hai');
+          res.json({ codSuccess: true, orderId: result.insertedId });
+        } else if (paymentMethod === 'online') {
+          const rpayOrder = await generateRP(result.insertedId, totalPrice);
+          console.log('order ', rpayOrder);
+          res.json({ order: rpayOrder });
         }
-      console.log('hai before addCouponToUser');
-      await addCouponToUser(userCollection,ObjectIdUserId,coupon);
-        console.log('hai');
-        res.json({ codSuccess: true, orderId: result.insertedId });
-      } else if (paymentMethod === 'online') {
+      } else if(paymentMethod === 'online'){
         const rpayOrder = await generateRP(result.insertedId, totalPrice);
-        console.log('order ', rpayOrder);
-        res.json({ order: rpayOrder });
+        console.log('order',rpayOrder);
+        res.json({ order: rpayOrder});
       }
     } else {
       console.log('Error: No inserted ID found');
@@ -1250,7 +1312,6 @@ const placeOrder = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 }
-
 
 async function updateQuantity(orderCollection, productCollection, orderId) {
   const db = getDb();
@@ -1353,10 +1414,27 @@ const changePaymentStatus = async (orderId)=>{
   try {
     const db = getDb();
     const collection = db.collection('order');
+    const orderData = await collection.findOne({_id: new ObjectId(orderId)});
     const result = await collection.updateOne({_id: new ObjectId(orderId)},
     {
       $set:{status:'Placed'}
     })
+    const couponCollection = db.collection('coupons');
+    const userCollection = db.collection('users');
+    const user = orderData.userId;
+    const couponData = await couponCollection.findOne({ apply: 'purchase', minAmount: { $gte: orderData.totalPrice}})
+
+    if(couponData && couponData.status === 'active'){
+      const coupon = {
+        _id: couponData._id,
+        name: couponData.couponName,
+        code: couponData.couponCode,
+        offer: couponData.couponOffer,
+        expireDate: couponData.expireDate
+      };
+      console.log('hai before addCouponToRPUser.')
+      await addCouponToUser( userCollection, user, coupon );
+    }
   } catch (error) {
     console.log('error occured while changing password. ',error);
   }
@@ -1367,7 +1445,7 @@ const successPage = async (req, res) => {
     const userId = req.session.user._id;
     const orderData = await getOrderDetailes(userId);
     console.log('order data is ', orderData);
-    res.render('orderSuccess',{orderData:orderData});
+    res.render('orderSuccess',{orderData:orderData,title:'Bonito | Order Success'});
   } catch (error) {
     console.error('Error occurred while redirecting success page.', error);
   }
@@ -1425,7 +1503,8 @@ const loadOrderView = async (req, res) => {
     const orderCollection = db.collection('order');
 
     // Count the total number of documents for pagination
-    const totalCount = await orderCollection.countDocuments({ userId });
+    const totalCount = await orderCollection.countDocuments({ userId: new ObjectId(userId) });
+    console.log('total count is: ',totalCount);
 
     // Calculate the total number of pages
     const totalPages = Math.ceil(totalCount / perPage);
@@ -1442,17 +1521,19 @@ const loadOrderView = async (req, res) => {
 
     // Retrieve the data for the current page
     const orderData = await orderCollection
-      .find({ userId: userId })
+      .find({ userId: new ObjectId(userId) })
       .sort({ _id: -1 })
       .skip(skip)
       .limit(perPage)
       .toArray();
+      console.log('order data is: ',orderData);
 
     res.render('orderView', { 
       orderData, 
       currentPage: pageNum, 
       pages:totalPages, 
-      totalDocument:totalCount 
+      totalDocument:totalCount ,
+      title:'Bonito | My Orders'
     });
   } catch (error) {
     console.log('Error occurred while loading order view. ', error);
@@ -1463,7 +1544,7 @@ const loadProductFromOrder = async(req,res)=>{
   const orderId = req.params.id;
   try {
     const products = await getUserOders(orderId);
-    res.render('orderedProducts',{products});
+    res.render('orderedProducts',{products,title:'Bonito | My Orders-Product.'});
   } catch (error) {
     console.error('error occured while loading product from order: ',error);
   }
@@ -1489,6 +1570,7 @@ const loadShopMenorWomen = async (req, res) => {
       currentPage,
       totalDocument: totalcount,
       pages: totalPages,
+      title:'Bonito | Shop Page'
     });
   } catch (error) {
     console.error('Error occurred while loading shop based on gender. ', error);
@@ -1509,7 +1591,8 @@ const loadShopBasedCategory = async(req,res)=>{
       productData,
       currentPage,
       totalDocument:totalcount,
-      pages:totalPages
+      pages:totalPages,
+      title:'Bonito | Shop-Product Page.'
     })
   } catch (error) {
     console.log('error occured while loading category. ',error);
@@ -1613,7 +1696,7 @@ const shopSort = async (req, res) => {
       productData: sortedData,
       currentPage,
       totalDocument: totalcount,
-      pages: totalPages
+      pages: totalPages,
     })
   } catch (error) {
     console.error('Error in shopSort:', error);
@@ -1654,7 +1737,7 @@ const loadWishlist = async (req, res) => {
       }
     ]).toArray();
  
-    res.render('wishlist', { wishlistData });
+    res.render('wishlist', { wishlistData, title:'Bonito | Wishlist Page' });
   } catch (error) {
     console.error('error occurred while loading wishlist ', error);
     res.status(500).send('Error loading wishlist');
@@ -1725,12 +1808,67 @@ const removeSavedItem = async (req, res) => {
 
 const loadUserAccount = async (req,res)=>{
   try {
-    let userId = req.session.user;
-
-    res.render('profile');
+    const db = getDb();
+    const userCollection = db.collection('users');
+    let userId = req.session.user._id;
+    console.log('user ',userId);
+    const userData = await userCollection.findOne({_id: new ObjectId(userId)});
+    console.log('userdata ',userData);
+    res.render('profile',{ title:'Bonito | My Account',userData });
   } catch (error) {
     console.error('Error occured while loading users account: ',error);
     res.json({status:500,message:'Internal Server Problem.'})
+  }
+}
+
+const editProfileAddress = async(req,res)=>{
+  let {
+    fname,
+    lname,
+    email,
+    mobile,
+    address1,
+    address2,
+    country,
+    city,
+    state,
+    zipcode,
+    id
+  } = req.body;
+  try {
+    const db = getDb();
+    const userCollection = db.collection('users');
+    const userData = await userCollection.findOne({ _id: new ObjectId(id)})
+    if(!userData){
+      return res.json({ error: 'User not found.'})
+    }
+    
+    if (userData.addresses.city === city && userData.addresses.state === state) {
+      // Update the address properties
+      userData.addresses.firstName = fname;
+      userData.addresses.lastName = lname;
+      userData.addresses.email = email;
+      userData.addresses.mobile = mobile;
+      userData.addresses.address1 = address1;
+      userData.addresses.address2 = address2;
+      userData.addresses.country = country;
+      userData.addresses.zipcode = zipcode;
+
+      const result = await userCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { addresses: userData.addresses } }
+      );
+
+      if (result.modifiedCount === 1) {
+        return res.redirect('/checkout');
+      } else {
+        return res.status(500).json({ error: 'Failed to update user.' });
+      }
+    } else {
+      return res.status(404).json({ error: 'Address not found.' });
+    }
+  } catch (error) {
+    console.error(`error occured while updating address ${error}`);
   }
 }
 
@@ -1784,6 +1922,65 @@ const productReview = async (req, res) => {
   }
 };
 
+const productSearch = async(req,res)=>{
+  const { q } = req.query
+  try {
+    console.log('data for search is: ',q);
+
+    let result = await performSearch(q);
+    console.log('data',result);
+    res.json({result})
+  } catch (error) {
+    console.log('error occured while search products: ',error);
+  }
+}
+
+async function performSearch(searchTerm){
+  const db = getDb();
+  const brandCollection = db.collection('brand');
+  const categoryCollection = db.collection('category');
+  const productCollection = db.collection('products');
+
+  const brandResults = await brandCollection.find({brandName: { $regex: searchTerm, $options: 'i'}}).toArray();
+  const categoryResults = await categoryCollection.find({categoryName: { $regex: searchTerm, $options: 'i'}}).toArray();
+  const productResults = await productCollection.find({title: { $regex: searchTerm, $options: 'i'}}).toArray();
+
+  const combinedResults = {
+    brand: brandResults,
+    category: categoryResults,
+    product: productResults
+  }
+
+  return combinedResults
+}
+
+const logout = async(req,res)=>{
+  try {
+    delete req.session.user;
+    res.redirect('/')
+    
+  } catch (error) {
+    console.error('error occured while logout.',error);
+  }
+}
+
+const deleteUserAccount = async(req,res)=>{
+  const { id } = req.params;
+  try {
+    const db = getDb();
+    const collection = db.collection('users');
+    const result = await collection.deleteOne({_id: new ObjectId(id)});
+    if(result.deletedCount === 1){
+      console.log('Product deleted successfully.');
+      res.redirect('/');
+    }else{
+      res.json({success: false, message: 'Account not found'});
+    }
+  } catch (error) {
+    console.error('error occured while deleting user account.');
+  }
+}
+
 module.exports = {
   loadHome,
   loadShop,
@@ -1823,5 +2020,9 @@ module.exports = {
   successPage,
   shopFilter,
   shopSort,
-  productReview
+  productReview,
+  productSearch,
+  editProfileAddress,
+  logout,
+  deleteUserAccount
 };

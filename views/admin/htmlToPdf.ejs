@@ -12,7 +12,7 @@
 </head>
 
 <body>
-if(todaysOrders){
+<% if(todaysOrders){ %>
 <section>
     <div class="container mt-5">
         <div class="row tm-content-row justify-content-center">
@@ -73,11 +73,11 @@ if(todaysOrders){
         </div>
     </div>
 </section>
-}else{
+<% }else{ %>
     <h3 class="text-center text-danger mt-4">
         Unfortunately no orders are done yet!!!
     </h3>
-}
+<% } %>
 
 
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"

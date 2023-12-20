@@ -58,7 +58,7 @@
                                         <% }) %>
                                     </td>
                                     <td class="align-middle text-center">&#8377;<span class="price"><%= product.product.price %></span></td>
-                                    <td class="align-middle text-center"><span class="productSize text-center"><%= product.selectedSize %></span></td>
+                                    <td class="align-middle text-center"><span class="productSize text-center" data-selectedSize="<%= product.selectedSize %>"><%= product.selectedSize %></span></td>
                                     <td class="align-middle">
                                         <div class="input-group quantity mx-auto" style="width: 100px;">
                                             <button class="cart-item-count btn-danger mr-3 decrementButton" data-product-id="<%= product._id %>" data-product-item-id="<%= product.product._id %>" data-action="-" >-</button>
@@ -107,7 +107,7 @@
                     </div>
                 </div>
             <% } else { %>
-                <p>Add Products to Cart.</p>
+                <h4 class="text-center text-danger">Add Products to Cart.</h4>
             <% } %>
         </div>
     </div>
@@ -190,9 +190,6 @@
     <a href="#" class="btn btn-primary back-to-top"><i class="fa fa-angle-double-up"></i></a>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-
-
-
         function truncateString(str, maxLength) {
             if (str.length > maxLength) {
                 return str.slice(0, maxLength) + "...";
@@ -207,6 +204,7 @@
         var $button = $(this);
         var product_id = $button.data('product-id');
         var userData = $("tbody").data("user");
+        var selectedSize = $('td .productSize').html()
         var product_item_id = $button.data('product-item-id');
         var available = parseInt($('.size-info').data('available'))
         var action = $button.data('action');
@@ -237,7 +235,8 @@
                 product: product_item_id,
                 count: action === '+' ? 1 : -1,
                 available,
-                currentQuantity
+                currentQuantity,
+                selectedSize
             },
             method: 'post',
             success: function(response) {

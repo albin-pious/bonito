@@ -15,8 +15,8 @@
                       <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Login</p>
       
                       <form class="mx-1 mx-md-4" action="/home" id="loginForm" method="post">
-                        <% if(typeof title !== 'undefined'){ %>
-                          <p class="text-success" id="errorMessage"><%= title %></p>
+                        <% if(typeof success !== 'undefined'){ %>
+                          <p class="text-success" id="errorMessage"><%= success %></p>
                         <% } %>
                         <% if(typeof message !== 'undefined'){ %>
                           <p class="text-danger" id="errorMessage"><%= message %></p>

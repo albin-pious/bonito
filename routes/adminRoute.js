@@ -53,6 +53,10 @@ adminRouter.delete('/category_delete/:id',adminController.deleteCategory);
 adminRouter.get('/customerlist',adminController.loadCustomer);
 adminRouter.put('/customerlist/:action/:id',adminController.restrictUser);
 
+// *********** ORDER MANAGEMENT *********** //
+adminRouter.get('/orderlist',adminController.loadOrder);
+adminRouter.post('/update_status',adminController.editStatus);
+
 // *********** COUPON MANAGEMENT *********** //
 adminRouter.get('/coupon',couponController.loadCoupon);
 adminRouter.get('/coupon_create',couponController.loadCreateCoupon);
