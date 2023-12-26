@@ -1174,37 +1174,88 @@ const addProductToCart = async (req, res) => {
   }
 }
 
-const changeQuantity = async (req,res)=>{
-  let { user,cart,product,count,available,currentQuantity,selectedSize } = req.body;
+const changeQuantity = async (req, res) => {
+  let { user, cart, product, count, available, currentQuantity, selectedSize } = req.body;
+
   try {
-    console.log(cart,product,count);
-    console.log('req body is ',req.body);
     count = parseInt(count);
     const db = getDb();
     const cartCollection = db.collection('cart');
+    const cartData = await cartCollection.findOne({ 
+      userId: new ObjectId(user),
+      'productId': {
+        $elemMatch: {
+          'item': new ObjectId(product),
+          'selectedSize': selectedSize
+        }
+      }
+    });
+
+    if (cartData) {
+      const cartItem = cartData.productId.find(data => data.item.equals(new ObjectId(product)) && data.selectedSize === selectedSize );
+      console.log('cartItem',cartItem);
+      if (cartItem) {
+        let newQuantity;
+
+        if (count === 1) {
+          console.log('cart quantity',cartItem.quantity);
+          newQuantity = cartItem.quantity + 1;
+          console.log('new quantity: ',newQuantity);
+          const maxQuantity = available;
+          console.log('max quantity: ',maxQuantity);
+          const maxLimit = maxQuantity;
+          console.log('max limit: ',maxLimit);
+          if (newQuantity > maxLimit) {
+            newQuantity = maxLimit;
+          }
+
+          if (newQuantity > maxQuantity) {
+            return res.json({ success: 'Selected quantity exceeds the Stock.' });
+          }
+        } else if (count === -1) {
+          newQuantity = cartItem.quantity - 1;
+
+          if (newQuantity < 1) {
+            newQuantity = 1;
+          }
+        }
+
+        await cartCollection.updateOne({
+          userId: new ObjectId(user),
+          'productId.item': new ObjectId(product),
+          'productId.selectedSize': selectedSize
+        }, {
+          $inc: { 'productId.$.quantity': count }
+        });
+
+         res.json({ message: 'Quantity Updated.' });
+      }
+    }
+
+    // console.log('cartData is: ',cartData)
     const totalValue = await calculateCartTotal(cartCollection,user);
     console.log('availabe: ',available, "current quantity: ",currentQuantity);
     let current = parseInt(currentQuantity);
     console.log('totalValue is ',totalValue);
     let stock = parseInt(available)
-    if(current > stock && count == 1){
-      return res.json({status:false,message:'selected quantity is exceeds available quantity.'});
-    }
-    const result = await cartCollection.updateOne(
-      {
-        _id: new ObjectId(cart),
-        "productId.item": new ObjectId(product),
-        "productId.selectedSize": selectedSize
-      },
-      {
-        $inc: { "productId.$.quantity": count }
-      }
-    );    
-    if(result.modifiedCount === 1){
-      res.json({status:true,totalValue:totalValue});
-    }else{
-      res.json({status:false});
-    }
+    // if(current > stock && count == 1){
+    //   return res.json({status:false,message:'selected quantity is exceeds available quantity.'});
+    // }
+    // const result = await cartCollection.updateOne(
+    //   {
+    //     _id: new ObjectId(cart),
+    //     "productId.item": new ObjectId(product),
+    //     "productId.selectedSize": selectedSize
+    //   },
+    //   {
+    //     $inc: { "productId.$.quantity": count }
+    //   }
+    // );    
+    // if(result.modifiedCount === 1){
+    //   res.json({status:true,totalValue:totalValue});
+    // }else{
+    //   res.json({status:false});
+    // }
     // console.log('result is ',result);
   } catch (error) {
     console.log('error occure while changing quantity. ',error);

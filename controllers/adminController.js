@@ -519,12 +519,12 @@ const editProduct = async (req, res) => {
             unit_xl,
             unit_xxl,
         } = req.body;
-        console.log(unit_l,unit_m,unit_s,unit_xl,unit_xxl);
         // Validate input data, e.g., required fields, data types, etc.
-
         const db = getDb();
         const productCollection = db.collection('products');
-
+        const productData = await productCollection.findOne({_id: new ObjectId(id)});
+        const previousImages = productData.images;
+        console.log('hai 2');
         // const existingProduct = await productCollection.findOne({ _id: id });
 
         // if (!existingProduct) {
@@ -537,11 +537,10 @@ const editProduct = async (req, res) => {
         // Check for duplicate titles, excluding the current product being edited
         const proCheck = await productCollection.findOne({
             $and: [
-                { _id: { $ne: id } },
+                { _id: { $ne: new ObjectId(id) } },
                 { title: title },
             ],
         });
-
         const sizeUnits = {
             S:size_s!==undefined?unit_s:undefined,
             M:size_m!==undefined?unit_m:undefined,
@@ -551,15 +550,12 @@ const editProduct = async (req, res) => {
         }
         Object.keys(sizeUnits).forEach(key=>sizeUnits[key]===undefined && delete sizeUnits[key]);
         console.log(name,description,categoryId,gender,price,stock,sizeUnits);
-
-        const images = req.files.map((file)=>{
-            return file.filename;
-        })
-        console.log('uploaded images are',images);
-
+        const images = req.files ? req.files.map(file => file.filename) : undefined;
+        let updatedProduct;
         if (!proCheck) {
             // Update the product data in the database
-            const updatedProduct = {
+            if(images && images.length > 0){
+                updatedProduct = {
                 title,
                 description,
                 price,
@@ -571,15 +567,32 @@ const editProduct = async (req, res) => {
                 brand,
                 images
             };
+            }else{
+                updatedProduct = {
+                    title,
+                    description,
+                    price,
+                    gender,
+                    categoryId,
+                    stock,
+                    offer,
+                    sizeUnits,
+                    brand,
+                    images:previousImages
+                }
+            }
              console.log(updatedProduct);
             // Use $set to update specific fields in the document
-            await productCollection.updateOne(
-                { _id: id },
+            const result = await productCollection.updateOne(
+                { _id: new ObjectId(id) },
                 { $set: updatedProduct }
             );
-
             // Redirect to the product details page or a success page
-            res.redirect(`/admin/productlist`);
+            if(result.modifiedCount ===1){
+                res.redirect(`/admin/productlist`);
+            }else{
+                res.json({message:'Error occured while editing product'})
+            }
         } else {
             // Handle the case where the new title is a duplicate
             return res.render('editProduct', { message: 'Duplicate title',title:'Bonito | Admin-Editproducts page.' });
