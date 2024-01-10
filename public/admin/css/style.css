@@ -2,6 +2,10 @@
     padding-top: 50px;
   }
 
+  .error{
+    font-size: small;
+  }
+
   .tm-block-title {
     color: #fff;
     background-color: #343a40;

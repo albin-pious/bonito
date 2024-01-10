@@ -63,7 +63,8 @@ const loadHome = async (req, res) => {
     const userCollection = db.collection('users');
     const productCollection = db.collection('products');
     const catCollection = db.collection('category');
-    
+    const gentsCollectionCount = await productCollection.countDocuments({gender:'men'}) || 0;
+    const ladiesCollectionCount = await productCollection.countDocuments({gender:'women'}) || 0;
     const catData = await catCollection.find().toArray();
     console.log('cat data is: ',catData);
     const recentProducts = await productCollection.find()
@@ -87,14 +88,18 @@ const loadHome = async (req, res) => {
         catData,
         cartCount,
         wishlistCount,
-        title:'Bonito | Home Page.'
+        title:'Bonito | Home Page.',
+        gentsCollectionCount,
+        ladiesCollectionCount
        });
     }else{
       res.render('home',{
         recentProducts:recentProducts,
         trendyProducts:trends,
         catData,
-        title:'Bonito | Home Page.'
+        title:'Bonito | Home Page.',
+        gentsCollectionCount,
+        ladiesCollectionCount
       });
     }
   } catch (error) {
@@ -368,6 +373,8 @@ const verifyLogin = async (req, res) => {
           const db = getDb();
           const productCollection = db.collection('products');
           const catCollection = db.collection('category');
+          const gentsCollectionCount = await productCollection.countDocuments({gender:'men'}) || 0;
+          const ladiesCollectionCount = await productCollection.countDocuments({gender:'women'}) || 0;
           const userId = req.session.user._id;
           const catData = await catCollection.find().toArray();
           const recentProducts = await productCollection.find()
@@ -388,7 +395,9 @@ const verifyLogin = async (req, res) => {
             cartCount,
             wishlistCount,
             trendyProducts: trends,
-            title:'Bonito | Home Page'
+            title:'Bonito | Home Page',
+            gentsCollectionCount,
+            ladiesCollectionCount
           });
         } else {
           return res.render('login', { message: 'permission denied.',title:'Bonito | Home Page.' });
@@ -445,6 +454,8 @@ const verifyLoginWithOtp = async(req,res)=>{
           console.log('hai 2');
           console.log('cart count is ',cartCount);
           console.log('wishlist count is: ',wishlistCount);
+          const gentsCollectionCount = await productCollection.countDocuments({gender:'men'}) || 0;
+          const ladiesCollectionCount = await productCollection.countDocuments({gender:'women'}) || 0;
           return res.render('home', { 
             userData,
             recentProducts,
@@ -452,7 +463,9 @@ const verifyLoginWithOtp = async(req,res)=>{
             cartCount,
             wishlistCount,
             trendyProducts: trends,
-            title:'Bonito | Home Page'
+            title:'Bonito | Home Page',
+            gentsCollectionCount,
+            ladiesCollectionCount
           });
       }else{
         return res.render('smsVerify',{message:'not permitted to this section.',title:'Bonito | SMS Verify Page.'})
@@ -642,6 +655,7 @@ const resetPassword = async (req, res) => {
 const loadShop = async(req,res)=>{
   const pageNum = parseInt(req.query.page,10) || 1;
   const perPage = 9;
+  const gen = req.params.gen;
   try {
     const db = getDb();
     const productCollection = db.collection('products');
@@ -651,7 +665,6 @@ const loadShop = async(req,res)=>{
     const catData = await catCollection.find().toArray();
     const brandData = await brandCollection.find().sort({ fieldName: 1 }).limit(10).toArray();
     let { result: productData, currentPage, totalPages, totalcount } = await paginate( productCollection, pageNum, perPage );
-    
     if(req.session.user){
       let user = req.session.user._id;
       let objectIdUserId = new ObjectId(user);
@@ -1609,10 +1622,10 @@ const loadShopMenorWomen = async (req, res) => {
   try {
     const db = getDb();
     const productCollection = db.collection('products');
-
+    const brandCollection = db.collection('brand');
     // Count the total number of documents matching the gender using the count method
     const totalcount = await productCollection.countDocuments({ gender: gen });
-    
+    const brandData = await brandCollection.find().sort({ fieldName: 1 }).limit(10).toArray();
     // Fetch the product data with pagination
     const { result: productData, currentPage, totalPages } = await paginate(productCollection, pageNum, perPage,{ gender:gen });
     const productDataArray = productData
@@ -1621,7 +1634,8 @@ const loadShopMenorWomen = async (req, res) => {
       currentPage,
       totalDocument: totalcount,
       pages: totalPages,
-      title:'Bonito | Shop Page'
+      title:'Bonito | Shop Page',
+      brandData
     });
   } catch (error) {
     console.error('Error occurred while loading shop based on gender. ', error);

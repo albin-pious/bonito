@@ -8,6 +8,8 @@ userRouter.use(['/bonito_shop','/product_detailes/:id','/checkout/:id','/bonito_
 '/bonito/order_view','/view_order_products/:id','/bonito_shop/:gen','/bonito_shop/category/:id','/profile','/user_coupon_page',
 ],auth.userLogin);
 
+userRouter.use(['/register','/login','/resend_otp','/resend_login_otp','/otp_login','/resend_forgot_otp','/forgot_password',],auth.userLogOut);
+
 userRouter.set('view engine','ejs');
 userRouter.set('views','./views/user');
 
@@ -34,10 +36,8 @@ userRouter.post('/verify_forgot_otp',userCtrl.verifyForgotOtp);
 userRouter.post('/reset_password',userCtrl.resetPassword);
 
 // Filtering, Sorting, Searching and Load Shop
-userRouter.get('/bonito_shop',userCtrl.loadShop);
+userRouter.get('/bonito_shop/',userCtrl.loadShop);
 userRouter.get('/product_detailes/:id',userCtrl.loadProductDetailes);
-userRouter.get('/bonito_shop/:gen',userCtrl.loadShopMenorWomen);
-userRouter.get('/bonito_shop/category/:id',userCtrl.loadShopBasedCategory);
 userRouter.post('/filter',userCtrl.shopFilter);
 userRouter.post('/bonito/sort',userCtrl.shopSort);
 userRouter.get('/bonito_search',userCtrl.productSearch);

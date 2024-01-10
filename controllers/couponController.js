@@ -17,7 +17,8 @@ const loadCoupon = async(req,res)=>{
                 couponData,
                 currentPage,
                 totalDocument: totalcount,
-                pages: totalPages
+                pages: totalPages,
+                title: 'Bonito | AdminCoupon Page'
             });
     } catch (error) {
         console.error('error occured while loading coupon page.');

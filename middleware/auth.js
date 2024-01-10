@@ -41,7 +41,19 @@ const userLogin = (req, res, next) => {
     }
   }
 
+  const userLogOut = (req,res,next)=>{
+    try {
+      if(req.session.admin){
+        res.redirect('/');
+      }else{
+        next()
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
 
   
-  module.exports = { userLogin, adminLogin,adminLogOut };
+  module.exports = { userLogin, adminLogin,adminLogOut,userLogOut };
   

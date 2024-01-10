@@ -2,7 +2,6 @@
 
 // Cart
 
-
 function addToCart(productId) {
     const selectedSizeElement = $('input[name="size"]:checked');
 
@@ -30,7 +29,6 @@ function addToCart(productId) {
         }
     });
 }
-
 
 // Wishlist
 function addToWishlist(productId){

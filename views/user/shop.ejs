@@ -79,13 +79,13 @@
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link" data-toggle="dropdown">Dresses <i class="fa fa-angle-down float-right mt-1"></i></a>
                             <div class="dropdown-menu position-absolute bg-secondary border-0 rounded-0 w-100 m-0">
-                                <a href="/bonito_shop/men" class="dropdown-item">Men's Dresses</a>
-                                <a href="/bonito_shop/women" class="dropdown-item">Women's Dresses</a>
+                                <a href="/bonito_shop" class="dropdown-item">Men's Dresses</a>
+                                <a href="/bonito_shop" class="dropdown-item">Women's Dresses</a>
                             </div>
                         </div>
                         <% if( catData && catData.length>0 ){ %>
                             <% catData.forEach((x)=>{ %>
-                                <a href="/bonito_shop/category/<%= x._id %>" class="nav-item nav-link"><%= x.categoryName %></a>
+                                <a href="/bonito_shop" class="nav-item nav-link"><%= x.categoryName %></a>
                             <% }) %>
                         <% } %>
                     </div>

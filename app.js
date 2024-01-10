@@ -46,13 +46,23 @@ app.use(session({
   }
 }))
 
+// caching disabled for every route
+app.use(function(req, res, next) { 
+  res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0'); 
+  next(); 
+})
+
 app.use('/', userRouter);
 app.use('/admin', adminRouter);
 
-app.use((req, res, next) => {
-  res.header("cache-control", "no-cache private,no-store,must-revalidate,max-stale=0,post-check=0,pre--check=0");
-  next();
-}) 
+// app.use((req, res, next) => {
+//   res.header("cache-control", "no-cache private,no-store,must-revalidate,max-stale=0,post-check=0,pre--check=0");
+//   next();
+// })
+
+
+
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
