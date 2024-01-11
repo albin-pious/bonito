@@ -655,7 +655,6 @@ const resetPassword = async (req, res) => {
 const loadShop = async(req,res)=>{
   const pageNum = parseInt(req.query.page,10) || 1;
   const perPage = 9;
-  const gen = req.params.gen;
   try {
     const db = getDb();
     const productCollection = db.collection('products');
@@ -665,6 +664,7 @@ const loadShop = async(req,res)=>{
     const catData = await catCollection.find().toArray();
     const brandData = await brandCollection.find().sort({ fieldName: 1 }).limit(10).toArray();
     let { result: productData, currentPage, totalPages, totalcount } = await paginate( productCollection, pageNum, perPage );
+    console.log(`productData: ${productData}, currentPage: ${currentPage}, totalPages: ${totalPages} and totalcount: ${totalcount}`);
     if(req.session.user){
       let user = req.session.user._id;
       let objectIdUserId = new ObjectId(user);
@@ -1754,7 +1754,6 @@ const shopSort = async (req, res) => {
     const totalPages = Math.ceil( totalcount / perPage );
     const skipValue = ( currentPage - 1 ) * perPage;
     sortedData = await productCollection.find().sort(query).skip(skipValue).limit(perPage).toArray();
-    console.log('Sorted data is: ',sortedData,currentPage,totalcount,totalPages);
     
     res.json({
       success: true,

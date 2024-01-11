@@ -6,28 +6,28 @@
         <div class="row bg-secondary py-2 px-xl-5">
             <div class="col-lg-6 d-none d-lg-block">
                 <div class="d-inline-flex align-items-center">
-                    <a class="text-dark" href="">FAQs</a>
+                    <a class="text-dark" href="www.linkedin.com/in/albin-pious-3906b224b" target="_blank">FAQs</a>
                     <span class="text-muted px-2">|</span>
-                    <a class="text-dark" href="">Help</a>
+                    <a class="text-dark" href="www.linkedin.com/in/albin-pious-3906b224b" target="_blank">Help</a>
                     <span class="text-muted px-2">|</span>
-                    <a class="text-dark" href="">Support</a>
+                    <a class="text-dark" href="www.linkedin.com/in/albin-pious-3906b224b" target="_blank">Support</a>
                 </div>
             </div>
             <div class="col-lg-6 text-center text-lg-right">
                 <div class="d-inline-flex align-items-center">
-                    <a class="text-dark px-2" href="">
+                    <a class="text-dark px-2" href="www.linkedin.com/in/albin-pious-3906b224b" target="_blank">
                         <i class="fab fa-facebook-f"></i>
                     </a>
-                    <a class="text-dark px-2" href="">
+                    <a class="text-dark px-2" href="www.linkedin.com/in/albin-pious-3906b224b" target="_blank">
                         <i class="fab fa-twitter"></i>
                     </a>
-                    <a class="text-dark px-2" href="">
+                    <a class="text-dark px-2" href="www.linkedin.com/in/albin-pious-3906b224b" target="_blank">
                         <i class="fab fa-linkedin-in"></i>
                     </a>
-                    <a class="text-dark px-2" href="">
+                    <a class="text-dark px-2" href="www.linkedin.com/in/albin-pious-3906b224b" target="_blank">
                         <i class="fab fa-instagram"></i>
                     </a>
-                    <a class="text-dark pl-2" href="">
+                    <a class="text-dark pl-2" href="www.linkedin.com/in/albin-pious-3906b224b" target="_blank">
                         <i class="fab fa-youtube"></i>
                     </a>
                 </div>
@@ -40,21 +40,11 @@
                 </a>
             </div>
             <div class="col-lg-6 col-6 text-left">
-                <form action="">
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Search for products">
-                        <div class="input-group-append">
-                            <span class="input-group-text bg-transparent text-primary">
-                                <i class="fa fa-search"></i>
-                            </span>
-                        </div>
-                    </div>
-                </form>
             </div>
             <div class="col-lg-3 col-6 text-right">
-                <a href="" class="btn border">
+                <a href="/bonito_wishlist" class="btn border">
                     <i class="fas fa-heart text-primary"></i>
-                    <sup><span class="badge badge-secondary">0</span></sup>
+                    <sup><span class="badge badge-secondary" id="wishlist-count"><%= wishlistCount %></span></sup>
                 </a>
                 <a href="/bonito_cart" class="btn border">
                     <i class="fas fa-shopping-cart text-primary"></i>
@@ -105,7 +95,7 @@
                             <a href="#" class="nav-item nav-link active">Shop</a>
                         </div>
                         <div class="navbar-nav ml-auto py-0">
-                            <a href="/account" class="nav-item nav-link"><%= userData?userData.name:'' %></a>
+                            <a href="/profile" class="nav-item nav-link"><%= userData?userData.name:'' %></a>
                         </div>
                     </div>
                 </nav>
@@ -113,8 +103,8 @@
         </div>
     </div>
     <!-- Navbar End --> 
-    <% }else{ %>
-         <!-- Topbar Start -->
+<% }else{ %>
+    <!-- Topbar Start -->
     <div class="container-fluid">
         <div class="row bg-secondary py-2 px-xl-5">
             <div class="col-lg-6 d-none d-lg-block">
@@ -149,20 +139,10 @@
         <div class="row align-items-center py-3 px-xl-5">
             <div class="col-lg-3 d-none d-lg-block">
                 <a href="" class="text-decoration-none">
-                    <h1 class="m-0 display-5 font-weight-semi-bold"><span class="text-primary font-weight-bold border px-3 mr-1">E</span>Shopper</h1>
+                    <h1 class="m-0 display-5 font-weight-semi-bold"><span class="text-primary font-weight-bold border px-3 mr-1">B</span>ONITO</h1>
                 </a>
             </div>
             <div class="col-lg-6 col-6 text-left">
-                <form action="">
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Search for products">
-                        <div class="input-group-append">
-                            <span class="input-group-text bg-transparent text-primary">
-                                <i class="fa fa-search"></i>
-                            </span>
-                        </div>
-                    </div>
-                </form>
             </div>
             <div class="col-lg-3 col-6 text-right">
                 <a href="" class="btn border">
@@ -181,7 +161,7 @@
 
     <!-- Navbar Start -->
     <div class="container-fluid">
-        <div class="row border-top px-xl-5">
+        <div class="row border-top px-xl-5 <% if(!catData || catData.length === 0){ %> d-none <% } %>">
             <div class="col-lg-3 d-none d-lg-block">
                 <a class="btn shadow-none d-flex align-items-center justify-content-between bg-primary text-white w-100" data-toggle="collapse" href="#navbar-vertical" style="height: 65px; margin-top: -1px; padding: 0 30px;">
                     <h6 class="m-0">Categories</h6>
@@ -192,27 +172,22 @@
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link" data-toggle="dropdown">Dresses <i class="fa fa-angle-down float-right mt-1"></i></a>
                             <div class="dropdown-menu position-absolute bg-secondary border-0 rounded-0 w-100 m-0">
-                                <a href="" class="dropdown-item">Men's Dresses</a>
-                                <a href="" class="dropdown-item">Women's Dresses</a>
-                                <a href="" class="dropdown-item">Baby's Dresses</a>
+                                <a href="/bonito_shop" class="dropdown-item">Men's Dresses</a>
+                                <a href="/bonito_shop" class="dropdown-item">Women's Dresses</a>
                             </div>
                         </div>
-                        <a href="" class="nav-item nav-link">Shirts</a>
-                        <a href="" class="nav-item nav-link">Jeans</a>
-                        <a href="" class="nav-item nav-link">Swimwear</a>
-                        <a href="" class="nav-item nav-link">Sleepwear</a>
-                        <a href="" class="nav-item nav-link">Sportswear</a>
-                        <a href="" class="nav-item nav-link">Jumpsuits</a>
-                        <a href="" class="nav-item nav-link">Blazers</a>
-                        <a href="" class="nav-item nav-link">Jackets</a>
-                        <a href="" class="nav-item nav-link">Shoes</a>
+                        <% if(catData && catData.length > 0){ %>
+                            <% catData.forEach((x)=>{ %>
+                                <a href="/bonito_shop" class="nav-item nav-link"><%= x.categoryName %></a>
+                            <% }) %>
+                        <% } %>
                     </div>
                 </nav>
             </div>
             <div class="col-lg-9">
                 <nav class="navbar navbar-expand-lg bg-light navbar-light py-3 py-lg-0 px-0">
                     <a href="" class="text-decoration-none d-block d-lg-none">
-                        <h1 class="m-0 display-5 font-weight-semi-bold"><span class="text-primary font-weight-bold border px-3 mr-1">E</span>Shopper</h1>
+                        <h1 class="m-0 display-5 font-weight-semi-bold"><span class="text-primary font-weight-bold border px-3 mr-1">B</span>ONITO</h1>
                     </a>
                     <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
                         <span class="navbar-toggler-icon"></span>
@@ -426,7 +401,7 @@
                                         <ul class="pagination justify-content-center mb-3">
                                             <li class="page-item">
                                                 <% if(currentPage === 1){ %>
-                                                    <a class="page-link" href="#" aria-label="Previous">
+                                                    <a class="page-link" href="javascript:void(0);" aria-label="Previous">
                                                         <span aria-hidden="true">&laquo;</span>
                                                         <span class="sr-only">Previous</span>
                                                     </a>
@@ -439,19 +414,19 @@
                                             </li>
                                             <% for(let i=1;i<=pages;i++){ %>
                                                 <% if(i === currentPage){ %>
-                                                    <li class="page-item active"><a class="page-link" href="#"><%= i %></a></li>
+                                                    <li class="page-item active"><a class="page-link" href="javascript:void(0);"><%= i %></a></li>
                                                 <% }else{ %>
-                                                    <li class="page-item"><a class="page-link" href="#"><%= i %></a></li>
+                                                    <li class="page-item"><a class="page-link" href="/bonito_shop?page=<%= i %>"><%= i %></a></li>
                                                 <% } %>
                                             <% } %>
                                             <li class="page-item">
                                                 <% if(currentPage === pages){ %>
-                                                    <a class="page-link" href="#" aria-label="Next">
+                                                    <a class="page-link" href="javascript:void(0);" aria-label="Next">
                                                         <span aria-hidden="true">&raquo;</span>
                                                         <span class="sr-only">Next</span>
                                                     </a>
                                                 <% }else{ %>
-                                                    <a class="page-link" href="/bonito_shop/<% currentPage+1 %>" aria-label="Next">
+                                                    <a class="page-link" href="/bonito_shop?page=<%= currentPage+1 %>" aria-label="Next">
                                                         <span aria-hidden="true">&raquo;</span>
                                                         <span class="sr-only">Next</span>
                                                     </a>
@@ -681,12 +656,12 @@ function updateUIWithFilteredProducts(filteredProducts,currentPage,totalDocument
                 <ul class="pagination justify-content-center mb-3">
                     <li class="page-item">
                         <% if(currentPage === 1){ %>
-                            <a class="page-link" href="#" aria-label="Previous">
+                            <button class="page-link"aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                                 <span class="sr-only">Previous</span>
-                            </a>
+                            </button>
                         <% }else{ %>
-                            <a class="page-link" href="/bonito_shop?page=<%= currentPage-1 %>" aria-label="Previous">
+                            <a class="page-link" href="/bonito_shop?page=${currentPage-1}" aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                                 <span class="sr-only">Previous</span>
                             </a>
@@ -694,17 +669,17 @@ function updateUIWithFilteredProducts(filteredProducts,currentPage,totalDocument
                     </li>
                     <% for(let i=1;i<=pages;i++){ %>
                         <% if(i === currentPage){ %>
-                            <li class="page-item active"><a class="page-link" href="#"><%= i %></a></li>
+                            <li class="page-item active"><button class="page-link"><%= i %></button></li>
                         <% }else{ %>
-                            <li class="page-item"><a class="page-link" href="#"><%= i %></a></li>
+                            <li class="page-item"><a class="page-link" href="/bonito_shop?page=<%= i %>"><%= i %></a></li>
                         <% } %>
                     <% } %>
                     <li class="page-item">
                         <% if(currentPage === pages){ %>
-                            <a class="page-link" href="#" aria-label="Next">
+                            <button class="page-link" aria-label="Next">
                                 <span aria-hidden="true">&raquo;</span>
                                 <span class="sr-only">Next</span>
-                            </a>
+                            </button>
                         <% }else{ %>
                             <a class="page-link" href="/bonito_shop/<% currentPage+1 %>" aria-label="Next">
                                 <span aria-hidden="true">&raquo;</span>
@@ -779,12 +754,12 @@ function updateUIWithSortedProducts(filteredProducts,currentPage,totalDocument,p
                 <ul class="pagination justify-content-center mb-3">
                     <li class="page-item">
                         <% if(currentPage === 1){ %>
-                            <a class="page-link" href="#" aria-label="Previous">
+                            <button class="page-link"  aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                                 <span class="sr-only">Previous</span>
-                            </a>
+                            </button>
                         <% }else{ %>
-                            <a class="page-link" href="/bonito_shop?page=<%= currentPage-1 %>" aria-label="Previous">
+                            <a class="page-link" href="/bonito_shop?page=${ currentPage-1 }" aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                                 <span class="sr-only">Previous</span>
                             </a>
@@ -792,17 +767,17 @@ function updateUIWithSortedProducts(filteredProducts,currentPage,totalDocument,p
                     </li>
                     <% for(let i=1;i<=pages;i++){ %>
                         <% if(i === currentPage){ %>
-                            <li class="page-item active"><a class="page-link" href="#"><%= i %></a></li>
+                            <li class="page-item active"><button class="page-link"><%= i %></button></li>
                         <% }else{ %>
-                            <li class="page-item"><a class="page-link" href="#"><%= i %></a></li>
+                            <li class="page-item"><a class="page-link" href="/bonito_shop?page=<%= i %>"><%= i %></a></li>
                         <% } %>
                     <% } %>
                     <li class="page-item">
                         <% if(currentPage === pages){ %>
-                            <a class="page-link" href="#" aria-label="Next">
+                            <button class="page-link" aria-label="Next">
                                 <span aria-hidden="true">&raquo;</span>
                                 <span class="sr-only">Next</span>
-                            </a>
+                            </button>
                         <% }else{ %>
                             <a class="page-link" href="/bonito_shop/<% currentPage+1 %>" aria-label="Next">
                                 <span aria-hidden="true">&raquo;</span>

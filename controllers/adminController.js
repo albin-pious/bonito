@@ -414,7 +414,7 @@ const loadProductAdd = async(req,res)=>{
 }
 
 const addNewProduct = async (req,res)=>{
-    const { 
+    let { 
         name,
         description,
         categoryId,
@@ -442,14 +442,17 @@ const addNewProduct = async (req,res)=>{
         const productCollection = db.collection('products');
         const title = name.toUpperCase();
         const proCheck = await productCollection.findOne({title});
+        price = parseInt(price);
+        offer = parseInt(offer);
+        stock = parseInt(stock);
         if(!proCheck){
             
             const sizeUnits = {
-                S:size_s!==undefined?unit_s:undefined,
-                M:size_m!==undefined?unit_m:undefined,
-                L:size_l!==undefined?unit_l:undefined,
-                XL:size_xl!==undefined?unit_xl:undefined,
-                XXL:size_xxl!==undefined?unit_xxl:undefined
+                S:size_s!==undefined?parseInt(unit_s):undefined,
+                M:size_m!==undefined?parseInt(unit_m):undefined,
+                L:size_l!==undefined?parseInt(unit_l):undefined,
+                XL:size_xl!==undefined?parseInt(unit_xxl):undefined,
+                XXL:size_xxl!==undefined?parseInt(unit_xxl):undefined
             }
             Object.keys(sizeUnits).forEach(key=>sizeUnits[key]===undefined && delete sizeUnits[key]);
             console.log(name,description,categoryId,gender,price,stock,sizeUnits);
