@@ -76,13 +76,13 @@
                 <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
                     <div class="navbar-nav mr-auto py-0">
                         <a href="/" class="nav-item nav-link">Home</a>
-                        <a href="javascript:(void 0)" class="nav-item nav-link active">Shop</a>
-                        <a href="detail.html" class="nav-item nav-link">Men Store</a>
-                        <a href="contact.html" class="nav-item nav-link">Women Store</a>
+                        <a href="/bonito_shop" class="nav-item nav-link <%= isGenSec === false ? 'active' : '' %>">Shop</a>
+                        <a href="/bonito_custom_store?gen=men" class="nav-item nav-link <%= isGenSec === 'men' ? 'active' : '' %>">Men's Store</a>
+                        <a href="/bonito_custom_store?gen=women" class="nav-item nav-link <%= isGenSec === 'women' ? 'active' : '' %>">Women's Store</a>
                     </div>
                     <div class="navbar-nav ml-auto py-0">
-                        <a href="" class="nav-item nav-link">Login</a>
-                        <a href="" class="nav-item nav-link">Register</a>
+                        <a href="/login" class="nav-item nav-link">Login</a>
+                        <a href="/register" class="nav-item nav-link">Register</a>
                     </div>
                 </div>
             </nav>

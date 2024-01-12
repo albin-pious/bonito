@@ -681,7 +681,8 @@ const loadShop = async(req,res)=>{
         cartCount,
         catData,
         wishlistCount,
-        title:'Bonito | Shop-Product Page.'
+        title:'Bonito | Shop-Product Page.',
+        isGenSec:false
       });
     }else{
       res.render('shop',{
@@ -691,29 +692,12 @@ const loadShop = async(req,res)=>{
         pages: totalPages,
         brandData,
         catData,
-        title:'Bonito | Shop Page.'
+        title:'Bonito | Shop Page.',
+        isGenSec: false
       });
     }
   } catch (error) {
     console.error('error occured while loading page.',error);
-  }
-}
-
-const loadUnknownUserShop = async(req,res)=>{
-  const pageNum = parseInt(req.query.page,10) || 1;
-  const perPage = 9;
-  try {
-    const db = getDb();
-    const productCollection = db.collection('products');
-    const brandCollection = db.collection('brand');
-    const userCollection = db.collection('users');
-    const catCollection = db.collection('category');
-
-    const catData = await catCollection.find().toArray();
-    const brandData = await brandCollection.find().sort({ fieldName: 1 }).limit(10).toArray();
-
-  } catch (error) {
-    console.error(error.message);
   }
 }
 
@@ -1634,28 +1618,56 @@ const loadProductFromOrder = async(req,res)=>{
 }
 
 const loadShopMenorWomen = async (req, res) => {
-  const gen = req.params.gen;
-  const pageNum = parseInt(req.query.page, 10) || 1;
-  const perPage = 9; // Set your desired items per page here
+  const gen = req.query.gen;
+  const pageNum = parseInt(req.query.page,10) || 1;
+  const perPage = 9;
 
   try {
     const db = getDb();
     const productCollection = db.collection('products');
     const brandCollection = db.collection('brand');
+    const catCollection = db.collection('category');
+    const catData = await catCollection.find().toArray();
     // Count the total number of documents matching the gender using the count method
     const totalcount = await productCollection.countDocuments({ gender: gen });
     const brandData = await brandCollection.find().sort({ fieldName: 1 }).limit(10).toArray();
     // Fetch the product data with pagination
     const { result: productData, currentPage, totalPages } = await paginate(productCollection, pageNum, perPage,{ gender:gen });
     const productDataArray = productData
-    res.render('shop', {
-      productData: productDataArray,
-      currentPage,
-      totalDocument: totalcount,
-      pages: totalPages,
-      title:'Bonito | Shop Page',
-      brandData
-    });
+    let isGenSec = typeof(gen)!==undefined ? gen : false;
+
+    if(req.session.user){
+      let user = req.session.user._id;
+      const userCollection = db.collection('users')
+      let objectIdUserId = new ObjectId(user);
+      const userData = await userCollection.findOne({_id: new ObjectId(user)});
+      const cartCount = await getCartCount(objectIdUserId)
+      const wishlistCount = await getWishlistCount(objectIdUserId);
+      res.render('shop',{
+        productData,
+        currentPage,
+        totalDocument: totalcount,
+        pages: totalPages,
+        brandData,
+        userData,
+        cartCount,
+        catData,
+        wishlistCount,
+        title:'Bonito | Shop-Product Page.',
+        isGenSec
+      });
+    }else{
+      res.render('shop', {
+        productData: productDataArray,
+        currentPage,
+        totalDocument: totalcount,
+        pages: totalPages,
+        title:'Bonito | Shop Page',
+        brandData,
+        catData,
+        isGenSec
+      });
+    }
   } catch (error) {
     console.error('Error occurred while loading shop based on gender. ', error);
   }
@@ -2081,7 +2093,6 @@ module.exports = {
   loadShopBasedCategory,
   loadWishlist,
   loadUserAccount,
-  loadUnknownUserShop,
   sendLoginOtp,
   sendForgotOtp,
   resendOtp,
