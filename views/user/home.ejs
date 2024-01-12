@@ -117,8 +117,15 @@
                                 </div>
                             </div>
                             <div class="card-footer d-flex justify-content-between bg-light border">
-                                <a href="/product_detailes/<%= product._id %>" class="btn btn-sm text-dark p-0"><i class="fas fa-eye text-primary mr-1"></i>View Details</a>
-                                <button class="btn btn-sm text-dark p-0" onclick="addToWishlist('<%= product._id %>')"><i class="fas fa-heart text-primary"> <span class="text-dark">Save Product</span></i></button>
+                                <div class="card-footer d-flex justify-content-between bg-light border">
+                                    <% if(typeof userData !=='undefined'){ %>
+                                        <a href="/product_detailes/<%= product._id %>" class="btn btn-sm text-dark p-0"><i class="fas fa-eye text-primary mr-1"></i>View Detail</a>
+                                        <button href="" class="btn btn-sm text-dark p-0" onclick="addToWishlist('<%= product._id %>')"><i class="fas fa-heart text-primary mr-1"></i>Save Product</button>
+                                    <% }else{ %>
+                                        <a href="javascript:(void 0);" class="btn btn-sm text-dark p-0" onclick="showAlert();"><i class="fas fa-eye text-primary mr-1"></i>View Details</a>   
+                                        <a href="javascript:(void 0);" class="btn btn-sm text-dark p-0" onclick="showAlert();"><i class="fas fa-heart text-primary mr-1"></i>Save Product</a>     
+                                    <% } %>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -171,8 +178,15 @@
                                 </div>
                             </div>
                             <div class="card-footer d-flex justify-content-between bg-light border">
-                                <a href="/product_detailes/<%= product._id %>" class="btn btn-sm text-dark p-0"><i class="fas fa-eye text-primary mr-1"></i>View Details</a>
-                                <button class="btn btn-sm text-dark p-0" onclick="addToWishlist('<%= product._id %>')"><i class="fas fa-heart text-primary"><span class="text-dark"> Save Product</span></i></button>
+                                <div class="card-footer d-flex justify-content-between bg-light border">
+                                    <% if(typeof userData !=='undefined'){ %>
+                                        <a href="/product_detailes/<%= product._id %>" class="btn btn-sm text-dark p-0"><i class="fas fa-eye text-primary mr-1"></i>View Detail</a>
+                                        <button href="" class="btn btn-sm text-dark p-0" onclick="addToWishlist('<%= product._id %>')"><i class="fas fa-heart text-primary mr-1"></i>Save Product</button>
+                                    <% }else{ %>
+                                        <a href="javascript:(void 0);" class="btn btn-sm text-dark p-0" onclick="showAlert();"><i class="fas fa-eye text-primary mr-1"></i>View Details</a>   
+                                        <a href="javascript:(void 0);" class="btn btn-sm text-dark p-0" onclick="showAlert();"><i class="fas fa-heart text-primary mr-1"></i>Save Product</a>     
+                                    <% } %>
+                                </div>
                             </div>
                         </div>
                     </div>   

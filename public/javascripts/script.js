@@ -124,5 +124,7 @@ function displayResults(data) {
     }
 }
 
-
+function showAlert(){
+    alert(`Please SignIn to continue.`)
+}
 

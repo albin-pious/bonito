@@ -690,11 +690,30 @@ const loadShop = async(req,res)=>{
         totalDocument: totalcount,
         pages: totalPages,
         brandData,
+        catData,
         title:'Bonito | Shop Page.'
       });
     }
   } catch (error) {
     console.error('error occured while loading page.',error);
+  }
+}
+
+const loadUnknownUserShop = async(req,res)=>{
+  const pageNum = parseInt(req.query.page,10) || 1;
+  const perPage = 9;
+  try {
+    const db = getDb();
+    const productCollection = db.collection('products');
+    const brandCollection = db.collection('brand');
+    const userCollection = db.collection('users');
+    const catCollection = db.collection('category');
+
+    const catData = await catCollection.find().toArray();
+    const brandData = await brandCollection.find().sort({ fieldName: 1 }).limit(10).toArray();
+
+  } catch (error) {
+    console.error(error.message);
   }
 }
 
@@ -2062,6 +2081,7 @@ module.exports = {
   loadShopBasedCategory,
   loadWishlist,
   loadUserAccount,
+  loadUnknownUserShop,
   sendLoginOtp,
   sendForgotOtp,
   resendOtp,
