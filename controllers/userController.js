@@ -1310,7 +1310,7 @@ const placeOrder = async (req, res) => {
     const productCollection = db.collection('products');
 
     const ObjectIdUserId = new ObjectId(userId);
-
+    console.log(`req.body is: ${userId}`)
     // Fetch product details from the cart and calculate the total price
     let productDetails = await getCartProducts(userId);
     let totalPrice = req.session.appliedCoupon ? req.session.appliedCoupon.discountTotal : await calculateCartTotal(cartCollection, userId);
@@ -1336,7 +1336,7 @@ const placeOrder = async (req, res) => {
     // Insert the new order into the database
     const result = await orderCollection.insertOne(newOrder);
     console.log('result.insertedId ', result.insertedId);
-    await userCollection.updateOne({_id: ObjectIdUserId})
+    // await userCollection.updateOne({_id: new ObjectId(userId)})
     if (result.insertedId) {
       // Update product quantities, delete the cart, and handle payment
       await updateQuantity(orderCollection, productCollection, result.insertedId);
@@ -1360,15 +1360,11 @@ const placeOrder = async (req, res) => {
           await addCouponToUser(userCollection, ObjectIdUserId, coupon);
           console.log('hai');
           res.json({ codSuccess: true, orderId: result.insertedId });
-        } else if (paymentMethod === 'online') {
-          const rpayOrder = await generateRP(result.insertedId, totalPrice);
-          console.log('order ', rpayOrder);
-          res.json({ order: rpayOrder });
-        }
+        } 
       } else if(paymentMethod === 'online'){
         const rpayOrder = await generateRP(result.insertedId, totalPrice);
         console.log('order',rpayOrder);
-        res.json({ order: rpayOrder});
+        res.json({ order: rpayOrder,user:userData});
       }
     } else {
       console.log('Error: No inserted ID found');

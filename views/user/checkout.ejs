@@ -392,15 +392,16 @@
                             }else{
                                 console.log('hai response is',response);
                                 var order = response.order;
+                                let user = response.user;
                                 console.log('order data is: ',order);
-                                razorpayPayment(order)
+                                razorpayPayment(order,user)
                             }
                         }
                     })
                 })
             }) 
             
-            function razorpayPayment(order){
+            function razorpayPayment(order,user){
                 console.log('hai',order);
                 console.log('amount',order.amount);
                 if(typeof order === 'object' && order.amount !== undefined){
@@ -417,9 +418,9 @@
                             verifyPayment(response,order);
                         },
                         "prefill": { //We recommend using the prefill parameter to auto-fill customer's contact information especially their phone number
-                            "name": "Gaurav Kumar", //your customer's name
-                            "email": "gaurav.kumar@example.com",
-                            "contact": "9000090000" //Provide the customer's phone number for better conversion rates 
+                            "name": user.name, //your customer's name
+                            "email": user.email,
+                            "contact": user.addresses.firstName+''+(user.addresses.lastName)?user.addresses.lastName:'' //Provide the customer's phone number for better conversion rates 
                         },
                         "notes": {
                             "address": "Razorpay Corporate Office"

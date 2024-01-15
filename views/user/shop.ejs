@@ -318,260 +318,260 @@
     <script src="/javascripts/main.js"></script>
 
     <script>
-        document.querySelectorAll('[data-toggle="collapse"]').forEach((element) => {
-            element.addEventListener('click', () => {
-                const target = document.querySelector(element.getAttribute('href'));
+            document.querySelectorAll('[data-toggle="collapse"]').forEach((element) => {
+                element.addEventListener('click', () => {
+                    const target = document.querySelector(element.getAttribute('href'));
 
-                if (target.classList.contains('show')) {
-                    target.classList.remove('show');
-                } else {
-                    target.classList.add('show');
-                }
+                    if (target.classList.contains('show')) {
+                        target.classList.remove('show');
+                    } else {
+                        target.classList.add('show');
+                    }
+                });
             });
+
+            // Function to handle checkbox changes and filter products
+            $(document).ready(function () {
+                function filterProducts() {
+                console.log('Filter function triggered');
+                console.log('hai');
+                const selectedPrices = [];
+                const selectedBrands = [];
+                const selectedSizes = [];
+
+                // Check if "All" checkboxes are checked
+                const isPriceAllChecked = $('#price-all').prop('checked');
+                const isBrandAllChecked = $('#brand-all').prop('checked');
+                const isSizeAllChecked = $('#size-all').prop('checked');
+
+                // Find checked checkboxes and collect their values
+                if(!isPriceAllChecked){
+                    $('input[name="prices"]:checked').each(function () {
+                        selectedPrices.push($(this).val());
+                    });
+                }
+
+                if(!isBrandAllChecked){
+                    $('input[name="brands"]:checked').each(function () {
+                        selectedBrands.push($(this).val());
+                    });
+                }
+
+                if(!isSizeAllChecked){
+                    $('input[name="sizes"]:checked').each(function () {
+                        selectedSizes.push($(this).val());
+                    });
+                }
+
+                console.log('Hai',selectedBrands,selectedPrices,selectedSizes);
+                console.log('Data sent in the AJAX request', selectedPrices, selectedBrands, selectedSizes);
+                $.ajax({
+                    url: '/filter',
+                    method: 'POST',
+                    data: {
+                        prices: selectedPrices,
+                        brands: selectedBrands,
+                        sizes: selectedSizes
+                    },
+                    success: function (response) {
+                        console.log('response is: ', response);
+            
+                        // Update the product display with filtered results
+                        if (response && response.success && response.productData) {
+                            console.log('success');
+                            // Assuming response.productData contains the filtered products array
+                            const filteredProducts = response.productData;
+                            const currentPage = response.currentPage;
+                            const totalDocument = response.totalDocument;
+                            const pages = response.pages;
+                            console.log('response',response);
+                            // Perform operations to update the product display using filteredProducts
+                            // For example:
+                            updateUIWithFilteredProducts(filteredProducts,currentPage,totalDocument,pages);
+                            } else {
+                                console.error('Invalid response format or no products found.');
+                            }
+                        },
+                        error: function (err) {
+                            console.error('Error:', err);
+                            // Handle error scenarios
+                        }
+                    });
+
+                }
+
+                // Listen for checkbox changes and call the filter function
+                $('input[type="checkbox"]').on('change', filterProducts);
+            });
+            
+            // Function to update the UI with filtered products
+    function updateUIWithFilteredProducts(filteredProducts,currentPage,totalDocument,pages) {
+        const productContainer = $('#product-container');
+        productContainer.empty(); // Clear existing products
+
+        filteredProducts.forEach(function (product) {
+            // Append product HTML to the container
+            productContainer.append(`
+                <div class="col-lg-4 col-md-6 col-sm-12 pb-1">
+                    <div class="card product-item border-0 mb-4" style="width: 18rem;max-height: 504px;">
+                        <div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
+                            <img class="img-fluid w-100" src="/uploads/${product.images[0]}" alt="Product-Image">
+                        </div>
+                        <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
+                            <h6 class="text-truncate mb-3">${product.title}</h6>
+                            <div class="d-flex justify-content-center">
+                                <h6>&#8377;${product.price}</h6><h6 class="text-muted ml-2">${product.offer}%</h6>
+                            </div>
+                        </div>
+                        <div class="card-footer d-flex justify-content-between bg-light border">
+                            <a href="/product_detailes/${product._id}" class="btn btn-sm text-dark p-0"><i class="fas fa-eye text-primary mr-1"></i>View Detail</a>
+                            <a href="" class="btn btn-sm text-dark p-0"><i class="fas fa-heart text-primary mr-1"></i>Save Product</a>
+                        </div>
+                    </div>
+                </div>
+            `);
         });
+        productContainer.append(`
+            <div class="col-12 pb-1">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center mb-3">
+                        <li class="page-item">
+                            <% if(currentPage === 1){ %>
+                                <button class="page-link"aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                    <span class="sr-only">Previous</span>
+                                </button>
+                            <% }else{ %>
+                                <a class="page-link" href="/bonito_shop?page=${currentPage-1}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                    <span class="sr-only">Previous</span>
+                                </a>
+                            <% } %>
+                        </li>
+                        <% for(let i=1;i<=pages;i++){ %>
+                            <% if(i === currentPage){ %>
+                                <li class="page-item active"><button class="page-link"><%= i %></button></li>
+                            <% }else{ %>
+                                <li class="page-item"><a class="page-link" href="/bonito_shop?page=<%= i %>"><%= i %></a></li>
+                            <% } %>
+                        <% } %>
+                        <li class="page-item">
+                            <% if(currentPage === pages){ %>
+                                <button class="page-link" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                    <span class="sr-only">Next</span>
+                                </button>
+                            <% }else{ %>
+                                <a class="page-link" href="/bonito_shop/<% currentPage+1 %>" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                    <span class="sr-only">Next</span>
+                                </a>
+                            <% } %>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        `)
+    }
 
-        // Function to handle checkbox changes and filter products
-        $(document).ready(function () {
-            function filterProducts() {
-            console.log('Filter function triggered');
-            console.log('hai');
-            const selectedPrices = [];
-            const selectedBrands = [];
-            const selectedSizes = [];
-
-            // Check if "All" checkboxes are checked
-            const isPriceAllChecked = $('#price-all').prop('checked');
-            const isBrandAllChecked = $('#brand-all').prop('checked');
-            const isSizeAllChecked = $('#size-all').prop('checked');
-
-            // Find checked checkboxes and collect their values
-            if(!isPriceAllChecked){
-                $('input[name="prices"]:checked').each(function () {
-                    selectedPrices.push($(this).val());
-                });
-            }
-
-            if(!isBrandAllChecked){
-                $('input[name="brands"]:checked').each(function () {
-                    selectedBrands.push($(this).val());
-                });
-            }
-
-            if(!isSizeAllChecked){
-                $('input[name="sizes"]:checked').each(function () {
-                    selectedSizes.push($(this).val());
-                });
-            }
-
-            console.log('Hai',selectedBrands,selectedPrices,selectedSizes);
-            console.log('Data sent in the AJAX request', selectedPrices, selectedBrands, selectedSizes);
+    document.querySelectorAll('.dropdown-item').forEach(function(item){
+        item.addEventListener('click',(event)=>{
+            event.preventDefault();
+            const sortOption = item.dataset.sort;
+            console.log('sorting option: ',sortOption);
             $.ajax({
-                url: '/filter',
-                method: 'POST',
+                url: '/bonito/sort',
+                method: 'post',
                 data: {
-                    prices: selectedPrices,
-                    brands: selectedBrands,
-                    sizes: selectedSizes
+                    forSort: sortOption
                 },
-                success: function (response) {
-                    console.log('response is: ', response);
-        
-                    // Update the product display with filtered results
-                    if (response && response.success && response.productData) {
-                        console.log('success');
-                        // Assuming response.productData contains the filtered products array
-                        const filteredProducts = response.productData;
+                success: function (response){
+                    console.log('Sorting success',response);
+                    if(response && response.success && response.productData){
+                        const productData = response.productData;
                         const currentPage = response.currentPage;
                         const totalDocument = response.totalDocument;
                         const pages = response.pages;
-                        console.log('response',response);
-                        // Perform operations to update the product display using filteredProducts
-                        // For example:
-                        updateUIWithFilteredProducts(filteredProducts,currentPage,totalDocument,pages);
-                        } else {
-                            console.error('Invalid response format or no products found.');
-                        }
-                    },
-                    error: function (err) {
-                        console.error('Error:', err);
-                        // Handle error scenarios
+                        updateUIWithSortedProducts(productData,currentPage,totalDocument,pages);
                     }
-                });
-
-            }
-
-            // Listen for checkbox changes and call the filter function
-            $('input[type="checkbox"]').on('change', filterProducts);
-        });
-        
-        // Function to update the UI with filtered products
-function updateUIWithFilteredProducts(filteredProducts,currentPage,totalDocument,pages) {
-    const productContainer = $('#product-container');
-    productContainer.empty(); // Clear existing products
-
-    filteredProducts.forEach(function (product) {
-        // Append product HTML to the container
-        productContainer.append(`
-            <div class="col-lg-4 col-md-6 col-sm-12 pb-1">
-                <div class="card product-item border-0 mb-4" style="width: 18rem;max-height: 504px;">
-                    <div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
-                        <img class="img-fluid w-100" src="/uploads/${product.images[0]}" alt="Product-Image">
-                    </div>
-                    <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
-                        <h6 class="text-truncate mb-3">${product.title}</h6>
-                        <div class="d-flex justify-content-center">
-                            <h6>&#8377;${product.price}</h6><h6 class="text-muted ml-2">${product.offer}%</h6>
-                        </div>
-                    </div>
-                    <div class="card-footer d-flex justify-content-between bg-light border">
-                        <a href="/product_detailes/${product._id}" class="btn btn-sm text-dark p-0"><i class="fas fa-eye text-primary mr-1"></i>View Detail</a>
-                        <a href="" class="btn btn-sm text-dark p-0"><i class="fas fa-heart text-primary mr-1"></i>Save Product</a>
-                    </div>
-                </div>
-            </div>
-        `);
-    });
-    productContainer.append(`
-        <div class="col-12 pb-1">
-            <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center mb-3">
-                    <li class="page-item">
-                        <% if(currentPage === 1){ %>
-                            <button class="page-link"aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                                <span class="sr-only">Previous</span>
-                            </button>
-                        <% }else{ %>
-                            <a class="page-link" href="/bonito_shop?page=${currentPage-1}" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                                <span class="sr-only">Previous</span>
-                            </a>
-                        <% } %>
-                    </li>
-                    <% for(let i=1;i<=pages;i++){ %>
-                        <% if(i === currentPage){ %>
-                            <li class="page-item active"><button class="page-link"><%= i %></button></li>
-                        <% }else{ %>
-                            <li class="page-item"><a class="page-link" href="/bonito_shop?page=<%= i %>"><%= i %></a></li>
-                        <% } %>
-                    <% } %>
-                    <li class="page-item">
-                        <% if(currentPage === pages){ %>
-                            <button class="page-link" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                                <span class="sr-only">Next</span>
-                            </button>
-                        <% }else{ %>
-                            <a class="page-link" href="/bonito_shop/<% currentPage+1 %>" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                                <span class="sr-only">Next</span>
-                            </a>
-                        <% } %>
-                    </li>
-                </ul>
-            </nav>
-        </div>
-    `)
-}
-
-document.querySelectorAll('.dropdown-item').forEach(function(item){
-    item.addEventListener('click',(event)=>{
-        event.preventDefault();
-        const sortOption = item.dataset.sort;
-        console.log('sorting option: ',sortOption);
-        $.ajax({
-            url: '/bonito/sort',
-            method: 'post',
-            data: {
-                forSort: sortOption
-            },
-            success: function (response){
-                console.log('Sorting success',response);
-                if(response && response.success && response.productData){
-                    const productData = response.productData;
-                    const currentPage = response.currentPage;
-                    const totalDocument = response.totalDocument;
-                    const pages = response.pages;
-                    updateUIWithSortedProducts(productData,currentPage,totalDocument,pages);
-                }
-            },
-            error: function (error){
-                console.log('Error during sorting request ',error);
-            }        
+                },
+                error: function (error){
+                    console.log('Error during sorting request ',error);
+                }        
+            })
         })
     })
-})
 
-// Function to update the UI with filtered products
-function updateUIWithSortedProducts(filteredProducts,currentPage,totalDocument,pages) {
-    const productContainer = $('#product-container');
-    productContainer.empty(); // Clear existing products
+    // Function to update the UI with filtered products
+    function updateUIWithSortedProducts(filteredProducts,currentPage,totalDocument,pages) {
+        const productContainer = $('#product-container');
+        productContainer.empty(); // Clear existing products
 
-    filteredProducts.forEach(function (product) {
-        // Append product HTML to the container
-        productContainer.append(`
-            <div class="col-lg-4 col-md-6 col-sm-12 pb-1">
-                <div class="card product-item border-0 mb-4" style="width: 18rem;max-height: 504px;">
-                    <div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
-                        <img class="img-fluid w-100" src="/uploads/${product.images[0]}" alt="Product-Image">
-                    </div>
-                    <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
-                        <h6 class="text-truncate mb-3">${product.title}</h6>
-                        <div class="d-flex justify-content-center">
-                            <h6>&#8377;${product.price}</h6><h6 class="text-muted ml-2">${product.offer}%</h6>
+        filteredProducts.forEach(function (product) {
+            // Append product HTML to the container
+            productContainer.append(`
+                <div class="col-lg-4 col-md-6 col-sm-12 pb-1">
+                    <div class="card product-item border-0 mb-4" style="width: 18rem;max-height: 504px;">
+                        <div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
+                            <img class="img-fluid w-100" src="/uploads/${product.images[0]}" alt="Product-Image">
+                        </div>
+                        <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
+                            <h6 class="text-truncate mb-3">${product.title}</h6>
+                            <div class="d-flex justify-content-center">
+                                <h6>&#8377;${product.price}</h6><h6 class="text-muted ml-2">${product.offer}%</h6>
+                            </div>
+                        </div>
+                        <div class="card-footer d-flex justify-content-between bg-light border">
+                            <a href="/product_detailes/${product._id}" class="btn btn-sm text-dark p-0"><i class="fas fa-eye text-primary mr-1"></i>View Detail</a>
+                            <a href="" class="btn btn-sm text-dark p-0"><i class="fas fa-heart text-primary mr-1"></i>Save Product</a>
                         </div>
                     </div>
-                    <div class="card-footer d-flex justify-content-between bg-light border">
-                        <a href="/product_detailes/${product._id}" class="btn btn-sm text-dark p-0"><i class="fas fa-eye text-primary mr-1"></i>View Detail</a>
-                        <a href="" class="btn btn-sm text-dark p-0"><i class="fas fa-heart text-primary mr-1"></i>Save Product</a>
-                    </div>
                 </div>
+            `);
+        });
+        productContainer.append(`
+            <div class="col-12 pb-1">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center mb-3">
+                        <li class="page-item">
+                            <% if(currentPage === 1){ %>
+                                <button class="page-link"  aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                    <span class="sr-only">Previous</span>
+                                </button>
+                            <% }else{ %>
+                                <a class="page-link" href="/bonito_shop?page=${ currentPage-1 }" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                    <span class="sr-only">Previous</span>
+                                </a>
+                            <% } %>
+                        </li>
+                        <% for(let i=1;i<=pages;i++){ %>
+                            <% if(i === currentPage){ %>
+                                <li class="page-item active"><button class="page-link"><%= i %></button></li>
+                            <% }else{ %>
+                                <li class="page-item"><a class="page-link" href="/bonito_shop?page=<%= i %>"><%= i %></a></li>
+                            <% } %>
+                        <% } %>
+                        <li class="page-item">
+                            <% if(currentPage === pages){ %>
+                                <button class="page-link" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                    <span class="sr-only">Next</span>
+                                </button>
+                            <% }else{ %>
+                                <a class="page-link" href="/bonito_shop/<% currentPage+1 %>" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                    <span class="sr-only">Next</span>
+                                </a>
+                            <% } %>
+                        </li>
+                    </ul>
+                </nav>
             </div>
-        `);
-    });
-    productContainer.append(`
-        <div class="col-12 pb-1">
-            <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center mb-3">
-                    <li class="page-item">
-                        <% if(currentPage === 1){ %>
-                            <button class="page-link"  aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                                <span class="sr-only">Previous</span>
-                            </button>
-                        <% }else{ %>
-                            <a class="page-link" href="/bonito_shop?page=${ currentPage-1 }" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                                <span class="sr-only">Previous</span>
-                            </a>
-                        <% } %>
-                    </li>
-                    <% for(let i=1;i<=pages;i++){ %>
-                        <% if(i === currentPage){ %>
-                            <li class="page-item active"><button class="page-link"><%= i %></button></li>
-                        <% }else{ %>
-                            <li class="page-item"><a class="page-link" href="/bonito_shop?page=<%= i %>"><%= i %></a></li>
-                        <% } %>
-                    <% } %>
-                    <li class="page-item">
-                        <% if(currentPage === pages){ %>
-                            <button class="page-link" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                                <span class="sr-only">Next</span>
-                            </button>
-                        <% }else{ %>
-                            <a class="page-link" href="/bonito_shop/<% currentPage+1 %>" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                                <span class="sr-only">Next</span>
-                            </a>
-                        <% } %>
-                    </li>
-                </ul>
-            </nav>
-        </div>
-    `)
-}
+        `)
+    }
 
-</script>
+    </script>
 
     <%- include('../partials/userFooter.ejs') %>    

@@ -1067,11 +1067,15 @@ const adminLogout = async(req,res)=>{
 
 const loadOrder = async(req,res)=>{
     const pageNum = parseInt(req.query.page,10) || 1;
-    const perPage = 5;
-    const skipValue = (pageNum-1) * perPage;
+    const perPage = 5;   
+    const skipValue = (pageNum -1) * perPage;
     try {
         const db = getDb();
         const orderCollection = db.collection('order');
+        let count = await orderCollection.countDocuments();
+        const totalPage = Math.ceil(count/perPage);
+        const currentPage = Math.max(1,Math.min(pageNum,totalPage))
+        console.log('skipvalis is',skipValue,'pageNum is: ',pageNum,'total page is: ',totalPage,'current page is: ', currentPage);
         const order = await orderCollection.aggregate([
             {
               $lookup: {
@@ -1101,9 +1105,7 @@ const loadOrder = async(req,res)=>{
               }
             }
         ]).skip(skipValue).limit(perPage).toArray();
-        let count = await orderCollection.countDocuments();
-        const totalPage = Math.ceil(count/perPage);
-        const currentPage = Math.max(1,Math.min(pageNum,totalPage))
+
         console.log('order is: ',order);
         res.render('orders',{
             title:'Bonito | Admin-Order View Page.',
