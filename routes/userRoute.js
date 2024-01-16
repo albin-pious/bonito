@@ -5,7 +5,7 @@ const userCtrl = require('../controllers/userController');
 const couponCtrl = require('../controllers/couponController');
 
 userRouter.use(['/product_detailes/:id','/checkout/:id','/bonito_cart','/add_to_cart/:id','/checkout','checkout/success_page',
-'/bonito/order_view','/view_order_products/:id','/bonito_shop/category/:id','/profile','/user_coupon_page',
+'/bonito/order_view','/bonito_shop/category/:id','/profile','/user_coupon_page',
 ],auth.userLogin);
 
 userRouter.use(['/register','/login','/resend_otp','/resend_login_otp','/otp_login','/resend_forgot_otp','/forgot_password',],auth.userLogOut);

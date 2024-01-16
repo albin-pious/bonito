@@ -1604,9 +1604,11 @@ const loadOrderView = async (req, res) => {
 };
 
 const loadProductFromOrder = async(req,res)=>{
+  console.log('hai',req.body);
   const orderId = req.params.id;
   try {
     const products = await getUserOders(orderId);
+    console.log('Loading products for orderId:', orderId);
     res.render('orderedProducts',{products,title:'Bonito | My Orders-Product.'});
   } catch (error) {
     console.error('error occured while loading product from order: ',error);
