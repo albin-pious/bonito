@@ -188,7 +188,7 @@ const loadOtp = async(req,res)=>{
           password = req.body.password ? req.body.password : req.session.userData.password;
           mobile = req.body.mobile ? req.body.mobile : req.session.userData.mobile;
           otpService.sendOtp(email,generatedOTP)
-          res.render('otpVerify');
+          res.render('otpVerify',{title:'Bonito | OTP Verify Page.'});
           setTimeout(() => {
             req.session.userData.generateOTP = null;
             console.log('deleted value otp from session');
