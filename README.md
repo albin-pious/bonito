@@ -84,6 +84,7 @@ Install the required Node.js packages by running the following command in the pr
 ```bash
 npm install
 
+```
 ...
 
 ## Installation
@@ -93,8 +94,9 @@ Follow these steps to set up and run the Bonito e-Commerce Web Application local
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/bonito-ecommerce.git
+git clone https://github.com/albin-pious/bonito.git
 cd bonito-ecommerce
+npm install
 
 
 
