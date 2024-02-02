@@ -10,7 +10,6 @@ Bonito e-Commerce is a stylish and user-friendly web application designed for fa
 - Usage
 - API Documentation
 - Database Schema
-- Contributing
 - License
 - Acknowledgments
 
@@ -332,7 +331,7 @@ The admin views are configured using EJS as the view engine with views located i
 
 ## Collections
 
-### 1. Users 
+### 1. users 
 - `_id`: ObjectId (Automatically generated unique identifier)
 - `name`: String (Username of the user)
 - `email`: String (email of the user)
@@ -343,8 +342,54 @@ The admin views are configured using EJS as the view engine with views located i
 - `addresses`: Object (Delivery address of user)
 - `reviews`: Array (Reviews of the user)
 - `coupons`: Array (Coupons of the user)
-### 2. Products
-- ``
+### 2. products
+- `_id`: ObjectId (Automatically generated unique identifier)
+- `title`: String (Title of the product)
+- `description`: String (Description of the product)
+- `price`: Int32 (Price of the product)
+- `offer`: String (Offer of the product)
+- `sizeUnits`: Object (Sizes of the product)
+- `brand`: String (Brand _id as string from brand collection)
+- `images`: Array (Product Images URLs)
+- `categoryId`: String (Category ID _id as string from category collection)
+### 3. order
+- `_id`: ObjectId (Automatically generated unique identifier)
+- `userId`: ObjectId (_id from user collection)
+- `productDetails`: Array (Detailes of Ordered products)
+- `totalPrice`: Int32 (Total amount of Ordered products)
+- `orderDate`: Date (purchased date)
+- `deliveryDate`: Date (delivery expect date)
+- `status`: String (Status of order)
+- `address`: Object (Delivery address)
+- `paymentType`: String (Method of payment)
+- `coupon`: Object (Applied coupon detailes)
+### 4. brand
+- `_id`: ObjectId (Automatically generated unique identifier)
+- `brandName`: String (Name of the brand)
+- `categoryId`: Array (_ids from category collection)
+### 5. cart
+- `_id`: ObjectId (Automatically generated unique identifier)
+- `userId`: ObjectId (_id from user collection)
+- `productId`: Array (product detailes in the cart)
+### 6. category
+- `_id`: ObjectId (Automatically generated unique identifier)
+- `categoryName`: String (Name of the category)
+### 7. coupons
+- `_id`: ObjectId (Automatically generated unique identifier)
+- `couponName`: String (Name of the coupon)
+- `couponCode`: String (Unique code of the coupon)
+- `couponOffer`: String (Offer of the coupon)
+- `minAmount`: String (Minimum Purchase required)
+- `expireDate`: Date (expire date)
+- `brand`: String (_id from brand collection or 'ALL' brnads)
+- `category`: String (_id from category collection or 'ALL' brnads)
+- `status`: String (coupon status)
+- `usedBy`: Int32 (No. of user use this coupon)
+- `apply`: String (Where to give coupon to user)
+### 5. wishlist
+- `_id`: ObjectId (Automatically generated unique identifier)
+- `userId`: ObjectId (_id from user collection)
+- `productId`: Array (product detailes in the cart)
 
 
 
