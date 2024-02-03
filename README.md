@@ -2,8 +2,6 @@
 
 Bonito e-Commerce is a stylish and user-friendly web application designed for fashion enthusiasts. This e-Commerce store specializes in offering a wide range of fashion-related dresses for online shoppers. The application is built using Node.js and MongoDB, providing a seamless and secure shopping experience.
 
-![Application Image Samples](/Product_images/bonito_images1.jpg)
-
 ## **Table of Contents**
 - Introduction
 - Requirements
@@ -12,8 +10,6 @@ Bonito e-Commerce is a stylish and user-friendly web application designed for fa
 - Usage
 - API Documentation
 - Database Schema
-- License
-- Acknowledgments
 
 ## **Introduction**
 
